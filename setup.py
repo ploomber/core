@@ -15,7 +15,10 @@ with open('src/ploomber_core/__init__.py', 'rb') as f:
 
 REQUIRES = []
 
-DEV = []
+DEV = [
+    'pytest',
+    'flake8',
+]
 
 setup(
     name='ploomber_core',
