@@ -1,2 +1,1 @@
-# ploomber-core
-Core module shared across projects.
+# ploomber_core
