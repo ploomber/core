@@ -44,7 +44,9 @@ import posthog
 
 from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
-from ploomber import __version__
+from ploomber import __version__ as ploomber_version
+from soorgeon import __version__ as soorgeon_version
+from soopervisor import __version__ as soopervisor_version
 
 TELEMETRY_VERSION = '0.3'
 DEFAULT_HOME_DIR = '~/.ploomber'
@@ -86,6 +88,15 @@ class Internal(Config):
 
     def uid_default(self):
         return str(uuid4())
+
+
+def get_version(package_name):
+    if package_name == 'ploomber':
+        return ploomber_version
+    elif package_name == 'soorgeon':
+        return soorgeon_version
+    else:
+        return soopervisor_version
 
 
 def python_version():
@@ -292,7 +303,7 @@ def get_latest_version(package_name):
         latest = data['info']['version']
         return latest
     except Exception:
-        return __version__
+        return get_version(package_name)
     finally:
         conn.close()
 
@@ -342,12 +353,13 @@ def check_version(package_name):
     latest = get_latest_version(package_name)
 
     # If latest version, do nothing
-    if __version__ == latest:
+    ver = get_version(package_name)
+    if ver == latest:
         return
 
     click.secho(
         f"There's a new {package_name} version available ({latest}), "
-        f"you're running {__version__}. To upgrade: "
+        f"you're running {ver}. To upgrade: "
         f"pip install {package_name} --upgrade",
         fg='yellow')
 
@@ -436,7 +448,7 @@ def log_api(action, package_name, client_time=None,
         metadata['dag'] = parse_dag(metadata['dag'])
 
     os = get_os()
-    product_version = __version__
+    product_version = get_version(package_name)
     online = is_online()
     environment = get_env()
 

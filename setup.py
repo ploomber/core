@@ -19,7 +19,11 @@ DEV = [
     'pytest',
     'flake8',
     'click',
-    'pyyaml'
+    'pyyaml',
+    'ploomber',
+    'soorgeon',
+    'soopervisor',
+    'posthog'
 ]
 
 setup(
