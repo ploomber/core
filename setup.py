@@ -18,6 +18,8 @@ REQUIRES = []
 DEV = [
     'pytest',
     'flake8',
+    'click',
+    'pyyaml'
 ]
 
 setup(
