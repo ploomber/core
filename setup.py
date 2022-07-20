@@ -20,10 +20,7 @@ DEV = [
     'flake8',
     'click',
     'pyyaml',
-    'ploomber',
-    'soorgeon',
-    'soopervisor',
-    'posthog'
+    'posthog',
 ]
 
 setup(

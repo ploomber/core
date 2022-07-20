@@ -44,9 +44,6 @@ import posthog
 
 from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
-from ploomber import __version__ as ploomber_version
-from soorgeon import __version__ as soorgeon_version
-from soopervisor import __version__ as soopervisor_version
 
 TELEMETRY_VERSION = '0.3'
 DEFAULT_HOME_DIR = '~/.ploomber'
@@ -88,15 +85,6 @@ class Internal(Config):
 
     def uid_default(self):
         return str(uuid4())
-
-
-def get_version(package_name):
-    if package_name == 'ploomber':
-        return ploomber_version
-    elif package_name == 'soorgeon':
-        return soorgeon_version
-    else:
-        return soopervisor_version
 
 
 def python_version():
@@ -290,7 +278,7 @@ def check_first_time_usage():
     return first_time
 
 
-def get_latest_version(package_name):
+def get_latest_version(package_name, version):
     """
     The function checks for the latest available ploomber version
     uid file doesn't exist.
@@ -303,7 +291,7 @@ def get_latest_version(package_name):
         latest = data['info']['version']
         return latest
     except Exception:
-        return get_version(package_name)
+        return version
     finally:
         conn.close()
 
@@ -328,7 +316,7 @@ def email_registered():
     return settings.user_email
 
 
-def check_version(package_name):
+def check_version(package_name, version):
     """
     The function checks if the user runs the latest version
     This check will be skipped if the version_check_enabled is set to False
@@ -350,16 +338,15 @@ def check_version(package_name):
 
     # check latest version (this is an expensive call since it hits pypi.org)
     # so we only ping the server when it's been 2 days
-    latest = get_latest_version(package_name)
+    latest = get_latest_version(package_name, version)
 
     # If latest version, do nothing
-    ver = get_version(package_name)
-    if ver == latest:
+    if version == latest:
         return
 
     click.secho(
         f"There's a new {package_name} version available ({latest}), "
-        f"you're running {ver}. To upgrade: "
+        f"you're running {version}. To upgrade: "
         f"pip install {package_name} --upgrade",
         fg='yellow')
 
@@ -367,7 +354,7 @@ def check_version(package_name):
     internal.last_version_check = now
 
 
-def _get_telemetry_info(package_name):
+def _get_telemetry_info(package_name, version):
     """
     The function checks for the local config and uid files, returns the right
     values according to the config file (True/False). In addition it checks
@@ -377,7 +364,7 @@ def _get_telemetry_info(package_name):
     telemetry_enabled = check_telemetry_enabled()
 
     # Check latest version
-    check_version(package_name)
+    check_version(package_name, version)
 
     if telemetry_enabled:
         # Check first time install
@@ -400,7 +387,7 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     return event_id, uid, action, client_time, elapsed_time
 
 
-def log_api(action, package_name, client_time=None,
+def log_api(action, package_name, version, client_time=None,
             total_runtime=None, metadata=None):
     """
     This function logs through an API call, assigns parameters if missing like
@@ -413,7 +400,8 @@ def log_api(action, package_name, client_time=None,
     if client_time is None:
         client_time = datetime.datetime.now()
 
-    (telemetry_enabled, uid, is_install) = _get_telemetry_info(package_name)
+    (telemetry_enabled, uid, is_install) = \
+        _get_telemetry_info(package_name, version)
 
     # NOTE: this should not happen anymore
     if 'NO_UID' in uid:
@@ -448,7 +436,7 @@ def log_api(action, package_name, client_time=None,
         metadata['dag'] = parse_dag(metadata['dag'])
 
     os = get_os()
-    product_version = get_version(package_name)
+    product_version = version
     online = is_online()
     environment = get_env()
 
@@ -484,14 +472,17 @@ def log_api(action, package_name, client_time=None,
 
 # NOTE: should we log differently depending on the error type?
 # NOTE: how should we handle chained exceptions?
-def log_call(action, pkn, payload=False):
+def log_call(action, pkn, ver, payload=False):
     """Runs a function and logs it
     """
     def _log_call(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             _payload = dict()
-            log_api(action=f'{action}-started', package_name=pkn, metadata={'argv': sys.argv})
+            log_api(action=f'{action}-started',
+                    package_name=pkn,
+                    version=ver,
+                    metadata={'argv': sys.argv})
             start = datetime.datetime.now()
 
             try:
@@ -503,6 +494,7 @@ def log_call(action, pkn, payload=False):
                 log_api(
                     action=f'{action}-error',
                     package_name=pkn,
+                    version=ver,
                     total_runtime=str(datetime.datetime.now() - start),
                     metadata={
                         # can we log None to posthog?
@@ -515,6 +507,7 @@ def log_call(action, pkn, payload=False):
             else:
                 log_api(action=f'{action}-success',
                         package_name=pkn,
+                        version=ver,
                         total_runtime=str(datetime.datetime.now() - start),
                         metadata={
                             'argv': sys.argv,

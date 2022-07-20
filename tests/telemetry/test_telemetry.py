@@ -237,7 +237,8 @@ def test_os_type(monkeypatch, os_param):
 
 
 def test_full_telemetry_info(ignore_env_var_and_set_tmp_default_home_dir):
-    (stat_enabled, uid, is_install) = telemetry._get_telemetry_info('ploomber')
+    (stat_enabled, uid, is_install) = \
+        telemetry._get_telemetry_info('ploomber', '0.14.0')
     assert stat_enabled is True
     assert isinstance(uid, str)
     assert is_install is True
@@ -270,7 +271,7 @@ def test_stats_off(monkeypatch):
     mock = Mock()
     posthog_mock = Mock()
     mock.patch(telemetry, '_get_telemetry_info', (False, 'TestUID'))
-    telemetry.log_api("test_action", "ploomber")
+    telemetry.log_api("test_action", "ploomber", "0.14.0")
 
     assert posthog_mock.call_count == 0
 
@@ -279,7 +280,7 @@ def test_offline_stats(monkeypatch):
     mock = Mock()
     posthog_mock = Mock()
     mock.patch(telemetry, 'is_online', False)
-    telemetry.log_api("test_action", "ploom")
+    telemetry.log_api("test_action", "ploomber", "0.14.0")
 
     assert posthog_mock.call_count == 0
 
@@ -313,7 +314,7 @@ def test_conf_file_after_version_check(tmp_directory, monkeypatch):
     version_path.write_text(uid_content)
 
     # Test that conf file has all required fields
-    telemetry.check_version('ploomber')
+    telemetry.check_version('ploomber', '0.14.0')
     with version_path.open("r") as file:
         conf = yaml.safe_load(file)
     assert 'uid' in conf.keys()
@@ -323,7 +324,7 @@ def test_conf_file_after_version_check(tmp_directory, monkeypatch):
 def test_get_version_timeout():
     # Check the total run time is less than 1.5 secs
     start_time = datetime.datetime.now()
-    telemetry.get_latest_version('ploomber')
+    telemetry.get_latest_version('ploomber', "0.14.0")
     end_time = datetime.datetime.now()
     total_runtime = end_time - start_time
     assert total_runtime < datetime.timedelta(milliseconds=1500)
@@ -341,7 +342,6 @@ def write_to_conf_file(tmp_directory, monkeypatch, last_check):
 
 def test_version_skips_when_updated(tmp_directory, capsys, monkeypatch):
     # Path conf file
-    monkeypatch.setattr(telemetry, 'ploomber_version', '0.14.8')
     mock_version = Mock()
     mock_version.return_value = '0.14.8'
     monkeypatch.setattr(telemetry, 'get_latest_version', mock_version)
@@ -352,7 +352,7 @@ def test_version_skips_when_updated(tmp_directory, capsys, monkeypatch):
         last_check='2022-01-20 10:51:41.082376')  # version='0.14.8',
 
     # Test no warning when same version encountered
-    telemetry.check_version('ploomber')
+    telemetry.check_version('ploomber', "0.14.8")
     captured = capsys.readouterr()
     print(captured.out)
     assert "ploomber version" not in captured.out
@@ -367,7 +367,7 @@ def test_user_output_on_different_versions(tmp_directory, capsys, monkeypatch):
     mock_version.return_value = '0.14.0'
 
     # Check now that the date is different there is an upgrade warning
-    telemetry.check_version('ploomber')
+    telemetry.check_version('ploomber', "0.14.1")
     captured = capsys.readouterr()
     assert "ploomber version" in captured.out
 
@@ -378,7 +378,7 @@ def test_no_output_latest_version(tmp_directory, capsys, monkeypatch):
                        monkeypatch=monkeypatch,
                        last_check=datetime.datetime.now())
 
-    telemetry.check_version('ploomber')
+    telemetry.check_version('ploomber', "0.14.0")
     captured = capsys.readouterr()
     assert "ploomber version" not in captured.out
 
@@ -391,7 +391,7 @@ def test_output_on_date_diff(tmp_directory, capsys, monkeypatch):
                        monkeypatch=monkeypatch,
                        last_check='2022-01-20 10:51:41.082376')
     version_path = Path('stats') / 'uid.yaml'
-    telemetry.check_version('ploomber')
+    telemetry.check_version('ploomber', "0.14.0")
     captured = capsys.readouterr()
     assert "ploomber version" in captured.out
 
@@ -419,22 +419,25 @@ def mock_telemetry(monkeypatch):
 
 
 def test_log_call_success(mock_telemetry):
-    @telemetry.log_call('some-action')
+    @telemetry.log_call('some-action', 'ploomber', "0.14.0")
     def my_function():
         pass
 
     my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', package_name='ploomber',
+             version='0.14.0', metadata=dict(argv=sys.argv)),
         call(action='some-action-success',
+             package_name='ploomber',
+             version='0.14.0',
              total_runtime='1',
              metadata=dict(argv=sys.argv)),
     ])
 
 
 def test_log_call_exception(mock_telemetry):
-    @telemetry.log_call('some-action')
+    @telemetry.log_call('some-action', 'ploomber', "0.14.0")
     def my_function():
         raise ValueError('some error')
 
@@ -442,8 +445,11 @@ def test_log_call_exception(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', package_name='ploomber',
+             version='0.14.0', metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
+             package_name='ploomber',
+             version='0.14.0',
              total_runtime='1',
              metadata={
                  'type': None,
@@ -454,7 +460,7 @@ def test_log_call_exception(mock_telemetry):
 
 
 def test_log_call_logs_type(mock_telemetry):
-    @telemetry.log_call('some-action')
+    @telemetry.log_call('some-action', 'ploomber', "0.14.0")
     def my_function():
         raise BaseException('some error', type_='some-type')
 
@@ -462,8 +468,11 @@ def test_log_call_logs_type(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', package_name='ploomber',
+             version='0.14.0', metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
+             package_name='ploomber',
+             version='0.14.0',
              total_runtime='1',
              metadata={
                  'type': 'some-type',
@@ -474,7 +483,7 @@ def test_log_call_logs_type(mock_telemetry):
 
 
 def test_log_call_add_payload_error(mock_telemetry):
-    @telemetry.log_call('some-action', payload=True)
+    @telemetry.log_call('some-action', 'ploomber', "0.14.0", payload=True)
     def my_function(payload):
         payload['dag'] = 'value'
         raise BaseException('some error', type_='some-type')
@@ -483,8 +492,11 @@ def test_log_call_add_payload_error(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', package_name='ploomber',
+             version='0.14.0', metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
+             package_name='ploomber',
+             version='0.14.0',
              total_runtime='1',
              metadata={
                  'type': 'some-type',
@@ -496,15 +508,18 @@ def test_log_call_add_payload_error(mock_telemetry):
 
 
 def test_log_call_add_payload_success(mock_telemetry):
-    @telemetry.log_call('some-action', payload=True)
+    @telemetry.log_call('some-action', 'ploomber', "0.14.0", payload=True)
     def my_function(payload):
         payload['dag'] = 'value'
 
     my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', package_name='ploomber',
+             version='0.14.0', metadata=dict(argv=sys.argv)),
         call(action='some-action-success',
+             package_name='ploomber',
+             version='0.14.0',
              total_runtime='1',
              metadata={
                  'argv': sys.argv,
@@ -522,6 +537,6 @@ def test_hides_posthog_log(caplog, monkeypatch):
     monkeypatch.setattr(posthog, 'capture', fake_capture)
 
     with caplog.at_level(logging.ERROR, logger="posthog"):
-        telemetry.log_api('some-test', 'ploomber')
+        telemetry.log_api('some-test', 'ploomber', "0.14.0")
 
     assert len(caplog.records) == 0
