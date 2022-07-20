@@ -13,7 +13,11 @@ with open('src/ploomber_core/__init__.py', 'rb') as f:
         ast.literal_eval(
             _version_re.search(f.read().decode('utf-8')).group(1)))
 
-REQUIRES = []
+REQUIRES = [
+    'click',
+    'pyyaml',
+    'posthog',
+]
 
 DEV = [
     'pytest',
