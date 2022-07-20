@@ -13,7 +13,7 @@ import posthog
 from ploomber_core.telemetry import telemetry
 from ploomber_core.telemetry.validate_inputs import str_param, opt_str_param
 
-from ploomber.exceptions import BaseException
+from ploomber_core.exceptions import BaseException
 
 
 @pytest.fixture()
