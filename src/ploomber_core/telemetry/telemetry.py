@@ -484,14 +484,14 @@ def log_api(action, package_name, client_time=None,
 
 # NOTE: should we log differently depending on the error type?
 # NOTE: how should we handle chained exceptions?
-def log_call(action, payload=False):
+def log_call(action, pkn, payload=False):
     """Runs a function and logs it
     """
     def _log_call(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             _payload = dict()
-            log_api(action=f'{action}-started', metadata={'argv': sys.argv})
+            log_api(action=f'{action}-started', package_name=pkn, metadata={'argv': sys.argv})
             start = datetime.datetime.now()
 
             try:
@@ -502,6 +502,7 @@ def log_call(action, payload=False):
             except Exception as e:
                 log_api(
                     action=f'{action}-error',
+                    package_name=pkn,
                     total_runtime=str(datetime.datetime.now() - start),
                     metadata={
                         # can we log None to posthog?
@@ -513,6 +514,7 @@ def log_call(action, payload=False):
                 raise e
             else:
                 log_api(action=f'{action}-success',
+                        package_name=pkn,
                         total_runtime=str(datetime.datetime.now() - start),
                         metadata={
                             'argv': sys.argv,
