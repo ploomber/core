@@ -392,9 +392,9 @@ def log_api(action, package_name, version, client_time=None,
     """
     This function logs through an API call, assigns parameters if missing like
     timestamp, event id and stats information.
-    
+
     package_name is the name of whichever package calling the function,
-    for example 'ploomber'. And version is the running version of that 
+    for example 'ploomber'. And version is the running version of that
     pacakge such as '0.14.0'
     """
     metadata = metadata or {}
@@ -480,7 +480,7 @@ def log_call(action, pkn, ver, payload=False):
     """
     Runs a function and logs it
     pkn is the name of whichever package calling the function,
-    for example 'ploomber'. And ver is the running version of that 
+    for example 'ploomber'. And ver is the running version of that
     pacakge, for example '0.14.0'
     """
     def _log_call(func):
