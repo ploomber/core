@@ -164,7 +164,7 @@ def test_first_usage(monkeypatch, tmp_directory):
 def test_conda_env(monkeypatch, inside_conda_env, tmp_directory):
     # Set a conda parameterized env
     env = telemetry.is_conda()
-    assert env is True
+    assert bool(env) is True
     env = telemetry.get_env()
     assert env == 'conda'
 
