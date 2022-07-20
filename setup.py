@@ -25,7 +25,7 @@ DEV = [
 ]
 
 setup(
-    name='ploomber_core',
+    name='ploomber-core',
     version=VERSION,
     description=None,
     license=None,
@@ -42,7 +42,5 @@ setup(
     extras_require={
         'dev': DEV,
     },
-    entry_points={
-        # 'console_scripts': ['ploomber_core=ploomber_core.cli:cli'],
-    },
+    entry_points={},
 )

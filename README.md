@@ -1,1 +1,1 @@
-# ploomber_core
+# ploomber-core

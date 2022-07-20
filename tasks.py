@@ -8,7 +8,7 @@ def setup(c, version=None):
     """
     version = version or '3.9'
     suffix = '' if version == '3.9' else version.replace('.', '')
-    env_name = f'ploomber_core{suffix}'
+    env_name = f'ploomber-core{suffix}'
 
     c.run(f'conda create --name {env_name} python={version} --yes')
     c.run('eval "$(conda shell.bash hook)" '
