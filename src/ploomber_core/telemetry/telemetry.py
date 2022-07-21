@@ -50,7 +50,6 @@ DEFAULT_HOME_DIR = '~/.ploomber'
 DEFAULT_USER_CONF = 'config.yaml'
 DEFAULT_PLOOMBER_CONF = 'uid.yaml'
 CONF_DIR = "stats"
-posthog.project_api_key = 'phc_P9SpSeypyPwxrMdFn2edOOEooQioF2axppyEeDwtMSP'
 PLOOMBER_HOME_DIR = os.getenv("PLOOMBER_HOME_DIR")
 # posthog client logs errors which are confusing for users
 # https://github.com/PostHog/posthog-python/blob/fd92502d990499a61804034e3feb7e17f64a14a1/posthog/consumer.py#L81
@@ -387,16 +386,18 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     return event_id, uid, action, client_time, elapsed_time
 
 
-def log_api(action, package_name, version, client_time=None,
-            total_runtime=None, metadata=None):
+def log_api(action, package_name, version, api_key,
+            client_time=None, total_runtime=None, metadata=None):
     """
     This function logs through an API call, assigns parameters if missing like
     timestamp, event id and stats information.
 
-    package_name is the name of whichever package calling the function,
-    for example 'ploomber'. And version is the running version of that
-    pacakge such as '0.14.0'
+    pkn is the name of the package calling the function, such as 'ploomber'.
+    ver is the running version of that pacakge, for example '0.14.0'.
+    key is the api_key for the posthog project related to that package.
     """
+
+    posthog.project_api_key = api_key
     metadata = metadata or {}
 
     event_id = uuid4()
@@ -476,12 +477,13 @@ def log_api(action, package_name, version, client_time=None,
 
 # NOTE: should we log differently depending on the error type?
 # NOTE: how should we handle chained exceptions?
-def log_call(action, pkn, ver, payload=False):
+def log_call(action, pkn, ver, key, payload=False):
     """
     Runs a function and logs it
     pkn is the name of whichever package calling the function,
-    for example 'ploomber'. And ver is the running version of that
-    pacakge, for example '0.14.0'
+    for example 'ploomber'.
+    ver is the running version of that pacakge, for example '0.14.0'.
+    key is the api_key for the posthog project related to that package.
     """
     def _log_call(func):
         @wraps(func)
@@ -490,6 +492,7 @@ def log_call(action, pkn, ver, payload=False):
             log_api(action=f'{action}-started',
                     package_name=pkn,
                     version=ver,
+                    api_key=key,
                     metadata={'argv': sys.argv})
             start = datetime.datetime.now()
 
@@ -503,6 +506,7 @@ def log_call(action, pkn, ver, payload=False):
                     action=f'{action}-error',
                     package_name=pkn,
                     version=ver,
+                    api_key=key,
                     total_runtime=str(datetime.datetime.now() - start),
                     metadata={
                         # can we log None to posthog?
@@ -516,6 +520,7 @@ def log_call(action, pkn, ver, payload=False):
                 log_api(action=f'{action}-success',
                         package_name=pkn,
                         version=ver,
+                        api_key=key,
                         total_runtime=str(datetime.datetime.now() - start),
                         metadata={
                             'argv': sys.argv,
