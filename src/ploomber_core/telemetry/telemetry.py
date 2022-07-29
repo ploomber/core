@@ -386,149 +386,147 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     return event_id, uid, action, client_time, elapsed_time
 
 
-def log_api(action, package_name, version, api_key,
-            client_time=None, total_runtime=None, metadata=None):
-    """
-    This function logs through an API call, assigns parameters if missing like
-    timestamp, event id and stats information.
-
-    pkn is the name of the package calling the function, such as 'ploomber'.
-    ver is the running version of that pacakge, for example '0.14.0'.
-    key is the api_key for the posthog project related to that package.
-    """
-
-    posthog.project_api_key = api_key
-    metadata = metadata or {}
-
-    event_id = uuid4()
-
-    if client_time is None:
-        client_time = datetime.datetime.now()
-
-    (telemetry_enabled, uid, is_install) = \
-        _get_telemetry_info(package_name, version)
-
-    # NOTE: this should not happen anymore
-    if 'NO_UID' in uid:
-        metadata['uid_issue'] = uid
-        uid = None
-
-    py_version = python_version()
-    docker_container = is_docker()
-    cloud = is_cloud_user()
-    email = email_registered()
-    colab = is_colab()
-    if colab:
-        metadata['colab'] = colab
-
-    paperspace = is_paperspace()
-    if paperspace:
-        metadata['paperspace'] = paperspace
-
-    slurm = is_slurm()
-    if slurm:
-        metadata['slurm'] = slurm
-
-    airflow = is_airflow()
-    if airflow:
-        metadata['airflow'] = airflow
-
-    argo = is_argo()
-    if argo:
-        metadata['argo'] = argo
-
-    if 'dag' in metadata:
-        metadata['dag'] = parse_dag(metadata['dag'])
-
-    os = get_os()
-    product_version = version
-    online = is_online()
-    environment = get_env()
-
-    if telemetry_enabled and online:
-        (event_id, uid, action, client_time,
-         elapsed_time) = validate_entries(event_id, uid, action, client_time,
-                                          total_runtime)
-        props = {
-            'event_id': event_id,
-            'user_id': uid,
-            'action': action,
-            'client_time': str(client_time),
-            'metadata': metadata,
-            'total_runtime': total_runtime,
-            'python_version': py_version,
-            f'{package_name}_version': product_version,
-            'docker_container': docker_container,
-            'cloud': cloud,
-            'email': email,
-            'os': os,
-            'environment': environment,
-            'metadata': metadata,
-            'telemetry_version': TELEMETRY_VERSION
-        }
-
-        if is_install:
-            posthog.capture(distinct_id=uid,
-                            event='install_success_indirect',
-                            properties=props)
-
-        posthog.capture(distinct_id=uid, event=action, properties=props)
+class Telemetry:
+    def __init__(self, api_key, package_name, version):
+        self.api_key = api_key
+        self.version = version
+        self.package_name = package_name
 
 
-# NOTE: should we log differently depending on the error type?
-# NOTE: how should we handle chained exceptions?
-def log_call(action, pkn, ver, key, payload=False):
-    """
-    Runs a function and logs it
-    pkn is the name of whichever package calling the function,
-    for example 'ploomber'.
-    ver is the running version of that pacakge, for example '0.14.0'.
-    key is the api_key for the posthog project related to that package.
-    """
-    def _log_call(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            _payload = dict()
-            log_api(action=f'{action}-started',
-                    package_name=pkn,
-                    version=ver,
-                    api_key=key,
-                    metadata={'argv': sys.argv})
-            start = datetime.datetime.now()
+    def log_api(self, action, client_time=None,
+                total_runtime=None, metadata=None):
+        """
+        This function logs through an API call, assigns parameters if missing like
+        timestamp, event id and stats information.
 
-            try:
-                if payload:
-                    result = func(_payload, *args, **kwargs)
-                else:
-                    result = func(*args, **kwargs)
-            except Exception as e:
-                log_api(
-                    action=f'{action}-error',
-                    package_name=pkn,
-                    version=ver,
-                    api_key=key,
-                    total_runtime=str(datetime.datetime.now() - start),
-                    metadata={
-                        # can we log None to posthog?
-                        'type': getattr(e, 'type_', None),
-                        'exception': str(e),
-                        'argv': sys.argv,
-                        **_payload
-                    })
-                raise e
-            else:
-                log_api(action=f'{action}-success',
-                        package_name=pkn,
-                        version=ver,
-                        api_key=key,
+        pkn is the name of the package calling the function, such as 'ploomber'.
+        ver is the running version of that pacakge, for example '0.14.0'.
+        key is the api_key for the posthog project related to that package.
+        """
+
+        posthog.project_api_key = self.api_key
+        metadata = metadata or {}
+
+        event_id = uuid4()
+
+        if client_time is None:
+            client_time = datetime.datetime.now()
+
+        (telemetry_enabled, uid, is_install) = \
+            _get_telemetry_info(self.package_name, self.version)
+
+        # NOTE: this should not happen anymore
+        if 'NO_UID' in uid:
+            metadata['uid_issue'] = uid
+            uid = None
+
+        py_version = python_version()
+        docker_container = is_docker()
+        cloud = is_cloud_user()
+        email = email_registered()
+        colab = is_colab()
+        if colab:
+            metadata['colab'] = colab
+
+        paperspace = is_paperspace()
+        if paperspace:
+            metadata['paperspace'] = paperspace
+
+        slurm = is_slurm()
+        if slurm:
+            metadata['slurm'] = slurm
+
+        airflow = is_airflow()
+        if airflow:
+            metadata['airflow'] = airflow
+
+        argo = is_argo()
+        if argo:
+            metadata['argo'] = argo
+
+        if 'dag' in metadata:
+            metadata['dag'] = parse_dag(metadata['dag'])
+
+        os = get_os()
+        product_version = self.version
+        online = is_online()
+        environment = get_env()
+
+        if telemetry_enabled and online:
+            (event_id, uid, action, client_time,
+            elapsed_time) = validate_entries(event_id, uid, action, client_time,
+                                            total_runtime)
+            props = {
+                'event_id': event_id,
+                'user_id': uid,
+                'action': action,
+                'client_time': str(client_time),
+                'metadata': metadata,
+                'total_runtime': total_runtime,
+                'python_version': py_version,
+                f'{self.package_name}_version': product_version,
+                'docker_container': docker_container,
+                'cloud': cloud,
+                'email': email,
+                'os': os,
+                'environment': environment,
+                'metadata': metadata,
+                'telemetry_version': TELEMETRY_VERSION
+            }
+
+            if is_install:
+                posthog.capture(distinct_id=uid,
+                                event='install_success_indirect',
+                                properties=props)
+
+            posthog.capture(distinct_id=uid, event=action, properties=props)
+
+
+    # NOTE: should we log differently depending on the error type?
+    # NOTE: how should we handle chained exceptions?
+    def log_call(self, action, payload=False):
+        """
+        Runs a function and logs it
+        pkn is the name of whichever package calling the function,
+        for example 'ploomber'.
+        ver is the running version of that pacakge, for example '0.14.0'.
+        key is the api_key for the posthog project related to that package.
+        """
+        def _log_call(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                _payload = dict()
+                self.log_api(action=f'{action}-started',
+                        metadata={'argv': sys.argv})
+                start = datetime.datetime.now()
+
+                try:
+                    if payload:
+                        result = func(_payload, *args, **kwargs)
+                    else:
+                        result = func(*args, **kwargs)
+                except Exception as e:
+                    self.log_api(
+                        action=f'{action}-error',
                         total_runtime=str(datetime.datetime.now() - start),
                         metadata={
+                            # can we log None to posthog?
+                            'type': getattr(e, 'type_', None),
+                            'exception': str(e),
                             'argv': sys.argv,
                             **_payload
                         })
+                    raise e
+                else:
+                    self.log_api(action=f'{action}-success',
+                            total_runtime=str(datetime.datetime.now() - start),
+                            metadata={
+                                'argv': sys.argv,
+                                **_payload
+                            })
 
-            return result
+                return result
 
-        return wrapper
+            return wrapper
 
-    return _log_call
+        return _log_call

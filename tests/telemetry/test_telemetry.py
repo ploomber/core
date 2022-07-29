@@ -273,7 +273,9 @@ def test_stats_off(monkeypatch):
     mock = Mock()
     posthog_mock = Mock()
     mock.patch(telemetry, '_get_telemetry_info', (False, 'TestUID'))
-    telemetry.log_api("test_action", "ploomber", "0.14.0", MOCK_API_KEY)
+
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    telemetry_instance.log_api("test_action")
 
     assert posthog_mock.call_count == 0
 
@@ -282,7 +284,9 @@ def test_offline_stats(monkeypatch):
     mock = Mock()
     posthog_mock = Mock()
     mock.patch(telemetry, 'is_online', False)
-    telemetry.log_api("test_action", "ploomber", "0.14.0", MOCK_API_KEY)
+
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    telemetry_instance.log_api("test_action")
 
     assert posthog_mock.call_count == 0
 
@@ -415,13 +419,15 @@ def mock_telemetry(monkeypatch):
     mock = Mock()
     mock_dt = Mock()
     mock_dt.now.side_effect = [1, 2]
-    monkeypatch.setattr(telemetry, 'log_api', mock)
+    monkeypatch.setattr(telemetry.Telemetry, 'log_api', mock)
     monkeypatch.setattr(telemetry.datetime, 'datetime', mock_dt)
     yield mock
 
 
 def test_log_call_success(mock_telemetry):
-    @telemetry.log_call('some-action', 'ploomber', "0.14.0", MOCK_API_KEY)
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    
+    @telemetry_instance.log_call('some-action')
     def my_function():
         pass
 
@@ -429,21 +435,16 @@ def test_log_call_success(mock_telemetry):
 
     mock_telemetry.assert_has_calls([
         call(action='some-action-started',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              metadata=dict(argv=sys.argv)),
         call(action='some-action-success',
-             package_name='ploomber',
-             api_key=MOCK_API_KEY,
-             version='0.14.0',
              total_runtime='1',
              metadata=dict(argv=sys.argv)),
     ])
 
 
 def test_log_call_exception(mock_telemetry):
-    @telemetry.log_call('some-action', 'ploomber', "0.14.0", MOCK_API_KEY)
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    @telemetry_instance.log_call('some-action')
     def my_function():
         raise ValueError('some error')
 
@@ -452,14 +453,8 @@ def test_log_call_exception(mock_telemetry):
 
     mock_telemetry.assert_has_calls([
         call(action='some-action-started',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              total_runtime='1',
              metadata={
                  'type': None,
@@ -470,7 +465,9 @@ def test_log_call_exception(mock_telemetry):
 
 
 def test_log_call_logs_type(mock_telemetry):
-    @telemetry.log_call('some-action', 'ploomber', "0.14.0", MOCK_API_KEY)
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+
+    @telemetry_instance.log_call('some-action')
     def my_function():
         raise BaseException('some error', type_='some-type')
 
@@ -479,14 +476,8 @@ def test_log_call_logs_type(mock_telemetry):
 
     mock_telemetry.assert_has_calls([
         call(action='some-action-started',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              total_runtime='1',
              metadata={
                  'type': 'some-type',
@@ -497,8 +488,9 @@ def test_log_call_logs_type(mock_telemetry):
 
 
 def test_log_call_add_payload_error(mock_telemetry):
-    @telemetry.log_call('some-action', 'ploomber',
-                        "0.14.0", MOCK_API_KEY, payload=True)
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+
+    @telemetry_instance.log_call('some-action', payload=True)
     def my_function(payload):
         payload['dag'] = 'value'
         raise BaseException('some error', type_='some-type')
@@ -507,14 +499,9 @@ def test_log_call_add_payload_error(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
+        call(action='some-action-started',
              metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              total_runtime='1',
              metadata={
                  'type': 'some-type',
@@ -526,8 +513,9 @@ def test_log_call_add_payload_error(mock_telemetry):
 
 
 def test_log_call_add_payload_success(mock_telemetry):
-    @telemetry.log_call('some-action', 'ploomber',
-                        "0.14.0", MOCK_API_KEY, payload=True)
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+
+    @telemetry_instance.log_call('some-action', payload=True)
     def my_function(payload):
         payload['dag'] = 'value'
 
@@ -535,14 +523,8 @@ def test_log_call_add_payload_success(mock_telemetry):
 
     mock_telemetry.assert_has_calls([
         call(action='some-action-started',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              metadata=dict(argv=sys.argv)),
         call(action='some-action-success',
-             package_name='ploomber',
-             version='0.14.0',
-             api_key=MOCK_API_KEY,
              total_runtime='1',
              metadata={
                  'argv': sys.argv,
@@ -558,8 +540,9 @@ def test_hides_posthog_log(caplog, monkeypatch):
         log.error('some error happened')
 
     monkeypatch.setattr(posthog, 'capture', fake_capture)
+    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
 
     with caplog.at_level(logging.ERROR, logger="posthog"):
-        telemetry.log_api('some-test', 'ploomber', "0.14.0", MOCK_API_KEY)
+        telemetry_instance.log_api("test_action")
 
     assert len(caplog.records) == 0
