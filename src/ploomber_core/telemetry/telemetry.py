@@ -388,20 +388,21 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
 
 class Telemetry:
     def __init__(self, api_key, package_name, version):
+        """
+        package_name is the name of the package calling the function.
+        version is the running version of that pacakge.
+        api_key is the api_key for the posthog project.
+        """
         self.api_key = api_key
         self.version = version
         self.package_name = package_name
 
-
     def log_api(self, action, client_time=None,
                 total_runtime=None, metadata=None):
         """
-        This function logs through an API call, assigns parameters if missing like
-        timestamp, event id and stats information.
+        This function logs through an API call, assigns parameters
+        if missing like timestamp, event id and stats information.
 
-        pkn is the name of the package calling the function, such as 'ploomber'.
-        ver is the running version of that pacakge, for example '0.14.0'.
-        key is the api_key for the posthog project related to that package.
         """
 
         posthog.project_api_key = self.api_key
@@ -454,8 +455,10 @@ class Telemetry:
 
         if telemetry_enabled and online:
             (event_id, uid, action, client_time,
-            elapsed_time) = validate_entries(event_id, uid, action, client_time,
-                                            total_runtime)
+             elapsed_time) = validate_entries(event_id,
+                                              uid, action,
+                                              client_time,
+                                              total_runtime)
             props = {
                 'event_id': event_id,
                 'user_id': uid,
@@ -481,7 +484,6 @@ class Telemetry:
 
             posthog.capture(distinct_id=uid, event=action, properties=props)
 
-
     # NOTE: should we log differently depending on the error type?
     # NOTE: how should we handle chained exceptions?
     def log_call(self, action, payload=False):
@@ -497,7 +499,7 @@ class Telemetry:
             def wrapper(*args, **kwargs):
                 _payload = dict()
                 self.log_api(action=f'{action}-started',
-                        metadata={'argv': sys.argv})
+                             metadata={'argv': sys.argv})
                 start = datetime.datetime.now()
 
                 try:
@@ -518,12 +520,12 @@ class Telemetry:
                         })
                     raise e
                 else:
-                    self.log_api(action=f'{action}-success',
-                            total_runtime=str(datetime.datetime.now() - start),
-                            metadata={
-                                'argv': sys.argv,
-                                **_payload
-                            })
+                    self.log_api(
+                         action=f'{action}-success',
+                         total_runtime=str(datetime.datetime.now() - start),
+                         metadata={
+                            'argv': sys.argv,
+                            **_payload})
 
                 return result
 

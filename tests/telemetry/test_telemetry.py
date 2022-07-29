@@ -274,8 +274,8 @@ def test_stats_off(monkeypatch):
     posthog_mock = Mock()
     mock.patch(telemetry, '_get_telemetry_info', (False, 'TestUID'))
 
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
-    telemetry_instance.log_api("test_action")
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry.log_api("test_action")
 
     assert posthog_mock.call_count == 0
 
@@ -285,8 +285,8 @@ def test_offline_stats(monkeypatch):
     posthog_mock = Mock()
     mock.patch(telemetry, 'is_online', False)
 
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
-    telemetry_instance.log_api("test_action")
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry.log_api("test_action")
 
     assert posthog_mock.call_count == 0
 
@@ -425,9 +425,9 @@ def mock_telemetry(monkeypatch):
 
 
 def test_log_call_success(mock_telemetry):
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
-    
-    @telemetry_instance.log_call('some-action')
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+
+    @_telemetry.log_call('some-action')
     def my_function():
         pass
 
@@ -443,8 +443,9 @@ def test_log_call_success(mock_telemetry):
 
 
 def test_log_call_exception(mock_telemetry):
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
-    @telemetry_instance.log_call('some-action')
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+
+    @_telemetry.log_call('some-action')
     def my_function():
         raise ValueError('some error')
 
@@ -465,9 +466,9 @@ def test_log_call_exception(mock_telemetry):
 
 
 def test_log_call_logs_type(mock_telemetry):
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
 
-    @telemetry_instance.log_call('some-action')
+    @_telemetry.log_call('some-action')
     def my_function():
         raise BaseException('some error', type_='some-type')
 
@@ -488,9 +489,9 @@ def test_log_call_logs_type(mock_telemetry):
 
 
 def test_log_call_add_payload_error(mock_telemetry):
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
 
-    @telemetry_instance.log_call('some-action', payload=True)
+    @_telemetry.log_call('some-action', payload=True)
     def my_function(payload):
         payload['dag'] = 'value'
         raise BaseException('some error', type_='some-type')
@@ -513,9 +514,9 @@ def test_log_call_add_payload_error(mock_telemetry):
 
 
 def test_log_call_add_payload_success(mock_telemetry):
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
 
-    @telemetry_instance.log_call('some-action', payload=True)
+    @_telemetry.log_call('some-action', payload=True)
     def my_function(payload):
         payload['dag'] = 'value'
 
@@ -540,9 +541,9 @@ def test_hides_posthog_log(caplog, monkeypatch):
         log.error('some error happened')
 
     monkeypatch.setattr(posthog, 'capture', fake_capture)
-    telemetry_instance = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
 
     with caplog.at_level(logging.ERROR, logger="posthog"):
-        telemetry_instance.log_api("test_action")
+        _telemetry.log_api("test_action")
 
     assert len(caplog.records) == 0
