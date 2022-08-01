@@ -22,6 +22,8 @@ REQUIRES = [
 DEV = [
     'pytest',
     'flake8',
+    'twine',
+    'invoke',
 ]
 
 setup(
