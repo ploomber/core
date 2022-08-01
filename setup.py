@@ -24,6 +24,7 @@ DEV = [
     'flake8',
     'twine',
     'invoke',
+    'pkgmt',
 ]
 
 setup(
