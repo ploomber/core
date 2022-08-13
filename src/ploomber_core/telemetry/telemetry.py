@@ -256,9 +256,13 @@ def check_telemetry_enabled():
     """
     Check if the user allows us to use telemetry. In order of precedence:
 
-    1. If PLOOMBER_STATS_ENABLED defined, check its value
-    2. Otherwise use the value in stats_enabled in the config.yaml file
+    1. If the CI env var is set, return False (GitHub Actions)
+    2. If PLOOMBER_STATS_ENABLED defined, check its value
+    3. Otherwise use the value in stats_enabled in the config.yaml file
     """
+    if 'CI' in os.environ:
+        return False
+
     if 'PLOOMBER_STATS_ENABLED' in os.environ:
         return os.environ['PLOOMBER_STATS_ENABLED'].lower() == 'true'
 
@@ -387,6 +391,7 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
 
 
 class Telemetry:
+
     def __init__(self, api_key, package_name, version):
         """
         package_name is the name of the package calling the function.
@@ -397,8 +402,11 @@ class Telemetry:
         self.version = version
         self.package_name = package_name
 
-    def log_api(self, action, client_time=None,
-                total_runtime=None, metadata=None):
+    def log_api(self,
+                action,
+                client_time=None,
+                total_runtime=None,
+                metadata=None):
         """
         This function logs through an API call, assigns parameters
         if missing like timestamp, event id and stats information.
@@ -455,10 +463,8 @@ class Telemetry:
 
         if telemetry_enabled and online:
             (event_id, uid, action, client_time,
-             elapsed_time) = validate_entries(event_id,
-                                              uid, action,
-                                              client_time,
-                                              total_runtime)
+             elapsed_time) = validate_entries(event_id, uid, action,
+                                              client_time, total_runtime)
             props = {
                 'event_id': event_id,
                 'user_id': uid,
@@ -494,7 +500,9 @@ class Telemetry:
         ver is the running version of that pacakge, for example '0.14.0'.
         key is the api_key for the posthog project related to that package.
         """
+
         def _log_call(func):
+
             @wraps(func)
             def wrapper(*args, **kwargs):
                 _payload = dict()
@@ -520,12 +528,13 @@ class Telemetry:
                         })
                     raise e
                 else:
-                    self.log_api(
-                         action=f'{action}-success',
-                         total_runtime=str(datetime.datetime.now() - start),
-                         metadata={
-                            'argv': sys.argv,
-                            **_payload})
+                    self.log_api(action=f'{action}-success',
+                                 total_runtime=str(datetime.datetime.now() -
+                                                   start),
+                                 metadata={
+                                     'argv': sys.argv,
+                                     **_payload
+                                 })
 
                 return result
 

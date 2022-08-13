@@ -127,6 +127,13 @@ def test_check_stats_enabled(ignore_env_var_and_set_tmp_default_home_dir):
     assert stats_enabled is True
 
 
+def test_disable_stats_if_ci_env(ignore_env_var_and_set_tmp_default_home_dir,
+                                 monkeypatch):
+    monkeypatch.setenv('CI', 'true')
+    stats_enabled = telemetry.check_telemetry_enabled()
+    assert stats_enabled is False
+
+
 @pytest.mark.parametrize(
     'yaml_value, expected_first, env_value, expected_second', [
         ['true', True, 'false', False],
@@ -184,6 +191,7 @@ def test_pip_env(monkeypatch, inside_pip_env):
 # Ref: https://stackoverflow.com/questions/43878953/how-does-one-detect-if-
 # one-is-running-within-a-docker-container-within-python
 def test_docker_env(monkeypatch):
+
     def mock(input_path):
         return 'dockerenv' in str(input_path)
 
@@ -434,8 +442,7 @@ def test_log_call_success(mock_telemetry):
     my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started',
-             metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=sys.argv)),
         call(action='some-action-success',
              total_runtime='1',
              metadata=dict(argv=sys.argv)),
@@ -453,8 +460,7 @@ def test_log_call_exception(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started',
-             metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
              total_runtime='1',
              metadata={
@@ -476,8 +482,7 @@ def test_log_call_logs_type(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started',
-             metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
              total_runtime='1',
              metadata={
@@ -500,8 +505,7 @@ def test_log_call_add_payload_error(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started',
-             metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=sys.argv)),
         call(action='some-action-error',
              total_runtime='1',
              metadata={
@@ -523,8 +527,7 @@ def test_log_call_add_payload_success(mock_telemetry):
     my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started',
-             metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=sys.argv)),
         call(action='some-action-success',
              total_runtime='1',
              metadata={
@@ -536,6 +539,7 @@ def test_log_call_add_payload_success(mock_telemetry):
 
 @pytest.mark.allow_posthog
 def test_hides_posthog_log(caplog, monkeypatch):
+
     def fake_capture(*args, **kwargs):
         log = logging.getLogger("posthog")
         log.error('some error happened')
