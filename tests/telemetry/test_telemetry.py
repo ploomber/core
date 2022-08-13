@@ -34,11 +34,15 @@ def ignore_ploomber_stats_enabled_env_var(monkeypatch):
     """
     GitHub Actions configuration scripts set the PLOOMBER_STATS_ENABLED
     environment variable to prevent CI events from going to posthog, this
-    inferes with some tests. This fixture removes its value temporarily
-    """
+    inferes with some tests. This fixture removes its value temporarily.
 
+    GitHub actions also sets CI
+    """
     if 'PLOOMBER_STATS_ENABLED' in os.environ:
         monkeypatch.delenv('PLOOMBER_STATS_ENABLED', raising=True)
+
+    if 'CI' in os.environ:
+        monkeypatch.delenv('CI', raising=True)
 
 
 @pytest.fixture
