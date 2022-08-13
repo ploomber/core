@@ -131,9 +131,14 @@ def test_check_stats_enabled(ignore_env_var_and_set_tmp_default_home_dir):
     assert stats_enabled is True
 
 
-def test_disable_stats_if_ci_env(ignore_env_var_and_set_tmp_default_home_dir,
+@pytest.mark.parametrize('name', [
+    'CI',
+    'READTHEDOCS',
+])
+def test_disable_stats_if_ci_env(name,
+                                 ignore_env_var_and_set_tmp_default_home_dir,
                                  monkeypatch):
-    monkeypatch.setenv('CI', 'true')
+    monkeypatch.setenv(name, 'true')
     stats_enabled = telemetry.check_telemetry_enabled()
     assert stats_enabled is False
 

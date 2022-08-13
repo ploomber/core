@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 0.0.4dev
+* Disable telemetry call if `READTHEDOCS` environment variable is set
 
 ## 0.0.3 (2022-08-13)
 * Disable telemetry call if `CI` environment variable is set (to ignore [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables))

@@ -256,11 +256,11 @@ def check_telemetry_enabled():
     """
     Check if the user allows us to use telemetry. In order of precedence:
 
-    1. If the CI env var is set, return False (GitHub Actions)
+    1. If the CI (GtiHub Actioons) or READTHEDOCS env var is set, return False
     2. If PLOOMBER_STATS_ENABLED defined, check its value
     3. Otherwise use the value in stats_enabled in the config.yaml file
     """
-    if 'CI' in os.environ:
+    if 'CI' in os.environ or 'READTHEDOCS' in os.environ:
         return False
 
     if 'PLOOMBER_STATS_ENABLED' in os.environ:
