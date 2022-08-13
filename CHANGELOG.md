@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.0.4dev
+## 0.0.4 (2022-08-13)
 * Disable telemetry call if `READTHEDOCS` environment variable is set
 
 ## 0.0.3 (2022-08-13)
