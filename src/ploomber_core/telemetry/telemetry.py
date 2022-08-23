@@ -457,7 +457,6 @@ class Telemetry:
             metadata['dag'] = parse_dag(metadata['dag'])
 
         os = get_os()
-        product_version = self.version
         online = is_online()
         environment = get_env()
 
@@ -473,7 +472,8 @@ class Telemetry:
                 'metadata': metadata,
                 'total_runtime': total_runtime,
                 'python_version': py_version,
-                f'{self.package_name}_version': product_version,
+                'version': self.version,
+                'package_name': self.package_name,
                 'docker_container': docker_container,
                 'cloud': cloud,
                 'email': email,

@@ -1,6 +1,6 @@
 import pathlib
 import sys
-from unittest.mock import Mock, call
+from unittest.mock import Mock, call, ANY
 from pathlib import Path
 import datetime
 import logging
@@ -560,3 +560,38 @@ def test_hides_posthog_log(caplog, monkeypatch):
         _telemetry.log_api("test_action")
 
     assert len(caplog.records) == 0
+
+
+# TODO: test more of the values (I'm adding ANY to many of them)
+def test_log_api_stored_values(monkeypatch):
+    mock_info = Mock(return_value=(True, 'fake-uuid', False))
+    mock = Mock()
+    monkeypatch.setattr(telemetry.posthog, 'capture', mock)
+    monkeypatch.setattr(telemetry, '_get_telemetry_info', mock_info)
+
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, 'some-package', '1.2.2')
+
+    _telemetry.log_api('some-action')
+
+    py_version = (f"{sys.version_info.major}.{sys.version_info.minor}."
+                  f"{sys.version_info.micro}")
+
+    mock.assert_called_once_with(distinct_id='fake-uuid',
+                                 event='some-action',
+                                 properties={
+                                     'event_id': ANY,
+                                     'user_id': 'fake-uuid',
+                                     'action': 'some-action',
+                                     'client_time': ANY,
+                                     'metadata': {},
+                                     'total_runtime': None,
+                                     'python_version': py_version,
+                                     'version': '1.2.2',
+                                     'package_name': 'some-package',
+                                     'docker_container': ANY,
+                                     'cloud': ANY,
+                                     'email': ANY,
+                                     'os': ANY,
+                                     'environment': ANY,
+                                     'telemetry_version': ANY,
+                                 })
