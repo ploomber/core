@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.0.6dev
+## 0.0.6 (2022-08-23)
 * Fixing telemetry logging of `package_name` and `version`
 * Sanitizing `sys.argv` in telemetry module
 
