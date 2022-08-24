@@ -438,6 +438,7 @@ def mock_telemetry(monkeypatch):
     mock_dt.now.side_effect = [1, 2]
     monkeypatch.setattr(telemetry.Telemetry, 'log_api', mock)
     monkeypatch.setattr(telemetry.datetime, 'datetime', mock_dt)
+    monkeypatch.setattr(telemetry.sys, 'argv', ['/path/to/bin', 'arg'])
     yield mock
 
 
@@ -451,10 +452,10 @@ def test_log_call_success(mock_telemetry):
     my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
         call(action='some-action-success',
              total_runtime='1',
-             metadata=dict(argv=sys.argv)),
+             metadata=dict(argv=['bin', 'arg'])),
     ])
 
 
@@ -469,13 +470,13 @@ def test_log_call_exception(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
         call(action='some-action-error',
              total_runtime='1',
              metadata={
                  'type': None,
                  'exception': 'some error',
-                 'argv': sys.argv,
+                 'argv': ['bin', 'arg'],
              })
     ])
 
@@ -491,13 +492,13 @@ def test_log_call_logs_type(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
         call(action='some-action-error',
              total_runtime='1',
              metadata={
                  'type': 'some-type',
                  'exception': 'some error',
-                 'argv': sys.argv,
+                 'argv': ['bin', 'arg'],
              })
     ])
 
@@ -514,13 +515,13 @@ def test_log_call_add_payload_error(mock_telemetry):
         my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
         call(action='some-action-error',
              total_runtime='1',
              metadata={
                  'type': 'some-type',
                  'exception': 'some error',
-                 'argv': sys.argv,
+                 'argv': ['bin', 'arg'],
                  'dag': 'value',
              })
     ])
@@ -536,11 +537,11 @@ def test_log_call_add_payload_success(mock_telemetry):
     my_function()
 
     mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=sys.argv)),
+        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
         call(action='some-action-success',
              total_runtime='1',
              metadata={
-                 'argv': sys.argv,
+                 'argv': ['bin', 'arg'],
                  'dag': 'value',
              })
     ])
@@ -595,3 +596,84 @@ def test_log_api_stored_values(monkeypatch):
                                      'environment': ANY,
                                      'telemetry_version': ANY,
                                  })
+
+
+def test_log_call_stored_values(monkeypatch):
+    mock_info = Mock(return_value=(True, 'fake-uuid', False))
+    mock = Mock()
+    monkeypatch.setattr(telemetry.posthog, 'capture', mock)
+    monkeypatch.setattr(telemetry, '_get_telemetry_info', mock_info)
+    monkeypatch.setattr(telemetry.sys, 'argv',
+                        ['/path/to/bin', 'arg2', 'arg2'])
+
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, 'some-package', '1.2.2')
+
+    @_telemetry.log_call(action='some-action')
+    def my_function():
+        pass
+
+    my_function()
+
+    py_version = (f"{sys.version_info.major}.{sys.version_info.minor}."
+                  f"{sys.version_info.micro}")
+
+    assert mock.call_args_list == [
+        call(distinct_id='fake-uuid',
+             event='some-action-started',
+             properties={
+                 'event_id': ANY,
+                 'user_id': 'fake-uuid',
+                 'action': 'some-action-started',
+                 'client_time': ANY,
+                 'metadata': {
+                     'argv': ['bin', 'arg2', 'arg2']
+                 },
+                 'total_runtime': None,
+                 'python_version': py_version,
+                 'version': '1.2.2',
+                 'package_name': 'some-package',
+                 'docker_container': ANY,
+                 'cloud': None,
+                 'email': None,
+                 'os': ANY,
+                 'environment': ANY,
+                 'telemetry_version': ANY
+             }),
+        call(distinct_id='fake-uuid',
+             event='some-action-success',
+             properties={
+                 'event_id': ANY,
+                 'user_id': 'fake-uuid',
+                 'action': 'some-action-success',
+                 'client_time': ANY,
+                 'metadata': {
+                     'argv': ['bin', 'arg2', 'arg2']
+                 },
+                 'total_runtime': ANY,
+                 'python_version': py_version,
+                 'version': '1.2.2',
+                 'package_name': 'some-package',
+                 'docker_container': ANY,
+                 'cloud': None,
+                 'email': None,
+                 'os': ANY,
+                 'environment': ANY,
+                 'telemetry_version': ANY
+             })
+    ]
+
+
+@pytest.mark.parametrize('argv, expected', [
+    [
+        ['/path/to/bin', '--arg val', '--something'],
+        ['bin', '--arg val', '--something'],
+    ],
+    [['bin'], ['bin']],
+    [None, None],
+    [[], None],
+    [1, None],
+    [object(), None],
+])
+def test_get_sanitized_sys_argv(argv, expected, monkeypatch):
+    monkeypatch.setattr(telemetry.sys, 'argv', argv)
+    assert telemetry.get_sanitized_argv() == expected

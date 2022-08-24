@@ -1,6 +1,8 @@
 # CHANGELOG
 
 ## 0.0.6dev
+* Fixing telemetry logging of `package_name` and `version`
+* Sanitizing `sys.argv` in telemetry module
 
 ## 0.0.5 (2022-08-21)
 * Adds `@deprecated.method`

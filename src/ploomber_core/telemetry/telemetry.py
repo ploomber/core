@@ -507,7 +507,7 @@ class Telemetry:
             def wrapper(*args, **kwargs):
                 _payload = dict()
                 self.log_api(action=f'{action}-started',
-                             metadata={'argv': sys.argv})
+                             metadata={'argv': get_sanitized_argv()})
                 start = datetime.datetime.now()
 
                 try:
@@ -523,7 +523,7 @@ class Telemetry:
                             # can we log None to posthog?
                             'type': getattr(e, 'type_', None),
                             'exception': str(e),
-                            'argv': sys.argv,
+                            'argv': get_sanitized_argv(),
                             **_payload
                         })
                     raise e
@@ -532,7 +532,7 @@ class Telemetry:
                                  total_runtime=str(datetime.datetime.now() -
                                                    start),
                                  metadata={
-                                     'argv': sys.argv,
+                                     'argv': get_sanitized_argv(),
                                      **_payload
                                  })
 
@@ -541,3 +541,14 @@ class Telemetry:
             return wrapper
 
         return _log_call
+
+
+def get_sanitized_argv():
+    if not sys.argv:
+        return None
+    else:
+        try:
+            bin = Path(sys.argv[0]).name
+            return [bin] + sys.argv[1:]
+        except Exception:
+            return None
