@@ -1,3 +1,4 @@
+import time
 import warnings
 import abc
 from collections.abc import Mapping
@@ -13,6 +14,7 @@ class Config(abc.ABC):
     For examples, see test_config.py or the concrete classes
     (UserSettings, Internal)
     """
+
     def __init__(self):
         self._init_values()
 
@@ -45,6 +47,13 @@ class Config(abc.ABC):
     def _load_from_file(self):
         path = self.path()
         text = path.read_text()
+
+        if not text:
+            # NOTE: hack to prevent race condition when using
+            # multiprocessing we need to move to a long-term solution
+            time.sleep(1)
+            text = path.read_text()
+
         content = yaml.safe_load(text)
 
         for key, type_ in self.__annotations__.items():
