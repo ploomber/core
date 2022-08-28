@@ -1,4 +1,3 @@
-import time
 import warnings
 import abc
 from collections.abc import Mapping
@@ -24,7 +23,6 @@ class Config(abc.ABC):
         if not path.exists():
             defaults = self._get_data()
             path.write_text(yaml.dump(defaults))
-            self._set_data(defaults)
         else:
             try:
                 content = self._load_from_file()
@@ -48,13 +46,15 @@ class Config(abc.ABC):
         path = self.path()
         text = path.read_text()
 
-        if not text:
-            # NOTE: hack to prevent race condition when using
-            # multiprocessing we need to move to a long-term solution
-            time.sleep(1)
-            text = path.read_text()
-
-        content = yaml.safe_load(text)
+        if text:
+            content = yaml.safe_load(text)
+        else:
+            # this might happen if using multiprocessing: the first process
+            # won't see the file so it'll proceed writing it, but upcoming
+            # processes might see an empty file (file has been created but
+            # writing hasn't finished). In such case, text will be None. If
+            # so, we simply load the default values
+            content = self._get_data()
 
         for key, type_ in self.__annotations__.items():
             value = content.get(key, None)
