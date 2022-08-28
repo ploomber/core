@@ -21,7 +21,7 @@ class Config(abc.ABC):
         path = self.path()
 
         if not path.exists():
-            defaults = self._get_data()
+            defaults = self._get_defaults()
             path.write_text(yaml.dump(defaults))
         else:
             try:
@@ -31,14 +31,14 @@ class Config(abc.ABC):
                 warnings.warn(f'Error loading {str(path)!r}: {e}\n\n'
                               'reverting to default values')
                 loaded = False
-                content = self._get_data()
+                content = self._get_defaults()
 
             if loaded and not isinstance(content, Mapping):
                 warnings.warn(
                     f'Error loading {str(path)!r}. Expected a dictionary '
                     f'but got {type(content).__name__}, '
                     'reverting to default values')
-                content = self._get_data()
+                content = self._get_defaults()
 
             self._set_data(content)
 
@@ -54,7 +54,7 @@ class Config(abc.ABC):
             # processes might see an empty file (file has been created but
             # writing hasn't finished). In such case, text will be None. If
             # so, we simply load the default values
-            content = self._get_data()
+            content = self._get_defaults()
 
         for key, type_ in self.__annotations__.items():
             value = content.get(key, None)
@@ -70,7 +70,7 @@ class Config(abc.ABC):
 
         return content
 
-    def _get_data(self):
+    def _get_defaults(self):
         """Extract values from the annotations and return a dictionary
         """
         return {key: getattr(self, key) for key in self.__annotations__}
@@ -102,7 +102,7 @@ class Config(abc.ABC):
     def _write(self):
         """Writes data to the YAML file
         """
-        data = self._get_data()
+        data = self._get_defaults()
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
