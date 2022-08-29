@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+import warnings
 from pathlib import Path
 
 import pytest
@@ -142,3 +144,15 @@ def test_restores_values_if_wrong_type(tmp_directory, content, number, string):
     assert 'Corrupted config' in records[0].message.args[0]
     assert cfg.number == number
     assert cfg.string == string
+
+
+def instantiate_config(n):
+    # raise an error if a warning is displayd
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        MyConfig()
+
+
+def test_race_condition(tmp_directory):
+    with Pool(processes=8) as p:
+        p.map(instantiate_config, range(20))
