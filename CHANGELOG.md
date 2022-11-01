@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.0.8dev
+
 ## 0.0.7 (2022-11-01)
 * Fixes race condition when loading and writing config file ([#12](https://github.com/ploomber/core/issues/12))
 * Fixes check for Colab
