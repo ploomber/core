@@ -164,9 +164,8 @@ def get_env():
 def is_colab():
     """Returns: True for Google Colab env"""
     try:
-        import google.colab as colab
-        if colab:
-            in_colab = True
+        import google.colab  # noqa
+        in_colab = True
     except ModuleNotFoundError:
         in_colab = False
     finally:
