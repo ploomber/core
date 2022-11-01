@@ -212,7 +212,9 @@ def test_docker_env(monkeypatch):
 # Ref https://stackoverflow.com/questions/53581278/test-if-
 # notebook-is-running-on-google-colab
 def test_colab_env(monkeypatch):
-    monkeypatch.setenv('COLAB_GPU', True)
+    m = Mock()
+    sys.modules['google'] = m
+    sys.modules['google.colab'] = m
     colab = telemetry.is_colab()
     assert colab is True
 
@@ -584,7 +586,9 @@ def test_log_api_stored_values(monkeypatch):
                                      'user_id': 'fake-uuid',
                                      'action': 'some-action',
                                      'client_time': ANY,
-                                     'metadata': {},
+                                     'metadata': {
+                                         'colab': True
+                                     },
                                      'total_runtime': None,
                                      'python_version': py_version,
                                      'version': '1.2.2',
@@ -626,14 +630,15 @@ def test_log_call_stored_values(monkeypatch):
                  'action': 'some-action-started',
                  'client_time': ANY,
                  'metadata': {
-                     'argv': ['bin', 'arg2', 'arg2']
+                     'argv': ['bin', 'arg2', 'arg2'],
+                     'colab': True
                  },
                  'total_runtime': None,
                  'python_version': py_version,
                  'version': '1.2.2',
                  'package_name': 'some-package',
                  'docker_container': ANY,
-                 'cloud': None,
+                 'cloud': ANY,
                  'email': None,
                  'os': ANY,
                  'environment': ANY,
@@ -647,14 +652,15 @@ def test_log_call_stored_values(monkeypatch):
                  'action': 'some-action-success',
                  'client_time': ANY,
                  'metadata': {
-                     'argv': ['bin', 'arg2', 'arg2']
+                     'argv': ['bin', 'arg2', 'arg2'],
+                     'colab': True
                  },
                  'total_runtime': ANY,
                  'python_version': py_version,
                  'version': '1.2.2',
                  'package_name': 'some-package',
                  'docker_container': ANY,
-                 'cloud': None,
+                 'cloud': ANY,
                  'email': None,
                  'os': ANY,
                  'environment': ANY,
