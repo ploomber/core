@@ -212,6 +212,9 @@ def test_docker_env(monkeypatch):
 # Ref https://stackoverflow.com/questions/53581278/test-if-
 # notebook-is-running-on-google-colab
 def test_colab_env(monkeypatch):
+    colab = telemetry.is_colab()
+    assert colab is False
+
     m = Mock()
     sys.modules['google'] = m
     sys.modules['google.colab'] = m
