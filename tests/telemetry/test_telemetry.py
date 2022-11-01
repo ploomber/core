@@ -212,7 +212,9 @@ def test_docker_env(monkeypatch):
 # Ref https://stackoverflow.com/questions/53581278/test-if-
 # notebook-is-running-on-google-colab
 def test_colab_env(monkeypatch):
-    monkeypatch.setenv('COLAB_GPU', True)
+    m = Mock()
+    sys.modules['google'] = m
+    sys.modules['google.colab'] = m
     colab = telemetry.is_colab()
     assert colab is True
 
@@ -584,7 +586,9 @@ def test_log_api_stored_values(monkeypatch):
                                      'user_id': 'fake-uuid',
                                      'action': 'some-action',
                                      'client_time': ANY,
-                                     'metadata': {},
+                                     'metadata': {
+                                         'colab': True
+                                     },
                                      'total_runtime': None,
                                      'python_version': py_version,
                                      'version': '1.2.2',

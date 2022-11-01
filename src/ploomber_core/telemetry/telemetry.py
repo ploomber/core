@@ -163,7 +163,14 @@ def get_env():
 
 def is_colab():
     """Returns: True for Google Colab env"""
-    return "COLAB_GPU" in os.environ
+    try:
+        import google.colab as colab
+        if colab:
+            in_colab = True
+    except ModuleNotFoundError:
+        in_colab = False
+    finally:
+        return in_colab
 
 
 def is_paperspace():
