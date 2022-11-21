@@ -83,7 +83,12 @@ class Internal(Config):
         return Path(check_dir_exist(CONF_DIR), DEFAULT_PLOOMBER_CONF)
 
     def uid_default(self):
-        return str(uuid4())
+        config = self.load_config()
+        if config:
+            _uid = config.get("uid")
+            return _uid
+        else:
+            return str(uuid4())
 
     def is_first_time(self):
         config = self.load_config()
