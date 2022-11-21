@@ -260,7 +260,9 @@ def test_os_type(monkeypatch, os_param):
     assert os_type == os_param
 
 
-def test_full_telemetry_info(ignore_env_var_and_set_tmp_default_home_dir):
+def test_full_telemetry_info(monkeypatch,
+                             ignore_env_var_and_set_tmp_default_home_dir):
+    monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
     (stat_enabled, uid, is_install) = \
         telemetry._get_telemetry_info('ploomber', '0.14.0')
     assert stat_enabled is True
@@ -387,6 +389,8 @@ def test_version_skips_when_updated(tmp_directory, capsys, monkeypatch):
 
 
 def test_user_output_on_different_versions(tmp_directory, capsys, monkeypatch):
+    monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
+
     mock_version = Mock()
     monkeypatch.setattr(telemetry, 'get_latest_version', mock_version)
     write_to_conf_file(tmp_directory=tmp_directory,
@@ -412,6 +416,7 @@ def test_no_output_latest_version(tmp_directory, capsys, monkeypatch):
 
 
 def test_output_on_date_diff(tmp_directory, capsys, monkeypatch):
+    monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
     # Warning should be caught since the date and version are off
     mock_version = Mock()
     monkeypatch.setattr(telemetry, 'get_latest_version', mock_version)
