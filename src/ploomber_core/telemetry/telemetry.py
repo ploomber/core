@@ -83,7 +83,20 @@ class Internal(Config):
         return Path(check_dir_exist(CONF_DIR), DEFAULT_PLOOMBER_CONF)
 
     def uid_default(self):
-        return str(uuid4())
+        config = self.load_config()
+        if config:
+            _uid = config.get("uid")
+            return _uid
+        else:
+            return str(uuid4())
+
+    def is_first_time(self):
+        config = self.load_config()
+        if config:
+            first_time = config.get("first_time")
+            return first_time
+        else:
+            return True
 
 
 def python_version():
@@ -281,9 +294,9 @@ def check_first_time_usage():
     The function checks for first time usage if the conf file exists and the
     uid file doesn't exist.
     """
-    internal = Internal()
-    first_time = internal.first_time
-    internal.first_time = False
+    first_time = internal.is_first_time()
+    if first_time:
+        internal.first_time = False
     return first_time
 
 
@@ -337,7 +350,6 @@ def check_version(package_name, version):
     if not settings.version_check_enabled:
         return
 
-    internal = Internal()
     now = datetime.datetime.now()
 
     # Check if we already notified in the last 2 days
@@ -379,8 +391,6 @@ def _get_telemetry_info(package_name, version):
         # Check first time install
         is_install = check_first_time_usage()
 
-        # if not uid, create
-        internal = Internal()
         return telemetry_enabled, internal.uid, is_install
     else:
         return False, '', False
@@ -558,3 +568,6 @@ def get_sanitized_argv():
             return [bin] + sys.argv[1:]
         except Exception:
             return None
+
+
+internal = Internal()

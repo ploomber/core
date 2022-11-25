@@ -1,7 +1,7 @@
 import warnings
 import abc
 from collections.abc import Mapping
-
+from pathlib import Path
 import yaml
 
 
@@ -44,10 +44,10 @@ class Config(abc.ABC):
 
     def _load_from_file(self):
         path = self.path()
-        text = path.read_text()
+        config = self.load_config()
 
-        if text:
-            content = yaml.safe_load(text)
+        if config:
+            content = config
         else:
             # this might happen if using multiprocessing: the first process
             # won't see the file so it'll proceed writing it, but upcoming
@@ -111,6 +111,17 @@ class Config(abc.ABC):
         else:
             super().__setattr__(name, value)
             self._write()
+
+    def load_config(self):
+        config = None
+        path = self.path()
+        is_config_exist = Path.is_file(path)
+        if is_config_exist:
+            text = path.read_text()
+            if text:
+                config = yaml.safe_load(text)
+
+        return config
 
     @abc.abstractclassmethod
     def path(cls):
