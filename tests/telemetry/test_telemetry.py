@@ -557,7 +557,7 @@ def test_log_call_add_payload_success(mock_telemetry):
     ])
 
 
-def test_permissions_error(tmp_directory, monkeypatch, capsys):
+def test_permissions_error(monkeypatch):
     stats = Path('stats')
     stats.mkdir(mode=444)
     monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
