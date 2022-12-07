@@ -557,6 +557,15 @@ def test_log_call_add_payload_success(mock_telemetry):
     ])
 
 
+def test_permissions_error(tmp_directory, monkeypatch, capsys):
+    stats = Path('stats')
+    stats.mkdir(mode=444)
+    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
+
+    with pytest.raises(PermissionError):
+        telemetry.Internal()
+
+
 @pytest.mark.allow_posthog
 def test_hides_posthog_log(caplog, monkeypatch):
 

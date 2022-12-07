@@ -572,5 +572,5 @@ def get_sanitized_argv():
 
 try:
     internal = Internal()
-except Exception:
+except PermissionError:
     pass
