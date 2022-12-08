@@ -5,6 +5,8 @@ from pathlib import Path
 import datetime
 import logging
 import os
+import stat
+import shutil
 
 import pytest
 import yaml
@@ -557,9 +559,13 @@ def test_log_call_add_payload_success(mock_telemetry):
     ])
 
 
-def test_permissions_error(monkeypatch):
+def test_permissions_error(monkeypatch, capsys):
     stats = Path('stats')
-    stats.mkdir(mode=444)
+    if os.path.exists(stats):
+        shutil.rmtree(stats)
+
+    os.mkdir(stats)
+    os.chmod(stats, stat.S_IRUSR)
     monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
 
     with pytest.raises(PermissionError):
