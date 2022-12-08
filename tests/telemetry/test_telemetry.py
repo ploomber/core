@@ -560,6 +560,7 @@ def test_log_call_add_payload_success(mock_telemetry):
 
 
 def test_permissions_error(monkeypatch):
+    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
     stats = Path('stats')
 
     if os.path.exists(stats):
@@ -568,7 +569,6 @@ def test_permissions_error(monkeypatch):
 
     os.mkdir(stats)
     os.chmod(stats, stat.S_IRUSR)
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
 
     statinfo = os.stat(stats)
 
