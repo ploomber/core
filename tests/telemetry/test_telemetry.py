@@ -5,6 +5,8 @@ from pathlib import Path
 import datetime
 import logging
 import os
+import stat
+import shutil
 
 import pytest
 import yaml
@@ -555,6 +557,26 @@ def test_log_call_add_payload_success(mock_telemetry):
                  'dag': 'value',
              })
     ])
+
+
+def test_permissions_error(monkeypatch):
+    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
+    stats = Path('stats')
+
+    if os.path.exists(stats):
+        os.chmod(stats, 777)
+        shutil.rmtree(stats)
+
+    os.mkdir(stats)
+    os.chmod(stats, stat.S_IRUSR)
+
+    statinfo = os.stat(stats)
+
+    is_read_only = statinfo.st_mode == 16640
+
+    if is_read_only:
+        with pytest.raises(PermissionError):
+            telemetry.Internal()
 
 
 @pytest.mark.allow_posthog

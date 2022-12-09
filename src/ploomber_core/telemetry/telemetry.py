@@ -570,4 +570,7 @@ def get_sanitized_argv():
             return None
 
 
-internal = Internal()
+try:
+    internal = Internal()
+except PermissionError:
+    pass
