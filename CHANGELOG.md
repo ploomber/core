@@ -1,7 +1,8 @@
 # CHANGELOG
 
-## 0.0.10dev
-
+## 0.0.10 (2022-12-09)
+* Changing telemetry exception type
+* 
 ## 0.0.9 (2022-12-09)
 * Fixing issue of crashing telemetry when dir is read only
 
