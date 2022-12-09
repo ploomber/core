@@ -1,6 +1,7 @@
 # CHANGELOG
 
-## 0.0.9dev
+## 0.0.9 (2022-12-09)
+* Fixing issue of crashing telemetry when dir is read only
 
 ## 0.0.8 (2022-11-25)
 * Fixes telemetry duplicated events ([#19](https://github.com/ploomber/core/issues/19))
