@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.0.11dev
+
 ## 0.0.10 (2022-12-09)
 * Changing telemetry exception type
 * 
