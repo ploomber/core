@@ -362,6 +362,11 @@ def check_version(package_name, version):
     if not settings.version_check_enabled:
         return
 
+    # this feature is not documented. we added it to prevent the doctests
+    # from failing
+    if "PLOOMBER_VERSION_CHECK_DISABLED" in os.environ:
+        return
+
     now = datetime.datetime.now()
 
     # Check if we already notified in the last 2 days
