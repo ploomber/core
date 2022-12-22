@@ -1,0 +1,11 @@
+name: ploomber-core-doc
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - jupyter-book
+    - ..

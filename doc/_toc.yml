@@ -1,0 +1,14 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+parts:
+- caption: User Guide
+  chapters:
+  - file: deprecation
+  - file: dependencies
+  - file: telemetry
+- caption: Community
+  chapters:
+  - file: projects
