@@ -287,7 +287,7 @@ def check_telemetry_enabled():
     """
     Check if the user allows us to use telemetry. In order of precedence:
 
-    1. If the CI (GtiHub Actioons) or READTHEDOCS env var is set, return False
+    1. If the CI (GtiHub Actions) or READTHEDOCS env var is set, return False
     2. If PLOOMBER_STATS_ENABLED defined, check its value
     3. Otherwise use the value in stats_enabled in the config.yaml file
     """
@@ -420,13 +420,22 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
 class Telemetry:
     def __init__(self, api_key, package_name, version):
         """
-        package_name is the name of the package calling the function.
-        version is the running version of that pacakge.
-        api_key is the api_key for the posthog project.
+
+        Parameters
+        ----------
+        api_key : str
+            API key for the posthog project
+
+        package_name : str
+            Name of the package calling the function
+
+        version : str
+            Version of the package calling the function
+
         """
         self.api_key = api_key
-        self.version = version
         self.package_name = package_name
+        self.version = version
 
     def log_api(self, action, client_time=None, total_runtime=None, metadata=None):
         """
@@ -539,6 +548,83 @@ class Telemetry:
         group : str, default=None
             An arbitrary string to group events. You may use this to group calls
             to methods in the same class
+
+        Examples
+        --------
+        Log function call:
+
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> @telemetry.log_call()
+        ... def add(x, y):
+        ...     return x + y
+        >>> add(x=1, y=2)
+        3
+
+        Customize action name (by default, it'll use the name of the function):
+
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> @telemetry.log_call(action="sum")
+        ... def add(x, y):
+        ...     return x + y
+        >>> add(x=1, y=2)
+        3
+
+        Log extra data:
+
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> @telemetry.log_call(payload=True)
+        ... def add(payload, x, y):
+        ...     payload["key"] = "value to log"
+        ...     return x + y
+        >>> add(x=1, y=2)
+        3
+
+        Log input arguments:
+
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> @telemetry.log_call(log_args=True)
+        ... def add(x, y):
+        ...     return x + y
+        >>> add(x=1, y=2)
+        3
+
+        Ignore some input arguments:
+
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> @telemetry.log_call(log_args=True, ignore_args={"y"})
+        ... def add(x, y):
+        ...     return x + y
+        >>> add(x=1, y=2)
+        3
+
+        Log method calls in a class:
+
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> class MyClass:
+        ...     @telemetry.log_call(action="MyClass-add")
+        ...     def add(self, x, y):
+        ...         return x + y
+        >>> obj = MyClass()
+        >>> obj.add(x=1, y=2)
+        3
+
+        Group actions (e.g., methods in a class):
+
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> class MyClass:
+        ...     @telemetry.log_call(group="MyClass")
+        ...     def add(self, x, y):
+        ...         return x + y
+        >>> obj = MyClass()
+        >>> obj.add(x=1, y=2)
+        3
 
         """
         if ignore_args is None:

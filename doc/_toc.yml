@@ -9,6 +9,11 @@ parts:
   - file: deprecation
   - file: dependencies
   - file: telemetry
+
+- caption: API Reference
+  chapters:
+    - file: api
+
 - caption: Community
   chapters:
   - file: projects
