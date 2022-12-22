@@ -28,6 +28,8 @@ The data we collect is limited to:
     telemetry_version - Telemetry version
 
 """
+from copy import copy
+from inspect import signature, _empty
 import logging
 import datetime
 import http.client as httplib
@@ -45,10 +47,10 @@ import posthog
 from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
 
-TELEMETRY_VERSION = '0.3'
-DEFAULT_HOME_DIR = '~/.ploomber'
-DEFAULT_USER_CONF = 'config.yaml'
-DEFAULT_PLOOMBER_CONF = 'uid.yaml'
+TELEMETRY_VERSION = "0.3"
+DEFAULT_HOME_DIR = "~/.ploomber"
+DEFAULT_USER_CONF = "config.yaml"
+DEFAULT_PLOOMBER_CONF = "uid.yaml"
 CONF_DIR = "stats"
 PLOOMBER_HOME_DIR = os.getenv("PLOOMBER_HOME_DIR")
 # posthog client logs errors which are confusing for users
@@ -57,8 +59,8 @@ logging.getLogger("posthog").disabled = True
 
 
 class UserSettings(Config):
-    """User-customizable settings
-    """
+    """User-customizable settings"""
+
     version_check_enabled: bool = True
     cloud_key: str = None
     user_email: str = None
@@ -74,6 +76,7 @@ class Internal(Config):
     Internal file to store settings (not intended to be modified by the
     user)
     """
+
     last_version_check: datetime.datetime = None
     uid: str
     first_time: bool = True
@@ -105,9 +108,8 @@ def python_version():
 
 
 def is_online():
-    """Check if host is online
-    """
-    conn = httplib.HTTPSConnection('www.google.com', timeout=1)
+    """Check if host is online"""
+    conn = httplib.HTTPSConnection("www.google.com", timeout=1)
 
     try:
         conn.request("HEAD", "/")
@@ -119,14 +121,15 @@ def is_online():
 
 
 def is_docker():
-    """Will output if the code is within a container
-    """
+    """Will output if the code is within a container"""
     try:
-        cgroup = Path('/proc/self/cgroup')
-        docker_env = Path('/.dockerenv')
-        return (docker_env.exists() or cgroup.exists()
-                and any('docker' in line
-                        for line in cgroup.read_text().splitlines()))
+        cgroup = Path("/proc/self/cgroup")
+        docker_env = Path("/.dockerenv")
+        return (
+            docker_env.exists()
+            or cgroup.exists()
+            and any("docker" in line for line in cgroup.read_text().splitlines())
+        )
     except OSError:
         return False
 
@@ -137,7 +140,7 @@ def get_os():
     """
     os = platform.system()
     if os == "Darwin":
-        return 'MacOS'
+        return "MacOS"
     else:  # Windows/Linux are contained
         return os
 
@@ -146,9 +149,12 @@ def is_conda():
     """
     The function will tell if the code is running in a conda env
     """
-    conda_path = Path(sys.prefix, 'conda-meta')
-    return conda_path.exists() or os.environ.get(
-        "CONDA_PREFIX", False) or os.environ.get("CONDA_DEFAULT_ENV", False)
+    conda_path = Path(sys.prefix, "conda-meta")
+    return (
+        conda_path.exists()
+        or os.environ.get("CONDA_PREFIX", False)
+        or os.environ.get("CONDA_DEFAULT_ENV", False)
+    )
 
 
 def get_base_prefix_compat():
@@ -156,8 +162,11 @@ def get_base_prefix_compat():
     This function will find the pip virtualenv with different python versions.
     Get base/real prefix, or sys.prefix if there is none.
     """
-    return getattr(sys, "base_prefix", None) or sys.prefix or getattr(
-        sys, "real_prefix", None)
+    return (
+        getattr(sys, "base_prefix", None)
+        or sys.prefix
+        or getattr(sys, "real_prefix", None)
+    )
 
 
 def in_virtualenv():
@@ -167,17 +176,18 @@ def in_virtualenv():
 def get_env():
     """Returns: The name of the virtual env if exists as str"""
     if in_virtualenv():
-        return 'pip'
+        return "pip"
     elif is_conda():
-        return 'conda'
+        return "conda"
     else:
-        return 'local'
+        return "local"
 
 
 def is_colab():
     """Returns: True for Google Colab env"""
     try:
         import google.colab  # noqa
+
         in_colab = True
     except ModuleNotFoundError:
         in_colab = False
@@ -187,9 +197,11 @@ def is_colab():
 
 def is_paperspace():
     """Returns: True for Paperspace env"""
-    return "PS_API_KEY" in os.environ or\
-           "PAPERSPACE_API_KEY" in os.environ or\
-           "PAPERSPACE_NOTEBOOK_REPO_ID" in os.environ
+    return (
+        "PS_API_KEY" in os.environ
+        or "PAPERSPACE_API_KEY" in os.environ
+        or "PAPERSPACE_NOTEBOOK_REPO_ID" in os.environ
+    )
 
 
 def is_slurm():
@@ -204,8 +216,7 @@ def is_airflow():
 
 def is_argo():
     """Returns: True for Argo env"""
-    return "ARGO_AGENT_TASK_WORKERS" in os.environ or \
-           "ARGO_KUBELET_PORT" in os.environ
+    return "ARGO_AGENT_TASK_WORKERS" in os.environ or "ARGO_KUBELET_PORT" in os.environ
 
 
 def clean_tasks_upstream_products(input):
@@ -230,13 +241,14 @@ def parse_dag(dag):
             for task in tasks_list:
                 task_dict = {}
                 task_dict["status"] = dag[task]._exec_status.name
-                task_dict["type"] = str(type(
-                    dag[task])).split(".")[-1].split("'")[0]
+                task_dict["type"] = str(type(dag[task])).split(".")[-1].split("'")[0]
                 task_dict["upstream"] = clean_tasks_upstream_products(
-                    dag[task].upstream)
+                    dag[task].upstream
+                )
                 task_dict["products"] = clean_tasks_upstream_products(
-                    dag[task].product.to_json_serializable())
-                dag_dict['tasks'][task] = task_dict
+                    dag[task].product.to_json_serializable()
+                )
+                dag_dict["tasks"][task] = task_dict
 
         return dag_dict
     except Exception:
@@ -279,11 +291,11 @@ def check_telemetry_enabled():
     2. If PLOOMBER_STATS_ENABLED defined, check its value
     3. Otherwise use the value in stats_enabled in the config.yaml file
     """
-    if 'CI' in os.environ or 'READTHEDOCS' in os.environ:
+    if "CI" in os.environ or "READTHEDOCS" in os.environ:
         return False
 
-    if 'PLOOMBER_STATS_ENABLED' in os.environ:
-        return os.environ['PLOOMBER_STATS_ENABLED'].lower() == 'true'
+    if "PLOOMBER_STATS_ENABLED" in os.environ:
+        return os.environ["PLOOMBER_STATS_ENABLED"].lower() == "true"
 
     settings = UserSettings()
     return settings.stats_enabled
@@ -305,12 +317,12 @@ def get_latest_version(package_name, version):
     The function checks for the latest available ploomber version
     uid file doesn't exist.
     """
-    conn = httplib.HTTPSConnection('pypi.org', timeout=1)
+    conn = httplib.HTTPSConnection("pypi.org", timeout=1)
     try:
         conn.request("GET", f"/pypi/{package_name}/json")
         content = conn.getresponse().read()
         data = json.loads(content)
-        latest = data['info']['version']
+        latest = data["info"]["version"]
         return latest
     except Exception:
         return version
@@ -330,10 +342,10 @@ def is_cloud_user():
 
 def email_registered():
     """
-        The function checks if the email is set for the user.
-        Checks if the user_email is set in the User conf file (config.yaml).
-        returns True/False accordingly.
-        """
+    The function checks if the email is set for the user.
+    Checks if the user_email is set in the User conf file (config.yaml).
+    returns True/False accordingly.
+    """
     settings = UserSettings()
     return settings.user_email
 
@@ -353,8 +365,7 @@ def check_version(package_name, version):
     now = datetime.datetime.now()
 
     # Check if we already notified in the last 2 days
-    if internal.last_version_check and (now -
-                                        internal.last_version_check).days < 2:
+    if internal.last_version_check and (now - internal.last_version_check).days < 2:
         return
 
     # check latest version (this is an expensive call since it hits pypi.org)
@@ -369,7 +380,8 @@ def check_version(package_name, version):
         f"There's a new {package_name} version available ({latest}), "
         f"you're running {version}. To upgrade: "
         f"pip install {package_name} --upgrade",
-        fg='yellow')
+        fg="yellow",
+    )
 
     # Update latest check date
     internal.last_version_check = now
@@ -393,7 +405,7 @@ def _get_telemetry_info(package_name, version):
 
         return telemetry_enabled, internal.uid, is_install
     else:
-        return False, '', False
+        return False, "", False
 
 
 def validate_entries(event_id, uid, action, client_time, total_runtime):
@@ -401,13 +413,11 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     uid = validate_inputs.str_param(uid, "uid")
     action = validate_inputs.str_param(action, "action")
     client_time = validate_inputs.str_param(str(client_time), "client_time")
-    elapsed_time = validate_inputs.opt_str_param(str(total_runtime),
-                                                 "elapsed_time")
+    elapsed_time = validate_inputs.opt_str_param(str(total_runtime), "elapsed_time")
     return event_id, uid, action, client_time, elapsed_time
 
 
 class Telemetry:
-
     def __init__(self, api_key, package_name, version):
         """
         package_name is the name of the package calling the function.
@@ -418,11 +428,7 @@ class Telemetry:
         self.version = version
         self.package_name = package_name
 
-    def log_api(self,
-                action,
-                client_time=None,
-                total_runtime=None,
-                metadata=None):
+    def log_api(self, action, client_time=None, total_runtime=None, metadata=None):
         """
         This function logs through an API call, assigns parameters
         if missing like timestamp, event id and stats information.
@@ -437,12 +443,13 @@ class Telemetry:
         if client_time is None:
             client_time = datetime.datetime.now()
 
-        (telemetry_enabled, uid, is_install) = \
-            _get_telemetry_info(self.package_name, self.version)
+        (telemetry_enabled, uid, is_install) = _get_telemetry_info(
+            self.package_name, self.version
+        )
 
         # NOTE: this should not happen anymore
-        if 'NO_UID' in uid:
-            metadata['uid_issue'] = uid
+        if "NO_UID" in uid:
+            metadata["uid_issue"] = uid
             uid = None
 
         py_version = python_version()
@@ -451,64 +458,63 @@ class Telemetry:
         email = email_registered()
         colab = is_colab()
         if colab:
-            metadata['colab'] = colab
+            metadata["colab"] = colab
 
         paperspace = is_paperspace()
         if paperspace:
-            metadata['paperspace'] = paperspace
+            metadata["paperspace"] = paperspace
 
         slurm = is_slurm()
         if slurm:
-            metadata['slurm'] = slurm
+            metadata["slurm"] = slurm
 
         airflow = is_airflow()
         if airflow:
-            metadata['airflow'] = airflow
+            metadata["airflow"] = airflow
 
         argo = is_argo()
         if argo:
-            metadata['argo'] = argo
+            metadata["argo"] = argo
 
-        if 'dag' in metadata:
-            metadata['dag'] = parse_dag(metadata['dag'])
+        if "dag" in metadata:
+            metadata["dag"] = parse_dag(metadata["dag"])
 
         os = get_os()
         online = is_online()
         environment = get_env()
 
         if telemetry_enabled and online:
-            (event_id, uid, action, client_time,
-             elapsed_time) = validate_entries(event_id, uid, action,
-                                              client_time, total_runtime)
+            (event_id, uid, action, client_time, elapsed_time) = validate_entries(
+                event_id, uid, action, client_time, total_runtime
+            )
             props = {
-                'event_id': event_id,
-                'user_id': uid,
-                'action': action,
-                'client_time': str(client_time),
-                'metadata': metadata,
-                'total_runtime': total_runtime,
-                'python_version': py_version,
-                'version': self.version,
-                'package_name': self.package_name,
-                'docker_container': docker_container,
-                'cloud': cloud,
-                'email': email,
-                'os': os,
-                'environment': environment,
-                'metadata': metadata,
-                'telemetry_version': TELEMETRY_VERSION
+                "event_id": event_id,
+                "user_id": uid,
+                "action": action,
+                "client_time": str(client_time),
+                "total_runtime": total_runtime,
+                "python_version": py_version,
+                "version": self.version,
+                "package_name": self.package_name,
+                "docker_container": docker_container,
+                "cloud": cloud,
+                "email": email,
+                "os": os,
+                "environment": environment,
+                "telemetry_version": TELEMETRY_VERSION,
+                "metadata": metadata,
             }
 
             if is_install:
-                posthog.capture(distinct_id=uid,
-                                event='install_success_indirect',
-                                properties=props)
+                posthog.capture(
+                    distinct_id=uid, event="install_success_indirect", properties=props
+                )
 
             posthog.capture(distinct_id=uid, event=action, properties=props)
 
     # NOTE: should we log differently depending on the error type?
     # NOTE: how should we handle chained exceptions?
-    def log_call(self, action, payload=False):
+    def log_call(self, action=None, payload=False, log_args=False, ignore_args=None):
         """
         Runs a function and logs it
         pkn is the name of whichever package calling the function,
@@ -516,14 +522,32 @@ class Telemetry:
         ver is the running version of that pacakge, for example '0.14.0'.
         key is the api_key for the posthog project related to that package.
         """
+        if ignore_args is None:
+            ignore_args = set()
+        else:
+            ignore_args = set(ignore_args)
 
         def _log_call(func):
-
             @wraps(func)
             def wrapper(*args, **kwargs):
+                action_ = action or getattr(func, "__name__", "funcion-without-name")
+                action_ = f"{self.package_name}-{action_}"
+
+                if log_args:
+                    args_parsed = _get_args(
+                        func, action, None, args, kwargs, ignore_args
+                    )
+                else:
+                    args_parsed = None
+
                 _payload = dict()
-                self.log_api(action=f'{action}-started',
-                             metadata={'argv': get_sanitized_argv()})
+
+                metadata_started = {"argv": get_sanitized_argv()}
+
+                if log_args:
+                    metadata_started["args"] = args_parsed
+
+                self.log_api(action=f"{action_}-started", metadata=metadata_started)
                 start = datetime.datetime.now()
 
                 try:
@@ -532,31 +556,53 @@ class Telemetry:
                     else:
                         result = func(*args, **kwargs)
                 except Exception as e:
+
+                    metadata_error = {
+                        # can we log None to posthog?
+                        "type": getattr(e, "type_", None),
+                        "exception": str(e),
+                        "argv": get_sanitized_argv(),
+                        **_payload,
+                    }
+
+                    if log_args:
+                        metadata_error["args"] = args_parsed
+
                     self.log_api(
-                        action=f'{action}-error',
+                        action=f"{action_}-error",
                         total_runtime=str(datetime.datetime.now() - start),
-                        metadata={
-                            # can we log None to posthog?
-                            'type': getattr(e, 'type_', None),
-                            'exception': str(e),
-                            'argv': get_sanitized_argv(),
-                            **_payload
-                        })
-                    raise e
+                        metadata=metadata_error,
+                    )
+                    raise
                 else:
-                    self.log_api(action=f'{action}-success',
-                                 total_runtime=str(datetime.datetime.now() -
-                                                   start),
-                                 metadata={
-                                     'argv': get_sanitized_argv(),
-                                     **_payload
-                                 })
+                    metadata_success = {"argv": get_sanitized_argv(), **_payload}
+
+                    if log_args:
+                        metadata_success["args"] = args_parsed
+
+                    self.log_api(
+                        action=f"{action_}-success",
+                        total_runtime=str(datetime.datetime.now() - start),
+                        metadata=metadata_success,
+                    )
 
                 return result
 
             return wrapper
 
         return _log_call
+
+
+def _get_args(func, action, feature, fn_args, fn_kwargs, ignore_args):
+    mapping = _map_parameters_in_fn_call(fn_args, fn_kwargs, func)
+
+    values_to_log = {}
+
+    for key, value in mapping.items():
+        if key not in ignore_args and _should_log_value(value):
+            values_to_log[key] = _process_value(value)
+
+    return values_to_log
 
 
 def get_sanitized_argv():
@@ -568,6 +614,69 @@ def get_sanitized_argv():
             return [bin] + sys.argv[1:]
         except Exception:
             return None
+
+
+def _should_log_value(value):
+    return isinstance(value, (bool, int, float, str, tuple, set))
+
+
+def _process_value(value):
+    if isinstance(value, str) and len(value) > 200:
+        return value[:200] + "...[truncated]"
+    elif isinstance(value, (tuple, set)):
+        return list(value)
+    else:
+        return value
+
+
+# taken from sklearn-evaluation/util.py
+def _map_parameters_in_fn_call(args, kwargs, func):
+    """
+    Based on function signature, parse args to to convert them to key-value
+    pairs and merge them with kwargs
+    Any parameter found in args that does not match the function signature
+    is still passed.
+    Missing parameters are filled with their default values
+    """
+    sig = signature(func)
+    # Get missing parameters in kwargs to look for them in args
+    args_spec = list(sig.parameters)
+    params_all = set(args_spec)
+    params_missing = params_all - set(kwargs.keys())
+
+    if "self" in args_spec:
+        offset = 1
+    else:
+        offset = 0
+
+    # Get indexes for those args
+    idxs = [args_spec.index(name) for name in params_missing]
+
+    # Parse args
+    args_parsed = dict()
+
+    for idx in idxs:
+        key = args_spec[idx]
+
+        try:
+            value = args[idx - offset]
+        except IndexError:
+            pass
+        else:
+            args_parsed[key] = value
+
+    parsed = copy(kwargs)
+    parsed.update(args_parsed)
+
+    # fill default values
+    default = {k: v.default for k, v in sig.parameters.items() if v.default != _empty}
+
+    to_add = set(default.keys()) - set(parsed.keys())
+
+    default_to_add = {k: v for k, v in default.items() if k in to_add}
+    parsed.update(default_to_add)
+
+    return parsed
 
 
 try:
