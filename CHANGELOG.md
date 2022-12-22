@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.0.12dev
+
 ## 0.0.11 (2022-12-22)
 * Adds `ploomber_core.dependencies.requires`
 
