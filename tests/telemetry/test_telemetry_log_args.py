@@ -365,3 +365,141 @@ def test_logs_if_error(mock_posthog):
 
     assert mock_posthog.call_args_list[0][1] == expected_first
     assert mock_posthog.call_args_list[1][1] == expected_second
+
+
+@pytest.mark.parametrize(
+    "y, y_logged",
+    [
+        [1, 1],
+        [1.0, 1.0],
+        ["something", "something"],
+        [False, False],
+        [(1, 2), [1, 2]],
+        [{1, 2}, [1, 2]],
+        ["a" * 201, "a" * 200 + "...[truncated]"],
+    ],
+)
+def test_telemetry_group(mock_posthog, y, y_logged):
+    telemetry = telemetry_module.Telemetry(
+        api_key="KEY", package_name="somepackage", version="0.1"
+    )
+
+    group = telemetry.create_group("SomeObject")
+
+    class SomeObject:
+        @group.log_call(log_args=True)
+        def add(self, x, y):
+            pass
+
+        @group.log_call(log_args=True)
+        def substract(self, x, y):
+            pass
+
+    obj = SomeObject()
+    obj.add(x=1, y=y)
+    obj.substract(x=1, y=y)
+
+    expected_first = dict(
+        distinct_id="UUID",
+        event="somepackage-SomeObject-add-started",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-SomeObject-add-started",
+            "client_time": ANY,
+            "metadata": {
+                "args": {"x": 1, "y": y_logged},
+                "argv": ANY,
+            },
+            "total_runtime": None,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    expected_second = dict(
+        distinct_id="UUID",
+        event="somepackage-SomeObject-add-success",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-SomeObject-add-success",
+            "client_time": ANY,
+            "metadata": {
+                "args": {"x": 1, "y": y_logged},
+                "argv": ANY,
+            },
+            "total_runtime": ANY,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    expected_third = dict(
+        distinct_id="UUID",
+        event="somepackage-SomeObject-substract-started",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-SomeObject-substract-started",
+            "client_time": ANY,
+            "metadata": {
+                "args": {"x": 1, "y": y_logged},
+                "argv": ANY,
+            },
+            "total_runtime": None,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    expected_fourth = dict(
+        distinct_id="UUID",
+        event="somepackage-SomeObject-substract-success",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-SomeObject-substract-success",
+            "client_time": ANY,
+            "metadata": {
+                "args": {"x": 1, "y": y_logged},
+                "argv": ANY,
+            },
+            "total_runtime": ANY,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    assert mock_posthog.call_args_list[0][1] == expected_first
+    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[2][1] == expected_third
+    assert mock_posthog.call_args_list[3][1] == expected_fourth

@@ -417,6 +417,21 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     return event_id, uid, action, client_time, elapsed_time
 
 
+class TelemetryGroup:
+    def __init__(self, telemetry, group) -> None:
+        self._telemetry = telemetry
+        self._group = group
+
+    def log_call(self, action=None, payload=False, log_args=False, ignore_args=None):
+        return self._telemetry.log_call(
+            action=action,
+            payload=payload,
+            log_args=log_args,
+            ignore_args=ignore_args,
+            group=self._group,
+        )
+
+
 class Telemetry:
     def __init__(self, api_key, package_name, version):
         """
@@ -441,7 +456,6 @@ class Telemetry:
         """
         This function logs through an API call, assigns parameters
         if missing like timestamp, event id and stats information.
-
         """
 
         posthog.project_api_key = self.api_key
@@ -602,29 +616,21 @@ class Telemetry:
         >>> add(x=1, y=2)
         3
 
-        Log method calls in a class:
+        Log method calls in a class (creating a group will add the class name
+        to all actions):
 
         >>> from ploomber_core.telemetry import Telemetry
         >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> telemetry_my_class = telemetry.create_group("MyClass")
         >>> class MyClass:
-        ...     @telemetry.log_call(action="MyClass-add")
+        ...     @telemetry_my_class.log_call()
         ...     def add(self, x, y):
         ...         return x + y
         >>> obj = MyClass()
         >>> obj.add(x=1, y=2)
         3
 
-        Group actions (e.g., methods in a class):
 
-        >>> from ploomber_core.telemetry import Telemetry
-        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
-        >>> class MyClass:
-        ...     @telemetry.log_call(group="MyClass")
-        ...     def add(self, x, y):
-        ...         return x + y
-        >>> obj = MyClass()
-        >>> obj.add(x=1, y=2)
-        3
 
         """
         if ignore_args is None:
@@ -699,6 +705,9 @@ class Telemetry:
             return wrapper
 
         return _log_call
+
+    def create_group(self, group):
+        return TelemetryGroup(self, group)
 
 
 def _get_args(func, fn_args, fn_kwargs, ignore_args):
