@@ -17,18 +17,18 @@ from ploomber_core.telemetry.validate_inputs import str_param, opt_str_param
 
 from ploomber_core.exceptions import BaseException
 
-MOCK_API_KEY = 'phc_P1dsjk20bijsabdaib2eu'
+MOCK_API_KEY = "phc_P1dsjk20bijsabdaib2eu"
 
 
 @pytest.fixture()
 def inside_conda_env(monkeypatch):
-    monkeypatch.setenv('CONDA_PREFIX', True)
+    monkeypatch.setenv("CONDA_PREFIX", True)
 
 
 @pytest.fixture()
 def inside_pip_env(monkeypatch):
-    monkeypatch.setattr(telemetry.sys, 'prefix', 'sys.prefix')
-    monkeypatch.setattr(telemetry.sys, 'base_prefix', 'base_prefix')
+    monkeypatch.setattr(telemetry.sys, "prefix", "sys.prefix")
+    monkeypatch.setattr(telemetry.sys, "base_prefix", "base_prefix")
 
 
 @pytest.fixture
@@ -40,64 +40,65 @@ def ignore_ploomber_stats_enabled_env_var(monkeypatch):
 
     GitHub actions also sets CI
     """
-    if 'PLOOMBER_STATS_ENABLED' in os.environ:
-        monkeypatch.delenv('PLOOMBER_STATS_ENABLED', raising=True)
+    if "PLOOMBER_STATS_ENABLED" in os.environ:
+        monkeypatch.delenv("PLOOMBER_STATS_ENABLED", raising=True)
 
-    if 'CI' in os.environ:
-        monkeypatch.delenv('CI', raising=True)
+    if "CI" in os.environ:
+        monkeypatch.delenv("CI", raising=True)
 
 
 @pytest.fixture
 def ignore_env_var_and_set_tmp_default_home_dir(
-        tmp_directory, ignore_ploomber_stats_enabled_env_var, monkeypatch):
+    tmp_directory, ignore_ploomber_stats_enabled_env_var, monkeypatch
+):
     """
     ignore_ploomber_stats_enabled_env_var + overrides DEFAULT_HOME_DIR
     to prevent the local configuration to interfere with tests
     """
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
 
 
 def test_user_settings_create_file(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
 
     settings = telemetry.UserSettings()
-    content = yaml.safe_load(Path('stats', 'config.yaml').read_text())
+    content = yaml.safe_load(Path("stats", "config.yaml").read_text())
 
     assert content == {
-        'cloud_key': None,
-        'user_email': None,
-        'stats_enabled': True,
-        'version_check_enabled': True,
+        "cloud_key": None,
+        "user_email": None,
+        "stats_enabled": True,
+        "version_check_enabled": True,
     }
     assert settings.cloud_key is None
     assert settings.stats_enabled
 
 
 def test_internal_create_file(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
-    monkeypatch.setattr(telemetry, 'uuid4', lambda: 'some-unique-uuid')
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "uuid4", lambda: "some-unique-uuid")
 
     internal = telemetry.Internal()
-    content = yaml.safe_load(Path('stats', 'uid.yaml').read_text())
+    content = yaml.safe_load(Path("stats", "uid.yaml").read_text())
 
     assert content == {
-        'uid': 'some-unique-uuid',
-        'last_version_check': None,
-        'first_time': True
+        "uid": "some-unique-uuid",
+        "last_version_check": None,
+        "first_time": True,
     }
-    assert internal.uid == 'some-unique-uuid'
+    assert internal.uid == "some-unique-uuid"
     assert internal.last_version_check is None
 
 
 def test_does_not_overwrite_existing_uid(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
 
-    Path('stats').mkdir()
-    Path('stats', 'uid.yaml').write_text(yaml.dump({'uid': 'existing-uid'}))
+    Path("stats").mkdir()
+    Path("stats", "uid.yaml").write_text(yaml.dump({"uid": "existing-uid"}))
 
     internal = telemetry.Internal()
 
-    assert internal.uid == 'existing-uid'
+    assert internal.uid == "existing-uid"
 
 
 # Validations tests
@@ -105,7 +106,7 @@ def test_str_validation():
     res = str_param("Test", "")
     assert isinstance(res, str)
     res = str_param("TEST", "test_param")
-    assert 'TEST' == res
+    assert "TEST" == res
     with pytest.raises(TypeError) as exc_info:
         str_param(3, "Test_number")
 
@@ -117,7 +118,7 @@ def test_opt_str_validation():
     res = opt_str_param("Test", "")
     assert isinstance(res, str)
     res = opt_str_param("Test", "TEST")
-    assert 'TEST' == res
+    assert "TEST" == res
     res = opt_str_param("Test", None)
     assert not res
 
@@ -133,46 +134,57 @@ def test_check_stats_enabled(ignore_env_var_and_set_tmp_default_home_dir):
     assert stats_enabled is True
 
 
-@pytest.mark.parametrize('name', [
-    'CI',
-    'READTHEDOCS',
-])
-def test_disable_stats_if_ci_env(name,
-                                 ignore_env_var_and_set_tmp_default_home_dir,
-                                 monkeypatch):
-    monkeypatch.setenv(name, 'true')
+@pytest.mark.parametrize(
+    "name",
+    [
+        "CI",
+        "READTHEDOCS",
+    ],
+)
+def test_disable_stats_if_ci_env(
+    name, ignore_env_var_and_set_tmp_default_home_dir, monkeypatch
+):
+    monkeypatch.setenv(name, "true")
     stats_enabled = telemetry.check_telemetry_enabled()
     assert stats_enabled is False
 
 
 @pytest.mark.parametrize(
-    'yaml_value, expected_first, env_value, expected_second', [
-        ['true', True, 'false', False],
-        ['TRUE', True, 'FALSE', False],
-        ['false', False, 'true', True],
-        ['FALSE', False, 'TRUE', True],
-    ])
-def test_env_var_takes_precedence(monkeypatch,
-                                  ignore_env_var_and_set_tmp_default_home_dir,
-                                  yaml_value, expected_first, env_value,
-                                  expected_second):
+    "yaml_value, expected_first, env_value, expected_second",
+    [
+        ["true", True, "false", False],
+        ["TRUE", True, "FALSE", False],
+        ["false", False, "true", True],
+        ["FALSE", False, "TRUE", True],
+    ],
+)
+def test_env_var_takes_precedence(
+    monkeypatch,
+    ignore_env_var_and_set_tmp_default_home_dir,
+    yaml_value,
+    expected_first,
+    env_value,
+    expected_second,
+):
 
-    stats = Path('stats')
+    stats = Path("stats")
     stats.mkdir()
 
-    (stats / 'config.yaml').write_text(f"""
+    (stats / "config.yaml").write_text(
+        f"""
                                         stats_enabled: {yaml_value}
-                                        """)
+                                        """
+    )
 
     assert telemetry.check_telemetry_enabled() is expected_first
 
-    monkeypatch.setenv('PLOOMBER_STATS_ENABLED', env_value, prepend=False)
+    monkeypatch.setenv("PLOOMBER_STATS_ENABLED", env_value, prepend=False)
 
     assert telemetry.check_telemetry_enabled() is expected_second
 
 
 def test_first_usage(monkeypatch, tmp_directory):
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
 
     assert telemetry.check_first_time_usage()
     assert not telemetry.check_first_time_usage()
@@ -186,7 +198,7 @@ def test_conda_env(monkeypatch, inside_conda_env, tmp_directory):
     env = telemetry.is_conda()
     assert bool(env) is True
     env = telemetry.get_env()
-    assert env == 'conda'
+    assert env == "conda"
 
 
 # Ref: https://stackoverflow.com/questions/1871549/
@@ -196,17 +208,16 @@ def test_pip_env(monkeypatch, inside_pip_env):
     env = telemetry.in_virtualenv()
     assert env is True
     env = telemetry.get_env()
-    assert env == 'pip'
+    assert env == "pip"
 
 
 # Ref: https://stackoverflow.com/questions/43878953/how-does-one-detect-if-
 # one-is-running-within-a-docker-container-within-python
 def test_docker_env(monkeypatch):
-
     def mock(input_path):
-        return 'dockerenv' in str(input_path)
+        return "dockerenv" in str(input_path)
 
-    monkeypatch.setattr(pathlib.Path, 'exists', mock)
+    monkeypatch.setattr(pathlib.Path, "exists", mock)
     docker = telemetry.is_docker()
     assert docker is True
 
@@ -218,16 +229,17 @@ def test_colab_env(monkeypatch):
     assert colab is False
 
     m = Mock()
-    sys.modules['google'] = m
-    sys.modules['google.colab'] = m
+
+    monkeypatch.setitem(sys.modules, "google", m)
+    monkeypatch.setitem(sys.modules, "google.colab", m)
     colab = telemetry.is_colab()
     assert colab is True
 
 
 # Ref https://learn.paperspace.com/video/creating-a-jupyter-notebook
 @pytest.mark.parametrize(
-    'env_variable',
-    ['PS_API_KEY', 'PAPERSPACE_API_KEY', 'PAPERSPACE_NOTEBOOK_REPO_ID'])
+    "env_variable", ["PS_API_KEY", "PAPERSPACE_API_KEY", "PAPERSPACE_NOTEBOOK_REPO_ID"]
+)
 def test_paperspace_env(monkeypatch, env_variable):
     monkeypatch.setenv(env_variable, True)
     pspace = telemetry.is_paperspace()
@@ -237,14 +249,14 @@ def test_paperspace_env(monkeypatch, env_variable):
 # Ref https://stackoverflow.com/questions/63298054/how-to-check-if-my-code
 # -runs-inside-a-slurm-environment
 def test_slurm_env(monkeypatch):
-    monkeypatch.setenv('SLURM_JOB_ID', True)
+    monkeypatch.setenv("SLURM_JOB_ID", True)
     slurm = telemetry.is_slurm()
     assert slurm is True
 
 
 # Ref https://airflow.apache.org/docs/apache-airflow/stable/
 # cli-and-env-variables-ref.html?highlight=airflow_home#envvar-AIRFLOW_HOME
-@pytest.mark.parametrize('env_variable', ['AIRFLOW_CONFIG', 'AIRFLOW_HOME'])
+@pytest.mark.parametrize("env_variable", ["AIRFLOW_CONFIG", "AIRFLOW_HOME"])
 def test_airflow_env(monkeypatch, env_variable):
     monkeypatch.setenv(env_variable, True)
     airflow = telemetry.is_airflow()
@@ -253,20 +265,22 @@ def test_airflow_env(monkeypatch, env_variable):
 
 # Ref https://stackoverflow.com/questions/110362/how-can-i-find-
 # the-current-os-in-python
-@pytest.mark.parametrize('os_param', ['Windows', 'Linux', 'MacOS', 'Ubuntu'])
+@pytest.mark.parametrize("os_param", ["Windows", "Linux", "MacOS", "Ubuntu"])
 def test_os_type(monkeypatch, os_param):
     mock = Mock()
     mock.return_value = os_param
-    monkeypatch.setattr(telemetry.platform, 'system', mock)
+    monkeypatch.setattr(telemetry.platform, "system", mock)
     os_type = telemetry.get_os()
     assert os_type == os_param
 
 
-def test_full_telemetry_info(monkeypatch,
-                             ignore_env_var_and_set_tmp_default_home_dir):
+def test_full_telemetry_info(monkeypatch, ignore_env_var_and_set_tmp_default_home_dir):
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
     monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
-    (stat_enabled, uid, is_install) = \
-        telemetry._get_telemetry_info('ploomber', '0.14.0')
+
+    (stat_enabled, uid, is_install) = telemetry._get_telemetry_info(
+        "ploomber", "0.14.0"
+    )
     assert stat_enabled is True
     assert isinstance(uid, str)
     assert is_install is True
@@ -298,9 +312,9 @@ def test_is_online_timeout():
 def test_stats_off(monkeypatch):
     mock = Mock()
     posthog_mock = Mock()
-    mock.patch(telemetry, '_get_telemetry_info', (False, 'TestUID'))
+    mock.patch(telemetry, "_get_telemetry_info", (False, "TestUID"))
 
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "ploomber", "0.14.0")
     _telemetry.log_api("test_action")
 
     assert posthog_mock.call_count == 0
@@ -309,9 +323,9 @@ def test_stats_off(monkeypatch):
 def test_offline_stats(monkeypatch):
     mock = Mock()
     posthog_mock = Mock()
-    mock.patch(telemetry, 'is_online', False)
+    mock.patch(telemetry, "is_online", False)
 
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "ploomber", "0.14.0")
     _telemetry.log_api("test_action")
 
     assert posthog_mock.call_count == 0
@@ -320,120 +334,129 @@ def test_offline_stats(monkeypatch):
 def test_is_not_online(monkeypatch):
     mock_httplib = Mock()
     mock_httplib.HTTPSConnection().request.side_effect = Exception
-    monkeypatch.setattr(telemetry, 'httplib', mock_httplib)
+    monkeypatch.setattr(telemetry, "httplib", mock_httplib)
 
     assert not telemetry.is_online()
 
 
 def test_validate_entries(monkeypatch):
-    event_id = 'event_id'
-    uid = 'uid'
-    action = 'action'
-    client_time = 'client_time'
-    elapsed_time = 'elapsed_time'
-    res = telemetry.validate_entries(event_id, uid, action, client_time,
-                                     elapsed_time)
+    event_id = "event_id"
+    uid = "uid"
+    action = "action"
+    client_time = "client_time"
+    elapsed_time = "elapsed_time"
+    res = telemetry.validate_entries(event_id, uid, action, client_time, elapsed_time)
     assert res == (event_id, uid, action, client_time, elapsed_time)
 
 
 def test_conf_file_after_version_check(tmp_directory, monkeypatch):
-    version_path = Path('stats') / 'uid.yaml'
-    write_to_conf_file(tmp_directory=tmp_directory,
-                       monkeypatch=monkeypatch,
-                       last_check='2022-01-20 10:51:41.082376')
+    version_path = Path("stats") / "uid.yaml"
+    write_to_conf_file(
+        tmp_directory=tmp_directory,
+        monkeypatch=monkeypatch,
+        last_check="2022-01-20 10:51:41.082376",
+    )
     uid_content = version_path.read_text()
-    uid_content += 'uid: some_user_id\n'
+    uid_content += "uid: some_user_id\n"
     version_path.write_text(uid_content)
 
     # Test that conf file has all required fields
-    telemetry.check_version('ploomber', '0.14.0')
+    telemetry.check_version("ploomber", "0.14.0")
     with version_path.open("r") as file:
         conf = yaml.safe_load(file)
-    assert 'uid' in conf.keys()
+    assert "uid" in conf.keys()
     assert len(conf.keys()) == 3
 
 
 def test_get_version_timeout():
     # Check the total run time is less than 1.5 secs
     start_time = datetime.datetime.now()
-    telemetry.get_latest_version('ploomber', "0.14.0")
+    telemetry.get_latest_version("ploomber", "0.14.0")
     end_time = datetime.datetime.now()
     total_runtime = end_time - start_time
     assert total_runtime < datetime.timedelta(milliseconds=1500)
 
 
 def write_to_conf_file(tmp_directory, monkeypatch, last_check):
-    stats = Path('stats')
+    stats = Path("stats")
     stats.mkdir()
-    conf_path = stats / 'config.yaml'
-    version_path = stats / 'uid.yaml'
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
+    conf_path = stats / "config.yaml"
+    version_path = stats / "uid.yaml"
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
     conf_path.write_text("version_check_enabled: True\n")
     version_path.write_text(f"last_version_check: {last_check}\n")
+
+    # force to reset data so we load from the data we just wrote
+    monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
 
 
 def test_version_skips_when_updated(tmp_directory, capsys, monkeypatch):
     # Path conf file
     mock_version = Mock()
-    mock_version.return_value = '0.14.8'
-    monkeypatch.setattr(telemetry, 'get_latest_version', mock_version)
+    mock_version.return_value = "0.14.8"
+    monkeypatch.setattr(telemetry, "get_latest_version", mock_version)
 
     write_to_conf_file(
         tmp_directory=tmp_directory,
         monkeypatch=monkeypatch,
-        last_check='2022-01-20 10:51:41.082376')  # version='0.14.8',
+        last_check="2022-01-20 10:51:41.082376",
+    )  # version='0.14.8',
 
     # Test no warning when same version encountered
-    telemetry.check_version('ploomber', "0.14.8")
+    telemetry.check_version("ploomber", "0.14.8")
     captured = capsys.readouterr()
     print(captured.out)
     assert "ploomber version" not in captured.out
 
 
 def test_user_output_on_different_versions(tmp_directory, capsys, monkeypatch):
-    monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
-
     mock_version = Mock()
-    monkeypatch.setattr(telemetry, 'get_latest_version', mock_version)
-    write_to_conf_file(tmp_directory=tmp_directory,
-                       monkeypatch=monkeypatch,
-                       last_check='2022-01-20 10:51:41.082376')
-    mock_version.return_value = '0.14.0'
+    monkeypatch.setattr(telemetry, "get_latest_version", mock_version)
+    write_to_conf_file(
+        tmp_directory=tmp_directory,
+        monkeypatch=monkeypatch,
+        last_check="2022-01-20 10:51:41.082376",
+    )
+    mock_version.return_value = "0.14.0"
 
     # Check now that the date is different there is an upgrade warning
-    telemetry.check_version('ploomber', "0.14.1")
+    telemetry.check_version("ploomber", "0.14.1")
     captured = capsys.readouterr()
     assert "ploomber version" in captured.out
 
 
 def test_no_output_latest_version(tmp_directory, capsys, monkeypatch):
     # The file's date is today now, no output should be displayed
-    write_to_conf_file(tmp_directory=tmp_directory,
-                       monkeypatch=monkeypatch,
-                       last_check=datetime.datetime.now())
+    write_to_conf_file(
+        tmp_directory=tmp_directory,
+        monkeypatch=monkeypatch,
+        last_check=datetime.datetime.now(),
+    )
 
-    telemetry.check_version('ploomber', "0.14.0")
+    telemetry.check_version("ploomber", "0.14.0")
     captured = capsys.readouterr()
     assert "ploomber version" not in captured.out
 
 
 def test_output_on_date_diff(tmp_directory, capsys, monkeypatch):
-    monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
     # Warning should be caught since the date and version are off
     mock_version = Mock()
-    monkeypatch.setattr(telemetry, 'get_latest_version', mock_version)
-    write_to_conf_file(tmp_directory=tmp_directory,
-                       monkeypatch=monkeypatch,
-                       last_check='2022-01-20 10:51:41.082376')
-    version_path = Path('stats') / 'uid.yaml'
-    telemetry.check_version('ploomber', "0.14.0")
+    monkeypatch.setattr(telemetry, "get_latest_version", mock_version)
+    write_to_conf_file(
+        tmp_directory=tmp_directory,
+        monkeypatch=monkeypatch,
+        last_check="2022-01-20 10:51:41.082376",
+    )
+
+    version_path = Path("stats") / "uid.yaml"
+    telemetry.check_version("ploomber", "0.14.0")
     captured = capsys.readouterr()
     assert "ploomber version" in captured.out
 
     # Check the conf file was updated
     with version_path.open("r") as file:
         version = yaml.safe_load(file)
-    diff = (datetime.datetime.now() - version['last_version_check']).days
+    diff = (datetime.datetime.now() - version["last_version_check"]).days
     assert diff == 0
 
 
@@ -448,120 +471,155 @@ def mock_telemetry(monkeypatch):
     mock = Mock()
     mock_dt = Mock()
     mock_dt.now.side_effect = [1, 2]
-    monkeypatch.setattr(telemetry.Telemetry, 'log_api', mock)
-    monkeypatch.setattr(telemetry.datetime, 'datetime', mock_dt)
-    monkeypatch.setattr(telemetry.sys, 'argv', ['/path/to/bin', 'arg'])
+    monkeypatch.setattr(telemetry.Telemetry, "log_api", mock)
+    monkeypatch.setattr(telemetry.datetime, "datetime", mock_dt)
+    monkeypatch.setattr(telemetry.sys, "argv", ["/path/to/bin", "arg"])
     yield mock
 
 
 def test_log_call_success(mock_telemetry):
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
-    @_telemetry.log_call('some-action')
+    @_telemetry.log_call("some-action")
     def my_function():
         pass
 
     my_function()
 
-    mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
-        call(action='some-action-success',
-             total_runtime='1',
-             metadata=dict(argv=['bin', 'arg'])),
-    ])
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-some-action-success",
+                total_runtime="1",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+        ]
+    )
 
 
 def test_log_call_exception(mock_telemetry):
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
-    @_telemetry.log_call('some-action')
+    @_telemetry.log_call("some-action")
     def my_function():
-        raise ValueError('some error')
+        raise ValueError("some error")
 
     with pytest.raises(ValueError):
         my_function()
 
-    mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
-        call(action='some-action-error',
-             total_runtime='1',
-             metadata={
-                 'type': None,
-                 'exception': 'some error',
-                 'argv': ['bin', 'arg'],
-             })
-    ])
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-some-action-error",
+                total_runtime="1",
+                metadata={
+                    "type": None,
+                    "exception": "some error",
+                    "argv": ["bin", "arg"],
+                },
+            ),
+        ]
+    )
 
 
 def test_log_call_logs_type(mock_telemetry):
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
-    @_telemetry.log_call('some-action')
+    @_telemetry.log_call("some-action")
     def my_function():
-        raise BaseException('some error', type_='some-type')
+        raise BaseException("some error", type_="some-type")
 
     with pytest.raises(BaseException):
         my_function()
 
-    mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
-        call(action='some-action-error',
-             total_runtime='1',
-             metadata={
-                 'type': 'some-type',
-                 'exception': 'some error',
-                 'argv': ['bin', 'arg'],
-             })
-    ])
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-some-action-error",
+                total_runtime="1",
+                metadata={
+                    "type": "some-type",
+                    "exception": "some error",
+                    "argv": ["bin", "arg"],
+                },
+            ),
+        ]
+    )
 
 
 def test_log_call_add_payload_error(mock_telemetry):
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
-    @_telemetry.log_call('some-action', payload=True)
+    @_telemetry.log_call("some-action", payload=True)
     def my_function(payload):
-        payload['dag'] = 'value'
-        raise BaseException('some error', type_='some-type')
+        payload["dag"] = "value"
+        raise BaseException("some error", type_="some-type")
 
     with pytest.raises(BaseException):
         my_function()
 
-    mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
-        call(action='some-action-error',
-             total_runtime='1',
-             metadata={
-                 'type': 'some-type',
-                 'exception': 'some error',
-                 'argv': ['bin', 'arg'],
-                 'dag': 'value',
-             })
-    ])
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-some-action-error",
+                total_runtime="1",
+                metadata={
+                    "type": "some-type",
+                    "exception": "some error",
+                    "argv": ["bin", "arg"],
+                    "dag": "value",
+                },
+            ),
+        ]
+    )
 
 
 def test_log_call_add_payload_success(mock_telemetry):
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
-    @_telemetry.log_call('some-action', payload=True)
+    @_telemetry.log_call("some-action", payload=True)
     def my_function(payload):
-        payload['dag'] = 'value'
+        payload["dag"] = "value"
 
     my_function()
 
-    mock_telemetry.assert_has_calls([
-        call(action='some-action-started', metadata=dict(argv=['bin', 'arg'])),
-        call(action='some-action-success',
-             total_runtime='1',
-             metadata={
-                 'argv': ['bin', 'arg'],
-                 'dag': 'value',
-             })
-    ])
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-some-action-success",
+                total_runtime="1",
+                metadata={
+                    "argv": ["bin", "arg"],
+                    "dag": "value",
+                },
+            ),
+        ]
+    )
 
 
 def test_permissions_error(monkeypatch):
-    monkeypatch.setattr(telemetry, 'DEFAULT_HOME_DIR', '.')
-    stats = Path('stats')
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    stats = Path("stats")
 
     if os.path.exists(stats):
         os.chmod(stats, 777)
@@ -581,13 +639,12 @@ def test_permissions_error(monkeypatch):
 
 @pytest.mark.allow_posthog
 def test_hides_posthog_log(caplog, monkeypatch):
-
     def fake_capture(*args, **kwargs):
         log = logging.getLogger("posthog")
-        log.error('some error happened')
+        log.error("some error happened")
 
-    monkeypatch.setattr(posthog, 'capture', fake_capture)
-    _telemetry = telemetry.Telemetry('ploomber', '0.14.0', MOCK_API_KEY)
+    monkeypatch.setattr(posthog, "capture", fake_capture)
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "ploomber", "0.14.0")
 
     with caplog.at_level(logging.ERROR, logger="posthog"):
         _telemetry.log_api("test_action")
@@ -597,119 +654,123 @@ def test_hides_posthog_log(caplog, monkeypatch):
 
 # TODO: test more of the values (I'm adding ANY to many of them)
 def test_log_api_stored_values(monkeypatch):
-    mock_info = Mock(return_value=(True, 'fake-uuid', False))
+    mock_info = Mock(return_value=(True, "fake-uuid", False))
     mock = Mock()
-    monkeypatch.setattr(telemetry.posthog, 'capture', mock)
-    monkeypatch.setattr(telemetry, '_get_telemetry_info', mock_info)
+    monkeypatch.setattr(telemetry.posthog, "capture", mock)
+    monkeypatch.setattr(telemetry, "_get_telemetry_info", mock_info)
 
-    _telemetry = telemetry.Telemetry(MOCK_API_KEY, 'some-package', '1.2.2')
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "1.2.2")
 
-    _telemetry.log_api('some-action')
+    _telemetry.log_api("some-action")
 
-    py_version = (f"{sys.version_info.major}.{sys.version_info.minor}."
-                  f"{sys.version_info.micro}")
+    py_version = (
+        f"{sys.version_info.major}.{sys.version_info.minor}."
+        f"{sys.version_info.micro}"
+    )
 
-    mock.assert_called_once_with(distinct_id='fake-uuid',
-                                 event='some-action',
-                                 properties={
-                                     'event_id': ANY,
-                                     'user_id': 'fake-uuid',
-                                     'action': 'some-action',
-                                     'client_time': ANY,
-                                     'metadata': {
-                                         'colab': True
-                                     },
-                                     'total_runtime': None,
-                                     'python_version': py_version,
-                                     'version': '1.2.2',
-                                     'package_name': 'some-package',
-                                     'docker_container': ANY,
-                                     'cloud': ANY,
-                                     'email': ANY,
-                                     'os': ANY,
-                                     'environment': ANY,
-                                     'telemetry_version': ANY,
-                                 })
+    mock.assert_called_once_with(
+        distinct_id="fake-uuid",
+        event="some-action",
+        properties={
+            "event_id": ANY,
+            "user_id": "fake-uuid",
+            "action": "some-action",
+            "client_time": ANY,
+            "metadata": {},
+            "total_runtime": None,
+            "python_version": py_version,
+            "version": "1.2.2",
+            "package_name": "some-package",
+            "docker_container": ANY,
+            "cloud": ANY,
+            "email": ANY,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
 
 
 def test_log_call_stored_values(monkeypatch):
-    mock_info = Mock(return_value=(True, 'fake-uuid', False))
+    mock_info = Mock(return_value=(True, "fake-uuid", False))
     mock = Mock()
-    monkeypatch.setattr(telemetry.posthog, 'capture', mock)
-    monkeypatch.setattr(telemetry, '_get_telemetry_info', mock_info)
-    monkeypatch.setattr(telemetry.sys, 'argv',
-                        ['/path/to/bin', 'arg2', 'arg2'])
+    monkeypatch.setattr(telemetry.posthog, "capture", mock)
+    monkeypatch.setattr(telemetry, "_get_telemetry_info", mock_info)
+    monkeypatch.setattr(telemetry.sys, "argv", ["/path/to/bin", "arg2", "arg2"])
 
-    _telemetry = telemetry.Telemetry(MOCK_API_KEY, 'some-package', '1.2.2')
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "1.2.2")
 
-    @_telemetry.log_call(action='some-action')
+    @_telemetry.log_call(action="some-action")
     def my_function():
         pass
 
     my_function()
 
-    py_version = (f"{sys.version_info.major}.{sys.version_info.minor}."
-                  f"{sys.version_info.micro}")
+    py_version = (
+        f"{sys.version_info.major}.{sys.version_info.minor}."
+        f"{sys.version_info.micro}"
+    )
 
     assert mock.call_args_list == [
-        call(distinct_id='fake-uuid',
-             event='some-action-started',
-             properties={
-                 'event_id': ANY,
-                 'user_id': 'fake-uuid',
-                 'action': 'some-action-started',
-                 'client_time': ANY,
-                 'metadata': {
-                     'argv': ['bin', 'arg2', 'arg2'],
-                     'colab': True
-                 },
-                 'total_runtime': None,
-                 'python_version': py_version,
-                 'version': '1.2.2',
-                 'package_name': 'some-package',
-                 'docker_container': ANY,
-                 'cloud': ANY,
-                 'email': None,
-                 'os': ANY,
-                 'environment': ANY,
-                 'telemetry_version': ANY
-             }),
-        call(distinct_id='fake-uuid',
-             event='some-action-success',
-             properties={
-                 'event_id': ANY,
-                 'user_id': 'fake-uuid',
-                 'action': 'some-action-success',
-                 'client_time': ANY,
-                 'metadata': {
-                     'argv': ['bin', 'arg2', 'arg2'],
-                     'colab': True
-                 },
-                 'total_runtime': ANY,
-                 'python_version': py_version,
-                 'version': '1.2.2',
-                 'package_name': 'some-package',
-                 'docker_container': ANY,
-                 'cloud': ANY,
-                 'email': None,
-                 'os': ANY,
-                 'environment': ANY,
-                 'telemetry_version': ANY
-             })
+        call(
+            distinct_id="fake-uuid",
+            event="some-package-some-action-started",
+            properties={
+                "event_id": ANY,
+                "user_id": "fake-uuid",
+                "action": "some-package-some-action-started",
+                "client_time": ANY,
+                "metadata": {"argv": ["bin", "arg2", "arg2"]},
+                "total_runtime": None,
+                "python_version": py_version,
+                "version": "1.2.2",
+                "package_name": "some-package",
+                "docker_container": ANY,
+                "cloud": ANY,
+                "email": None,
+                "os": ANY,
+                "environment": ANY,
+                "telemetry_version": ANY,
+            },
+        ),
+        call(
+            distinct_id="fake-uuid",
+            event="some-package-some-action-success",
+            properties={
+                "event_id": ANY,
+                "user_id": "fake-uuid",
+                "action": "some-package-some-action-success",
+                "client_time": ANY,
+                "metadata": {"argv": ["bin", "arg2", "arg2"]},
+                "total_runtime": ANY,
+                "python_version": py_version,
+                "version": "1.2.2",
+                "package_name": "some-package",
+                "docker_container": ANY,
+                "cloud": ANY,
+                "email": None,
+                "os": ANY,
+                "environment": ANY,
+                "telemetry_version": ANY,
+            },
+        ),
     ]
 
 
-@pytest.mark.parametrize('argv, expected', [
+@pytest.mark.parametrize(
+    "argv, expected",
     [
-        ['/path/to/bin', '--arg val', '--something'],
-        ['bin', '--arg val', '--something'],
+        [
+            ["/path/to/bin", "--arg val", "--something"],
+            ["bin", "--arg val", "--something"],
+        ],
+        [["bin"], ["bin"]],
+        [None, None],
+        [[], None],
+        [1, None],
+        [object(), None],
     ],
-    [['bin'], ['bin']],
-    [None, None],
-    [[], None],
-    [1, None],
-    [object(), None],
-])
+)
 def test_get_sanitized_sys_argv(argv, expected, monkeypatch):
-    monkeypatch.setattr(telemetry.sys, 'argv', argv)
+    monkeypatch.setattr(telemetry.sys, "argv", argv)
     assert telemetry.get_sanitized_argv() == expected

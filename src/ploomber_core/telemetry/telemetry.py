@@ -514,13 +514,32 @@ class Telemetry:
 
     # NOTE: should we log differently depending on the error type?
     # NOTE: how should we handle chained exceptions?
-    def log_call(self, action=None, payload=False, log_args=False, ignore_args=None):
-        """
-        Runs a function and logs it
-        pkn is the name of whichever package calling the function,
-        for example 'ploomber'.
-        ver is the running version of that pacakge, for example '0.14.0'.
-        key is the api_key for the posthog project related to that package.
+    def log_call(
+        self, action=None, payload=False, log_args=False, ignore_args=None, group=None
+    ):
+        """Log function call
+
+        Parameters
+        ----------
+        action : str, default=None
+            The action taken by the user. If None, it'll use the function's name
+
+        payload : bool, default=False
+            If True, the function will be called with `payload` as its first
+            argument (a dictionary), yoyu may add values to it and they will
+            be logged
+
+        log_args : bool, default=False
+            If True, function parameters a logger (but only
+            bool, int, float, str, tuple, and set)
+
+        ignore_args : set, default=None
+            A set of parameters to ignore, it only has effect when `log_args=True`
+
+        group : str, default=None
+            An arbitrary string to group events. You may use this to group calls
+            to methods in the same class
+
         """
         if ignore_args is None:
             ignore_args = set()
@@ -530,13 +549,16 @@ class Telemetry:
         def _log_call(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
-                action_ = action or getattr(func, "__name__", "funcion-without-name")
-                action_ = f"{self.package_name}-{action_}"
+                action_ = self.package_name
+
+                if group:
+                    action_ = f"{action_}-{group}"
+
+                name = action or getattr(func, "__name__", "funcion-without-name")
+                action_ = f"{action_}-{name}"
 
                 if log_args:
-                    args_parsed = _get_args(
-                        func, action, None, args, kwargs, ignore_args
-                    )
+                    args_parsed = _get_args(func, args, kwargs, ignore_args)
                 else:
                     args_parsed = None
 
@@ -593,7 +615,7 @@ class Telemetry:
         return _log_call
 
 
-def _get_args(func, action, feature, fn_args, fn_kwargs, ignore_args):
+def _get_args(func, fn_args, fn_kwargs, ignore_args):
     mapping = _map_parameters_in_fn_call(fn_args, fn_kwargs, func)
 
     values_to_log = {}
