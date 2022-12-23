@@ -23,6 +23,8 @@ def mock_posthog(monkeypatch):
         [(1, 2), [1, 2]],
         [{1, 2}, [1, 2]],
         ["a" * 201, "a" * 200 + "...[truncated]"],
+        [[0] * 11, [0] * 10 + ["TRUNCATED"]],
+        [(0,) * 11, [0] * 10 + ["TRUNCATED"]],
     ],
 )
 def test_logs_args(mock_posthog, y, y_logged):

@@ -739,14 +739,19 @@ def get_sanitized_argv():
 
 
 def _should_log_value(value):
-    return isinstance(value, (bool, int, float, str, tuple, set))
+    return isinstance(value, (bool, int, float, str, tuple, list, set))
 
 
 def _process_value(value):
     if isinstance(value, str) and len(value) > 200:
         return value[:200] + "...[truncated]"
-    elif isinstance(value, (tuple, set)):
-        return list(value)
+    elif isinstance(value, (tuple, set, list)):
+        value = list(value)
+
+        if len(value) > 10:
+            value = value[:10] + ["TRUNCATED"]
+
+        return value
     else:
         return value
 
