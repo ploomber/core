@@ -1,6 +1,7 @@
 # CHANGELOG
 
-## 0.0.13dev
+## 0.0.13 (2022-12-23)
+* Truncating long lists in the telemetry module
 
 ## 0.0.12 (2022-12-23)
 * Improves telemetry module to allow logging selected function calling params
