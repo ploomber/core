@@ -503,3 +503,265 @@ def test_telemetry_group(mock_posthog, y, y_logged):
     assert mock_posthog.call_args_list[1][1] == expected_second
     assert mock_posthog.call_args_list[2][1] == expected_third
     assert mock_posthog.call_args_list[3][1] == expected_fourth
+
+
+def test_method_with_no_arguments(mock_posthog):
+    telemetry = telemetry_module.Telemetry(
+        api_key="KEY", package_name="somepackage", version="0.1"
+    )
+
+    class SomeObject:
+        @telemetry.log_call(log_args=True, group="SomeObject")
+        def do_stuff(self):
+            pass
+
+    obj = SomeObject()
+    obj.do_stuff()
+
+    expected_first = dict(
+        distinct_id="UUID",
+        event="somepackage-SomeObject-do_stuff-started",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-SomeObject-do_stuff-started",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {},
+            },
+            "total_runtime": None,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    expected_second = dict(
+        distinct_id="UUID",
+        event="somepackage-SomeObject-do_stuff-success",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-SomeObject-do_stuff-success",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {},
+            },
+            "total_runtime": ANY,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    assert mock_posthog.call_args_list[0][1] == expected_first
+    assert mock_posthog.call_args_list[1][1] == expected_second
+
+
+def test_function_with_no_arguments(mock_posthog):
+    telemetry = telemetry_module.Telemetry(
+        api_key="KEY", package_name="somepackage", version="0.1"
+    )
+
+    @telemetry.log_call(log_args=True)
+    def do_stuff():
+        pass
+
+    do_stuff()
+
+    expected_first = dict(
+        distinct_id="UUID",
+        event="somepackage-do_stuff-started",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-do_stuff-started",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {},
+            },
+            "total_runtime": None,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    expected_second = dict(
+        distinct_id="UUID",
+        event="somepackage-do_stuff-success",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-do_stuff-success",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {},
+            },
+            "total_runtime": ANY,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    assert mock_posthog.call_args_list[0][1] == expected_first
+    assert mock_posthog.call_args_list[1][1] == expected_second
+
+
+def test_function_with_args(mock_posthog):
+    telemetry = telemetry_module.Telemetry(
+        api_key="KEY", package_name="somepackage", version="0.1"
+    )
+
+    @telemetry.log_call(log_args=True)
+    def do_stuff(a, *args):
+        pass
+
+    do_stuff(1, 2, 3)
+
+    expected_first = dict(
+        distinct_id="UUID",
+        event="somepackage-do_stuff-started",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-do_stuff-started",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {"a": 1, "args": 2},
+            },
+            "total_runtime": None,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    expected_second = dict(
+        distinct_id="UUID",
+        event="somepackage-do_stuff-success",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-do_stuff-success",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {"a": 1, "args": 2},
+            },
+            "total_runtime": ANY,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    assert mock_posthog.call_args_list[0][1] == expected_first
+    assert mock_posthog.call_args_list[1][1] == expected_second
+
+
+def test_function_with_kwargs(mock_posthog):
+    telemetry = telemetry_module.Telemetry(
+        api_key="KEY", package_name="somepackage", version="0.1"
+    )
+
+    @telemetry.log_call(log_args=True)
+    def do_stuff(a, **kwargs):
+        pass
+
+    do_stuff(1, b=2, c=3)
+
+    expected_first = dict(
+        distinct_id="UUID",
+        event="somepackage-do_stuff-started",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-do_stuff-started",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {"a": 1, "b": 2, "c": 3},
+            },
+            "total_runtime": None,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    expected_second = dict(
+        distinct_id="UUID",
+        event="somepackage-do_stuff-success",
+        properties={
+            "event_id": ANY,
+            "user_id": "UUID",
+            "action": "somepackage-do_stuff-success",
+            "client_time": ANY,
+            "metadata": {
+                "argv": ANY,
+                "args": {"a": 1, "b": 2, "c": 3},
+            },
+            "total_runtime": ANY,
+            "python_version": ANY,
+            "version": "0.1",
+            "package_name": "somepackage",
+            "docker_container": False,
+            "cloud": None,
+            "email": None,
+            "os": ANY,
+            "environment": ANY,
+            "telemetry_version": ANY,
+        },
+    )
+
+    assert mock_posthog.call_args_list[0][1] == expected_first
+    assert mock_posthog.call_args_list[1][1] == expected_second
