@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.0.13dev
+
 ## 0.0.12 (2022-12-23)
 * Improves telemetry module to allow logging selected function calling params
 
