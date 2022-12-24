@@ -4,15 +4,15 @@ from ploomber_core.exceptions import BaseException
 
 
 def test_show(capsys):
-    BaseException('something').show()
+    BaseException("something").show()
     captured = capsys.readouterr()
     assert captured.err == "Error: something\n"
 
 
-@pytest.mark.parametrize('class_', [BaseException, Exception])
+@pytest.mark.parametrize("class_", [BaseException, Exception])
 def test_show_chained_exceptions(class_, capsys):
-    first = class_('first')
-    second = BaseException('second')
+    first = class_("first")
+    second = BaseException("second")
 
     try:
         raise second from first
@@ -22,4 +22,4 @@ def test_show_chained_exceptions(class_, capsys):
     ex.show()
 
     captured = capsys.readouterr()
-    assert captured.err == 'Error: second\nfirst\n'
+    assert captured.err == "Error: second\nfirst\n"

@@ -1,4 +1,3 @@
 def test_sample():
-    """Sample CI so the tests pass
-    """
+    """Sample CI so the tests pass"""
     pass
