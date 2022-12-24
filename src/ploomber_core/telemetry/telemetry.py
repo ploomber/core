@@ -807,6 +807,7 @@ def _map_parameters_in_fn_call(args, kwargs, func):
 
 
 try:
-    internal = Internal()
+    # initialize config at import time to prevent race conditions
+    Internal()
 except Exception:
     pass
