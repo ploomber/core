@@ -47,6 +47,24 @@ def ignore_ploomber_stats_enabled_env_var(monkeypatch):
         monkeypatch.delenv("CI", raising=True)
 
 
+def test_creates_config_directory(
+    monkeypatch, tmp_directory, ignore_ploomber_stats_enabled_env_var
+):
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+
+    @_telemetry.log_call()
+    def my_function():
+        pass
+
+    my_function()
+
+    assert Path("stats").is_dir()
+    assert Path("stats", "uid.yaml").is_file()
+    assert Path("stats", "config.yaml").is_file()
+
+
 @pytest.fixture
 def ignore_env_var_and_set_tmp_default_home_dir(
     tmp_directory, ignore_ploomber_stats_enabled_env_var, monkeypatch
