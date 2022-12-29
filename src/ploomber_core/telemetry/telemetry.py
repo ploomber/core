@@ -47,7 +47,7 @@ import posthog
 from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
 
-TELEMETRY_VERSION = "0.3"
+TELEMETRY_VERSION = "0.4"
 DEFAULT_HOME_DIR = "~/.ploomber"
 DEFAULT_USER_CONF = "config.yaml"
 DEFAULT_PLOOMBER_CONF = "uid.yaml"

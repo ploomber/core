@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 0.0.14dev
+* Bumps up telemetry version to version `0.4` (the schema changed happened in version `0.0.12` but we forgot to update it)
 
 ## 0.0.13 (2022-12-23)
 * Truncating long lists in the telemetry module
