@@ -58,7 +58,7 @@ def add(x, y):
 add(21, 21)
 ```
 
-### Customized message
+### Custom message
 
 If you need to customize the message, use `custom_mesasge`:
 
@@ -111,8 +111,33 @@ If a method is renamed:
 from ploomber_core import deprecated
 
 class SomeClass:
-    
+
     @deprecated.method(deprecated_in="0.1", removed_in="0.3", name_new="something_else")
+    def do_something(self, *args, **kwargs):
+        return self.do_something_else(*args, **kwargs)
+    
+    def do_something_else(self, a, b):
+        return a + b
+
+obj = SomeClass()
+```
+
+```{code-cell} ipython3
+obj.do_something(1, 1)
+```
+
+### Custom message
+
+If the method was renamed and any other behavior changed, use `custom_message`:
+
+```{code-cell} ipython3
+from ploomber_core import deprecated
+
+class SomeClass:
+
+    @deprecated.method(deprecated_in="0.1", removed_in="0.3",
+                       name_new="something_else",
+                       custom_message="Parameters changed from x, y to a, b")
     def do_something(self, *args, **kwargs):
         return self.do_something_else(*args, **kwargs)
     
