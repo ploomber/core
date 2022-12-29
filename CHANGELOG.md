@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.0.15dev
+## 0.1 (2022-12-29)
 * Makes `PloomberDeprecationWarning` a subclass of `FutureWarning`
 * Adds more features to the `deprecated` module
 * Adds new exceptions to the `exceptions` module
