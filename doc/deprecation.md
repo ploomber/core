@@ -22,6 +22,10 @@ We keep backwards compatibility for two major releases. Example: if we're in ver
 until 0.12, if we're in 0.12.9, we'll keep it until 0.14.0
 ```
 
+```{tip}
+When introducing changes, we add some directives to the docstrings, consider adding them to the tutorials that use them as well.
+```
+
 +++
 
 ## Function deprecated
