@@ -102,7 +102,13 @@ def function(deprecated_in, removed_in, *, name_new=None, custom_message=None):
 
 
 def method(deprecated_in, removed_in, *, name_new=None, custom_message=None):
-    """A decorator for deprecated methods"""
+    """A decorator for deprecated methods
+
+    Notes
+    -----
+    .. versionchanged:: 0.1
+        Added ``name_new`` and ``custom_message``
+    """
 
     def decorator(fn):
         @wraps(fn)

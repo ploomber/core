@@ -13,7 +13,8 @@ parts:
 
 - caption: API Reference
   chapters:
-    - file: api
+    - file: api/deprecated
+    - file: api/telemetry
 
 - caption: Community
   chapters:

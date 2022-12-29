@@ -20,6 +20,10 @@ The `ploomber_core.exceptions` module implements some exceptions that customize 
 
 ## `PloomberValueError`
 
+```{versionadded} 0.1
+Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
+```
+
 A subclass of the built-in `ValueError`, use it when the value is unexpected:
 
 ```{code-cell} ipython3
@@ -48,6 +52,10 @@ call_person("John")
 
 ## `PloomberTypeError`
 
+```{versionadded} 0.1
+Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
+```
+
 A subclass of the built-in `TypeError`, use it when the type is unexpected:
 
 ```{code-cell} ipython3
@@ -75,6 +83,10 @@ add_one("hello")
 ```
 
 ## `PloomberKeyError`
+
+```{versionadded} 0.1
+Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
+```
 
 A subclass of the built-in `KeyError`, use it when a key is missing:
 
