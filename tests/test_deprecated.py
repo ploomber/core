@@ -14,7 +14,7 @@ def test_deprecated_method():
 
     match = (
         r"'some_method' from 'SomeClass' was deprecated in version "
-        r"0.10 and will be removed in version 0.12"
+        r"0.10. 'some_method' will be removed in version 0.12"
     )
 
     with pytest.warns(PloomberDeprecationWarning, match=match):

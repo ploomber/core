@@ -40,3 +40,30 @@ class BaseException(ClickException):
             file = get_text_stderr()
 
         echo(_(self.get_message()), file=file)
+
+
+COMMUNITY = (
+    "\nIf you need help solving this "
+    "issue, send us a message: https://ploomber.io/community"
+)
+
+
+class PloomberValueError(ValueError):
+    """Subclass of ValueError that displays the community link"""
+
+    def __init__(self, message):
+        super().__init__(f"{message}. {COMMUNITY}")
+
+
+class PloomberTypeError(TypeError):
+    """Subclass of TypeError that displays the community link"""
+
+    def __init__(self, message):
+        super().__init__(f"{message}. {COMMUNITY}")
+
+
+class PloomberKeyError(KeyError):
+    """Subclass of KeyError that displays the community link"""
+
+    def __init__(self, message):
+        super().__init__(f"{message}. {COMMUNITY.strip()}")
