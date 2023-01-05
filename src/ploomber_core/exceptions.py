@@ -1,8 +1,10 @@
 import typing as t
+from functools import wraps
+from gettext import gettext as _
+
 from click.exceptions import ClickException
 from click._compat import get_text_stderr
 from click.utils import echo
-from gettext import gettext as _
 
 
 def _format_message(exception):
@@ -67,3 +69,23 @@ class PloomberKeyError(KeyError):
 
     def __init__(self, message):
         super().__init__(f"{message}. {COMMUNITY.strip()}")
+
+
+def modify_exceptions(fn):
+    """A decorator that catches ValueError and modifies the original error message
+
+    Notes
+    -----
+    .. versionadded:: 0.1.1
+    """
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except ValueError as e:
+            message = e.args[0] + COMMUNITY
+            e.args = (message,)
+            raise
+
+    return wrapper

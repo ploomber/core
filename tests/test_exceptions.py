@@ -38,3 +38,25 @@ def test_type_error():
 def test_key_error():
     with pytest.raises(KeyError):
         raise exceptions.PloomberKeyError("error")
+
+
+def test_modify_exceptions_value_error():
+    @exceptions.modify_exceptions
+    def crash():
+        raise ValueError("some message")
+
+    with pytest.raises(ValueError) as excinfo:
+        crash()
+
+    assert "https://ploomber.io/community" in str(excinfo.value)
+
+
+def test_do_not_catch_other_errors():
+    @exceptions.modify_exceptions
+    def crash():
+        raise TypeError("some message")
+
+    with pytest.raises(TypeError) as excinfo:
+        crash()
+
+    assert "https://ploomber.io/community" not in str(excinfo.value)
