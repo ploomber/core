@@ -114,3 +114,29 @@ collection['a']
 
 collection['b']
 ```
+
+## Catching generic exceptions
+
+```{versionadded} 0.1.1
+```
+
+To catch and modify exceptions raised by third-party packages:
+
+```{code-cell} ipython3
+from ploomber_core.exceptions import modify_exceptions
+```
+
+```{code-cell} ipython3
+def do_stuff():
+    raise ValueError("some error")
+
+@modify_exceptions
+def some_function():
+    do_stuff()
+```
+
+```{code-cell} ipython3
+:tags: [raises-exception]
+
+some_function()
+```

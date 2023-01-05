@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 0.1.1dev
+* Adds `exceptions.modify_exceptions` decorator
 
 ## 0.1 (2022-12-29)
 * Makes `PloomberDeprecationWarning` a subclass of `FutureWarning`
