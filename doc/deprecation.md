@@ -45,7 +45,7 @@ def add(x, y):
     Notes
     -----
     .. deprecated:: 0.1
-        'add' is deprecated, will be removed in version 0.3
+        ``add`` is deprecated, will be removed in version 0.3
     """
     return x + y
 
@@ -73,7 +73,7 @@ def sum(x, y):
     Notes
     -----
     .. versionadded:: 0.1
-        'sum' was renamed from 'add'. 'add' removed in version 0.3
+        ``sum`` was renamed from ``add``. ``add`` removed in version 0.3
     """
     return x + y
 
@@ -83,7 +83,7 @@ def add(x, y):
     Notes
     -----
     .. deprecated:: 0.1
-        'add' renamed to 'sum'. 'add' will be removed in version 0.3
+        ``add`` renamed to ``sum``. ``add`` will be removed in version 0.3
     """
     return x + y
 
@@ -108,7 +108,7 @@ def sum(a, b):
     Notes
     -----
     .. versionadded:: 0.1
-        'sum' was renamed from 'add', and parameters renamed to 'a', and 'b'. 'add' removed in version 0.3
+        ``sum`` was renamed from ``add``, and parameters renamed to ``a``, and ``b``. ``add`` removed in version 0.3
     """
     return a + b
 
@@ -120,7 +120,7 @@ def add(x, y):
     Notes
     -----
     .. deprecated:: 0.1
-        'add' renamed to 'sum'. 'add' will be removed in version 0.3
+        ``add`` renamed to ``sum``. ``add`` will be removed in version 0.3
     """
     return x + y
 
@@ -142,7 +142,7 @@ class SomeClass:
         Notes
         -----
         .. deprecated:: 0.1
-            'do_something' is deprecated, and it will be removed in version 0.3
+            ``do_something`` is deprecated, and it will be removed in version 0.3
         """
         return 42
 
@@ -176,7 +176,7 @@ class SomeClass:
         Notes
         -----
         .. deprecated:: 0.1
-            'do_something' renamed to 'do_something_else'. 'do_something' will be removed in version 0.3
+            ``do_something`` renamed to ``do_something_else``. ``do_something`` will be removed in version 0.3
         """
         return self.do_something_else(*args, **kwargs)
     
@@ -185,7 +185,7 @@ class SomeClass:
         Notes
         -----
         .. versionadded:: 0.1
-            'do_something_else' was renamed from 'do_something'. 'do_something' removed in version 0.3
+            ``do_something_else`` was renamed from ``do_something``. ``do_something`` removed in version 0.3
         """
         return a + b
 
@@ -218,7 +218,7 @@ class SomeClass:
         Notes
         -----
         .. deprecated:: 0.1
-            'do_something' renamed to 'do_something_else'. 'do_something' will be removed in version 0.3
+            ``do_something`` renamed to ``do_something_else``. ``do_something`` will be removed in version 0.3
         """
         return self.do_something_else(x, y)
 
@@ -227,8 +227,8 @@ class SomeClass:
         Notes
         -----
         .. versionadded:: 0.1
-            'do_something_else' was renamed from 'do_something'. Parameters changed from x, y to a, b
-            'do_something' removed in version 0.3
+            ``do_something_else`` was renamed from ``do_something``. Parameters changed from x, y to a, b
+            ``do_something`` removed in version 0.3
         """
         return a + b
 
@@ -260,7 +260,7 @@ class SomeClass:
         Notes
         -----
         .. deprecated:: 0.1
-            'some_attribute' is deprecated, will be removed in version 0.3.
+            ``some_attribute`` is deprecated, will be removed in version 0.3.
         """
         return 42
 
@@ -294,7 +294,7 @@ class SomeClass:
         Notes
         -----
         .. deprecated:: 0.1
-            'some_attribute' renamed to 'new_attribute'. 'some_attribute' will be removed in version 0.3
+            ``some_attribute`` renamed to ``new_attribute``. ``some_attribute`` will be removed in version 0.3
         """
         return self.new_attribute
 
@@ -304,7 +304,7 @@ class SomeClass:
         Notes
         -----
         .. versionadded:: 0.1
-            'new_attribute' was renamed from 'some_attribute'. 'some_attribute' removed in version 0.3
+            ``new_attribute`` was renamed from ``some_attribute``. ``some_attribute`` removed in version 0.3
         """
         return 42
 
@@ -329,7 +329,7 @@ def example_function(k='deprecated'):
     Notes
     -----
     .. deprecated:: 0.1
-        'k' argument is deprecated, will be removed in version 0.3
+        ``k`` argument is deprecated, will be removed in version 0.3
     """
     deprecated.parameter_deprecated(deprecated_in="0.1",
                                     removed_in="0.3",
@@ -355,19 +355,19 @@ example_function(k=1)
 Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
 ```
 
-If a parameter is renamed, set the default value of the old parameter to `"deprecated"`, set the old default value in the new parameter and use the `.. versionchanged:: {deprecared_in}` directive:
+If a parameter is renamed, set the default value of the old parameter to `"deprecated"`, move it to the end, set the old default value in the new parameter (in the same position as the old parameter) and use the `.. deprecated:: {removed_in}` directive:
 
 ```{code-cell} ipython3
 from ploomber_core import deprecated
 
 
-def example_function(n_clusters=8, k='deprecated'):
+def example_function(n_clusters=8, another=42, k='deprecated'):
     """
     
     Notes
     -----
-    .. versionchanged:: 0.1
-        'k' was renamed to 'n_clusters'. 'k' removed in 0.3.
+    .. deprecated:: 0.3
+        ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.3.
     """
     if deprecated.parameter_renamed(deprecated_in="0.1",
                                     removed_in="0.3",
@@ -447,19 +447,19 @@ example_function()
 Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
 ```
 
-If the parameter is renamed and behavior changes (e.g., the default value changed), set the old parameter to `"deprecated"`, and pass a custom message. Furthermore, add the `.. versionchanged:: {deprecated_in}` directive an include the custom message there as well.
+If the parameter is renamed and behavior changes (e.g., the default value changed), set the old parameter to `"deprecated"`, move it to the end, add the new parameter (in the same position as the old one), and pass a custom message. Furthermore, add the `.. deprecated:: {removed_in}` directive an include the custom message there as well.
 
 ```{code-cell} ipython3
 from ploomber_core import deprecated
 
 
-def example_function(n_clusters=10, k='deprecated'):
+def example_function(n_clusters=10, another=42, k='deprecated'):
     """
     
     Notes
     -----
-    .. versionchanged:: 0.1
-        'k' was renamed to 'n_clusters'. 'k' removed in 0.3. Default n_clusters is 10
+    .. deprecated:: 0.3
+        ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.3. Default n_clusters is 10
     """
     if deprecated.parameter_renamed(deprecated_in="0.1",
                                     removed_in="0.3",
