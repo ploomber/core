@@ -15,6 +15,10 @@ kernelspec:
 
 # Telemetry
 
+```{versionadded} 0.1.2
+Set the `_PLOOMBER_TELEMETRY_DEBUG` environment variable (any value) to override the PostHog key. Events will be logged to the "Debugging" project.
+```
+
 `ploomber-core` implements a `Telemetry` class that we use to understand usage and improve our products:
 
 

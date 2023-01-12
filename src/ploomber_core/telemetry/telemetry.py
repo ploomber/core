@@ -40,6 +40,7 @@ import sys
 from uuid import uuid4
 from functools import wraps
 import platform
+import warnings
 
 import click
 import posthog
@@ -453,6 +454,13 @@ class Telemetry:
             Version of the package calling the function
 
         """
+        if "_PLOOMBER_TELEMETRY_DEBUG" in os.environ:
+            warnings.warn(
+                "_PLOOMBER_TELEMETRY_DEBUG environment variable set, "
+                "overriding posthog key..."
+            )
+            api_key = "phc_JtG9P0pl0v0XExLqbqKfmXZjUm2wFq9cCxHE4LM74IG"
+
         self.api_key = api_key
         self.package_name = package_name
         self.version = version
