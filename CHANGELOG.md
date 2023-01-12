@@ -1,6 +1,7 @@
 # CHANGELOG
 
-## 0.1.2dev
+## 0.1.2 (2023-01-11)
+* Setting the `_PLOOMBER_TELEMETRY_DEBUG` environment variable overrides the PostHog key to log events in the "Debugging" project.
 
 ## 0.1.1 (2023-01-05)
 * Adds `exceptions.modify_exceptions` decorator
