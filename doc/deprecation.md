@@ -366,7 +366,7 @@ def example_function(n_clusters=8, another=42, k='deprecated'):
     
     Notes
     -----
-    .. deprecated:: 0.3
+    .. deprecated:: 0.1
         ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.3.
     """
     if deprecated.parameter_renamed(deprecated_in="0.1",
@@ -458,7 +458,7 @@ def example_function(n_clusters=10, another=42, k='deprecated'):
     
     Notes
     -----
-    .. deprecated:: 0.3
+    .. deprecated:: 0.1
         ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.3. Default n_clusters is 10
     """
     if deprecated.parameter_renamed(deprecated_in="0.1",
