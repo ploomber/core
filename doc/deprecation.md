@@ -16,7 +16,7 @@ kernelspec:
 # Deprecations
 
 ```{versionchanged} 0.2
-If you use this module, ensure you pin this version in the `setup.py` file (`ploomber-core>=0.2,<0.3`)
+If you use this module, ensure you pin this version in the `setup.py` file (`ploomber-core>=0.2`)
 ```
 
 The `deprecated` module contains utilities for marking code as deprecated, renaming and changing default values.
