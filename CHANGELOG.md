@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.1dev
+
 ## 0.2.0 (2023-01-13)
 * [API Change] Refactors some functions in the `deprecated` module.
 
