@@ -15,11 +15,14 @@ kernelspec:
 
 # Deprecations
 
+```{versionchanged} 0.2
+If you use this module, ensure you pin this version in the `setup.py` file (`ploomber-core>=0.2,<0.3`)
+```
+
 The `deprecated` module contains utilities for marking code as deprecated, renaming and changing default values.
 
 ```{important}
-We keep backwards compatibility for two major releases. Example: if we're in version 0.10, we'll keep compatibility
-until 0.12, if we're in 0.12.9, we'll keep it until 0.14.0
+When using this module, ensure you add unit tests, click here to see [sample tests.](https://github.com/ploomber/core/blob/main/tests/test_deprecated.py)
 ```
 
 ```{tip}
@@ -30,33 +33,29 @@ When introducing changes, we add some directives to the docstrings, consider add
 
 ## Function deprecated
 
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
-
 To deprecate a function, use `deprecated.function`, and add the `.. deprecated::` directive:
 
 ```{code-cell} ipython3
 from ploomber_core import deprecated
 
-@deprecated.function(deprecated_in="0.1", removed_in="0.3")
+@deprecated.function(deprecated_in="0.1", remove_in="0.2")
 def add(x, y):
     """
     Notes
     -----
     .. deprecated:: 0.1
-        ``add`` is deprecated, will be removed in version 0.3
+        ``add`` is deprecated, will be removed in version 0.2
     """
     return x + y
+```
 
+When a use calls the function, a warning is displayed:
+
+```{code-cell} ipython3
 add(21, 21)
 ```
 
 ## Function renamed
-
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
 
 If the function will not disappear but be renamed, pass `name_new="new_name"`.
 
@@ -73,20 +72,24 @@ def sum(x, y):
     Notes
     -----
     .. versionadded:: 0.1
-        ``sum`` was renamed from ``add``. ``add`` removed in version 0.3
+        ``sum`` was renamed from ``add``. ``add`` removed in version 0.2
     """
     return x + y
 
-@deprecated.function(deprecated_in="0.1", removed_in="0.3", name_new="sum")
+@deprecated.function(deprecated_in="0.1", remove_in="0.2", new_name="sum")
 def add(x, y):
     """
     Notes
     -----
     .. deprecated:: 0.1
-        ``add`` renamed to ``sum``. ``add`` will be removed in version 0.3
+        ``add`` renamed to ``sum``. ``add`` will be removed in version 0.2
     """
     return x + y
+```
 
+Using the old function shows a warning:
+
+```{code-cell} ipython3
 add(21, 21)
 ```
 
@@ -108,19 +111,20 @@ def sum(a, b):
     Notes
     -----
     .. versionadded:: 0.1
-        ``sum`` was renamed from ``add``, and parameters renamed to ``a``, and ``b``. ``add`` removed in version 0.3
+        ``sum`` was renamed from ``add``, and parameters renamed to ``a``, and ``b``. ``add`` removed in version 0.2
     """
     return a + b
 
-@deprecated.function(deprecated_in="0.1", removed_in="0.3",
-                     name_new="sum",
+@deprecated.function(deprecated_in="0.1",
+                     remove_in="0.3",
+                     new_name="sum",
                      custom_message="Params renamed to a and b")
 def add(x, y):
     """
     Notes
     -----
     .. deprecated:: 0.1
-        ``add`` renamed to ``sum``. ``add`` will be removed in version 0.3
+        ``add`` renamed to ``sum``. ``add`` will be removed in version 0.2
     """
     return x + y
 
@@ -136,13 +140,13 @@ from ploomber_core import deprecated
 
 class SomeClass:
     
-    @deprecated.method(deprecated_in="0.1", removed_in="0.3")
+    @deprecated.method(deprecated_in="0.1", remove_in="0.3")
     def do_something(self):
         """
         Notes
         -----
         .. deprecated:: 0.1
-            ``do_something`` is deprecated, and it will be removed in version 0.3
+            ``do_something`` is deprecated, and it will be removed in version 0.2
         """
         return 42
 
@@ -153,10 +157,6 @@ obj.do_something()
 ```
 
 ## Method renamed
-
-```{versionadded} 0.1
-If using `name_new`, Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
 
 If a method is renamed, use `deprecated.method`.
 
@@ -170,13 +170,13 @@ from ploomber_core import deprecated
 
 class SomeClass:
 
-    @deprecated.method(deprecated_in="0.1", removed_in="0.3", name_new="something_else")
+    @deprecated.method(deprecated_in="0.1", remove_in="0.2", new_name="something_else")
     def do_something(self, *args, **kwargs):
         """
         Notes
         -----
         .. deprecated:: 0.1
-            ``do_something`` renamed to ``do_something_else``. ``do_something`` will be removed in version 0.3
+            ``do_something`` renamed to ``do_something_else``. ``do_something`` will be removed in version 0.2
         """
         return self.do_something_else(*args, **kwargs)
     
@@ -185,7 +185,7 @@ class SomeClass:
         Notes
         -----
         .. versionadded:: 0.1
-            ``do_something_else`` was renamed from ``do_something``. ``do_something`` removed in version 0.3
+            ``do_something_else`` was renamed from ``do_something``. ``do_something`` removed in version 0.2
         """
         return a + b
 
@@ -210,15 +210,16 @@ from ploomber_core import deprecated
 
 class SomeClass:
 
-    @deprecated.method(deprecated_in="0.1", removed_in="0.3",
-                       name_new="something_else",
+    @deprecated.method(deprecated_in="0.1",
+                       remove_in="0.2",
+                       new_name="something_else",
                        custom_message="Parameters changed from x, y to a, b")
     def do_something(self, x, y):
         """
         Notes
         -----
         .. deprecated:: 0.1
-            ``do_something`` renamed to ``do_something_else``. ``do_something`` will be removed in version 0.3
+            ``do_something`` renamed to ``do_something_else``. ``do_something`` will be removed in version 0.2
         """
         return self.do_something_else(x, y)
 
@@ -228,7 +229,7 @@ class SomeClass:
         -----
         .. versionadded:: 0.1
             ``do_something_else`` was renamed from ``do_something``. Parameters changed from x, y to a, b
-            ``do_something`` removed in version 0.3
+            ``do_something`` removed in version 0.2
         """
         return a + b
 
@@ -241,10 +242,6 @@ obj.do_something(1, 1)
 
 ## Attribute deprecated
 
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
-
 Use `deprecated.method` to deprecate attributes, and add the `.. deprecated:: {deprecated_in}` directive:
 
 ```{code-cell} ipython3
@@ -253,14 +250,14 @@ from ploomber_core import deprecated
 class SomeClass:
     
     @property
-    @deprecated.method(deprecated_in="0.1", removed_in="0.3")
+    @deprecated.method(deprecated_in="0.1", remove_in="0.2")
     def some_attribute(self):
         """
         
         Notes
         -----
         .. deprecated:: 0.1
-            ``some_attribute`` is deprecated, will be removed in version 0.3.
+            ``some_attribute`` is deprecated, will be removed in version 0.2
         """
         return 42
 
@@ -270,10 +267,6 @@ obj.some_attribute
 ```
 
 ## Attribute renamed
-
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
 
 If an attribute is renamed, use `deprecated.method` and pass the `renamed` argument.
 
@@ -288,13 +281,13 @@ from ploomber_core import deprecated
 class SomeClass:
     
     @property
-    @deprecated.method(deprecated_in="0.1", removed_in="0.3", name_new="new_attribute")
+    @deprecated.method(deprecated_in="0.1", remove_in="0.2", new_name="new_attribute")
     def some_attribute(self):
         """
         Notes
         -----
         .. deprecated:: 0.1
-            ``some_attribute`` renamed to ``new_attribute``. ``some_attribute`` will be removed in version 0.3
+            ``some_attribute`` renamed to ``new_attribute``. ``some_attribute`` will be removed in version 0.2
         """
         return self.new_attribute
 
@@ -304,7 +297,7 @@ class SomeClass:
         Notes
         -----
         .. versionadded:: 0.1
-            ``new_attribute`` was renamed from ``some_attribute``. ``some_attribute`` removed in version 0.3
+            ``new_attribute`` was renamed from ``some_attribute``. ``some_attribute`` removed in version 0.2
         """
         return 42
 
@@ -315,11 +308,7 @@ obj.some_attribute
 
 ## Parameter deprecated
 
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
-
-If a function/method argument is deprecated, set the default value of the old parameter to `"deprecated"` and use the following recipe (remember to add the `.. deprecated:: {deprecated_in}` directive):
+If a function/method argument is deprecated, set the default value `"deprecated"` and use the following recipe (remember to add the `.. deprecated:: {deprecated_in}` directive):
 
 ```{code-cell} ipython3
 from ploomber_core import deprecated
@@ -329,10 +318,10 @@ def example_function(k='deprecated'):
     Notes
     -----
     .. deprecated:: 0.1
-        ``k`` argument is deprecated, will be removed in version 0.3
+        ``k`` argument is deprecated, will be removed in version 0.2
     """
     deprecated.parameter_deprecated(deprecated_in="0.1",
-                                    removed_in="0.3",
+                                    remove_in="0.3",
                                     name_old="k",
                                     value_passed=k)
 ```
@@ -351,32 +340,36 @@ example_function(k=1)
 
 ## Parameter renamed
 
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
+If a parameter is renamed, follow these steps:
 
-If a parameter is renamed, set the default value of the old parameter to `"deprecated"`, move it to the end, set the old default value in the new parameter (in the same position as the old parameter) and use the `.. deprecated:: {removed_in}` directive:
+- Add the new parameter in the same position as the old one
+- Set the old default value in the new parameter (if any)
+- Move the old parameter to the end
+- Set the default value of the old parameter to `"deprecated"`
+- Add the `.. deprecated:: {removed_in}` directive
+
+Then, call `deprecated.parameter_renamed`. Example:
 
 ```{code-cell} ipython3
 from ploomber_core import deprecated
 
 
-def example_function(n_clusters=8, another=42, k='deprecated'):
+def example_function(n_clusters=8, another=42, k="deprecated"):
     """
     
     Notes
     -----
     .. deprecated:: 0.1
-        ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.3.
+        ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.2
     """
-    if deprecated.parameter_renamed(deprecated_in="0.1",
-                                    removed_in="0.3",
-                                    name_old="k",
-                                    name_new="n_clusters",
-                                    value_passed=k):
-        n_clusters = k
+    n_clusters =  deprecated.parameter_renamed(deprecated_in="0.1",
+                                               remove_in="0.2",
+                                               old_name="k",
+                                               old_value=k,
+                                               new_name="n_clusters",
+                                               new_value=n_clusters)
     
-    print(f"k is {k!r}, n_clusters is {n_clusters!r}")
+    print(f"n_clusters={n_clusters!r}, k={k!r}")
 
     # ignore k and use n_clusters in the body of the function
 ```
@@ -401,30 +394,24 @@ example_function(n_clusters=10)
 
 ## Parameter with new default value
 
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
-
 If a default value is changed, set it to `"warn"`, and use the `.. versionchanged:: {removed_in}` directive:
 
 ```{code-cell} ipython3
 from ploomber_core import deprecated
 
-def example_function(n_clusters='warn'):
+def example_function(n_clusters="warn"):
     """
     
     Notes
     -----
-    .. versionchanged:: 0.3
+    .. versionchanged:: 0.2
         'n_clusters' default value changed from 5 to 10
     """
-    value_old = 5
-    if deprecated.parameter_default_changed(removed_in="0.3",
-                                            name="n_clusters",
-                                            value_old=value_old,
-                                            value_new=10,
-                                            value_passed=n_clusters):
-        n_clusters = value_old
+    n_clusters = deprecated.parameter_default_changed("0.2",
+                                                      name="n_clusters",
+                                                      old_default=5,
+                                                      new_default=10,
+                                                      value=n_clusters)
     
     print(f"n_clusters is {n_clusters}")
 ```
@@ -443,11 +430,15 @@ example_function()
 
 ## Parameter renamed and changed
 
-```{versionadded} 0.1
-Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
-```
 
-If the parameter is renamed and behavior changes (e.g., the default value changed), set the old parameter to `"deprecated"`, move it to the end, add the new parameter (in the same position as the old one), and pass a custom message. Furthermore, add the `.. deprecated:: {removed_in}` directive an include the custom message there as well.
+If the parameter is renamed and behavior changes:
+
+- Add the new parameter in the same position as the old one
+- Set the old default value in the new parameter (if any)
+- Move the old parameter to the end
+- Set the default value of the old parameter to `"deprecated"`
+- Add the `.. deprecated:: {removed_in}` directive
+- Include a message with the new default
 
 ```{code-cell} ipython3
 from ploomber_core import deprecated
@@ -459,17 +450,17 @@ def example_function(n_clusters=10, another=42, k='deprecated'):
     Notes
     -----
     .. deprecated:: 0.1
-        ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.3. Default n_clusters is 10
+        ``k`` was renamed to ``n_clusters``. ``k`` removed in 0.2. Default n_clusters is 10
     """
-    if deprecated.parameter_renamed(deprecated_in="0.1",
-                                    removed_in="0.3",
-                                    name_old="k",
-                                    name_new="n_clusters",
-                                    value_passed=k,
-                                    custom_message="Default n_clusters is 10"):
-        n_clusters = k
+    n_clusters = deprecated.parameter_renamed("0.1",
+                                              "0.2",
+                                              old_name="k",
+                                              old_value=k,
+                                              new_name="n_clusters",
+                                              new_value=n_clusters,
+                                              custom_message="Default n_clusters is 10")
     
-    print(f"k is {k!r}, n_clusters is {n_clusters!r}")
+    print(f"n_clusters={n_clusters!r}, k={k!r}")
 
     # ignore k and use n_clusters in the body of the function
 ```

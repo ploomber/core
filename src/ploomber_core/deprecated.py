@@ -7,7 +7,14 @@ COMMUNITY = "If you need help migrating, contact us: https://ploomber.io/communi
 
 
 def parameter_renamed(
-    deprecated_in, removed_in, name_old, name_new, value_passed, *, custom_message=None
+    deprecated_in,
+    remove_in,
+    *,
+    old_name,
+    old_value,
+    new_name,
+    new_value,
+    custom_message=None,
 ):
     """
 
@@ -16,20 +23,20 @@ def parameter_renamed(
     .. versionadded:: 0.1
     """
 
-    warn = value_passed != "deprecated"
+    using_old_parameter = old_value != "deprecated"
 
-    if warn:
+    if using_old_parameter:
         warnings.warn(
-            f"{name_old!r} was renamed to {name_new!r} in version "
-            f"{deprecated_in}. {name_old!r} will be removed in "
-            f"{removed_in}. {_message_end(custom_message)}",
+            f"{old_name!r} was renamed to {new_name!r} in version "
+            f"{deprecated_in}. {old_name!r} will be removed in "
+            f"{remove_in}. {_message_end(custom_message)}",
             PloomberDeprecationWarning,
         )
 
-    return warn
+    return old_value if using_old_parameter else new_value
 
 
-def parameter_deprecated(deprecated_in, removed_in, name_old, value_passed):
+def parameter_deprecated(deprecated_in, remove_in, *, name_old, value_passed):
     """
 
     Notes
@@ -42,30 +49,37 @@ def parameter_deprecated(deprecated_in, removed_in, name_old, value_passed):
         warnings.warn(
             f"{name_old!r} was deprecated in version "
             f"{deprecated_in}. {name_old!r} will be removed "
-            f"in {removed_in}. {COMMUNITY}",
+            f"in {remove_in}. {COMMUNITY}",
             PloomberDeprecationWarning,
         )
 
     return warn
 
 
-def parameter_default_changed(removed_in, name, value_old, value_new, value_passed):
+def parameter_default_changed(
+    changed_in,
+    *,
+    name,
+    old_default,
+    new_default,
+    value,
+):
     """
 
     Notes
     -----
     .. versionadded:: 0.1
     """
-    warn = value_passed == "warn"
+    using_default = value == "warn"
 
-    if warn:
+    if using_default:
         warnings.warn(
-            f"The default value of {name} will change from {value_old!r} to "
-            f"{value_new!r} in {removed_in}.",
+            f"The default value of {name} will change from {old_default!r} to "
+            f"{new_default!r} in {changed_in}.",
             PloomberDeprecationWarning,
         )
 
-    return warn
+    return old_default if using_default else value
 
 
 def _message_end(custom_message):
@@ -75,7 +89,7 @@ def _message_end(custom_message):
         return COMMUNITY
 
 
-def function(deprecated_in, removed_in, *, name_new=None, custom_message=None):
+def function(deprecated_in, remove_in, *, new_name=None, custom_message=None):
     """A decorator for deprecated functions
 
     Notes
@@ -86,12 +100,12 @@ def function(deprecated_in, removed_in, *, name_new=None, custom_message=None):
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            what = "deprecated" if not name_new else f"renamed to {name_new!r}"
+            what = "deprecated" if not new_name else f"renamed to {new_name!r}"
             name_old = fn.__name__
             warnings.warn(
                 f"Function {name_old!r} was "
                 f"{what} in version {deprecated_in}. {name_old!r} will be "
-                f"removed in version {removed_in}. {_message_end(custom_message)}",
+                f"removed in version {remove_in}. {_message_end(custom_message)}",
                 category=PloomberDeprecationWarning,
             )
             return fn(*args, **kwargs)
@@ -101,24 +115,24 @@ def function(deprecated_in, removed_in, *, name_new=None, custom_message=None):
     return decorator
 
 
-def method(deprecated_in, removed_in, *, name_new=None, custom_message=None):
+def method(deprecated_in, remove_in, *, new_name=None, custom_message=None):
     """A decorator for deprecated methods
 
     Notes
     -----
     .. versionchanged:: 0.1
-        Added ``name_new`` and ``custom_message``
+        Added ``new_name`` and ``custom_message``
     """
 
     def decorator(fn):
         @wraps(fn)
         def wrapper(self, *args, **kwargs):
-            what = "deprecated" if not name_new else f"renamed to {name_new!r}"
+            what = "deprecated" if not new_name else f"renamed to {new_name!r}"
             name_old = fn.__name__
             warnings.warn(
                 f"{name_old!r} from {type(self).__name__!r} was "
                 f"{what} in version {deprecated_in}. {name_old!r} will be "
-                f"removed in version {removed_in}. {_message_end(custom_message)}",
+                f"removed in version {remove_in}. {_message_end(custom_message)}",
                 category=PloomberDeprecationWarning,
             )
             return fn(self, *args, **kwargs)

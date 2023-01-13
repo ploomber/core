@@ -7,7 +7,7 @@ from ploomber_core.warnings import PloomberDeprecationWarning
 
 
 def test_function_deprecated():
-    @deprecated.function(deprecated_in="0.1", removed_in="0.3")
+    @deprecated.function(deprecated_in="0.1", remove_in="0.3")
     def add(x, y):
         return x + y
 
@@ -21,7 +21,7 @@ def test_function_deprecated():
 
 
 def test_function_renamed():
-    @deprecated.function(deprecated_in="0.1", removed_in="0.3", name_new="sum")
+    @deprecated.function(deprecated_in="0.1", remove_in="0.3", new_name="sum")
     def add(x, y):
         return x + y
 
@@ -37,8 +37,8 @@ def test_function_renamed():
 def test_function_renamed_custom_message():
     @deprecated.function(
         deprecated_in="0.1",
-        removed_in="0.3",
-        name_new="sum",
+        remove_in="0.3",
+        new_name="sum",
         custom_message="Params renamed to a and b",
     )
     def add(x, y):
@@ -56,7 +56,7 @@ def test_function_renamed_custom_message():
 
 def test_method_deprecated():
     class SomeClass:
-        @deprecated.method(deprecated_in="0.1", removed_in="0.3")
+        @deprecated.method(deprecated_in="0.1", remove_in="0.3")
         def do_something(self):
             return 42
 
@@ -74,7 +74,7 @@ def test_method_deprecated():
 def test_method_renamed():
     class SomeClass:
         @deprecated.method(
-            deprecated_in="0.1", removed_in="0.3", name_new="something_else"
+            deprecated_in="0.1", remove_in="0.3", new_name="something_else"
         )
         def do_something(self, *args, **kwargs):
             return self.do_something_else(*args, **kwargs)
@@ -97,8 +97,8 @@ def test_method_renamed_custom_message():
     class SomeClass:
         @deprecated.method(
             deprecated_in="0.1",
-            removed_in="0.3",
-            name_new="something_else",
+            remove_in="0.3",
+            new_name="something_else",
             custom_message="Arguments changed to a and b",
         )
         def do_something(self, *args, **kwargs):
@@ -122,7 +122,7 @@ def test_method_renamed_custom_message():
 def test_attribute_deprecated():
     class SomeClass:
         @property
-        @deprecated.method(deprecated_in="0.1", removed_in="0.3")
+        @deprecated.method(deprecated_in="0.1", remove_in="0.3")
         def some_attribute(self):
             return 42
 
@@ -141,7 +141,7 @@ def test_attribute_renamed():
     class SomeClass:
         @property
         @deprecated.method(
-            deprecated_in="0.1", removed_in="0.3", name_new="new_attribute"
+            deprecated_in="0.1", remove_in="0.3", new_name="new_attribute"
         )
         def some_attribute(self):
             return self.new_attribute
@@ -164,7 +164,7 @@ def test_attribute_renamed():
 def test_parameter_deprecated():
     def example_function(k="deprecated"):
         deprecated.parameter_deprecated(
-            deprecated_in="0.1", removed_in="0.3", name_old="k", value_passed=k
+            deprecated_in="0.1", remove_in="0.3", name_old="k", value_passed=k
         )
 
     with warnings.catch_warnings():
@@ -179,14 +179,14 @@ def test_parameter_deprecated():
 
 def test_parameter_renamed():
     def example_function(n_clusters=8, k="deprecated"):
-        if deprecated.parameter_renamed(
+        n_clusters = deprecated.parameter_renamed(
             deprecated_in="0.1",
-            removed_in="0.3",
-            name_old="k",
-            name_new="n_clusters",
-            value_passed=k,
-        ):
-            pass
+            remove_in="0.3",
+            old_name="k",
+            old_value=k,
+            new_name="n_clusters",
+            new_value=n_clusters,
+        )
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -203,13 +203,12 @@ def test_parameter_renamed():
 
 def test_parameter_new_default_value():
     def example_function(n_clusters="warn"):
-        value_old = 5
         if deprecated.parameter_default_changed(
-            removed_in="0.3",
+            changed_in="0.2",
             name="n_clusters",
-            value_old=value_old,
-            value_new=10,
-            value_passed=n_clusters,
+            old_default=5,
+            new_default=10,
+            value=n_clusters,
         ):
             pass
 
@@ -217,7 +216,7 @@ def test_parameter_new_default_value():
         warnings.simplefilter("error")
         example_function(n_clusters=3)
 
-    match = "The default value of n_clusters will change from 5 to 10 in 0.3."
+    match = "The default value of n_clusters will change from 5 to 10 in 0.2"
 
     with pytest.warns(PloomberDeprecationWarning, match=match):
         example_function()
@@ -227,10 +226,11 @@ def test_parameter_renamed_and_new_default_value():
     def example_function(n_clusters=10, k="deprecated"):
         if deprecated.parameter_renamed(
             deprecated_in="0.1",
-            removed_in="0.3",
-            name_old="k",
-            name_new="n_clusters",
-            value_passed=k,
+            remove_in="0.3",
+            old_name="k",
+            old_value=k,
+            new_name="n_clusters",
+            new_value=n_clusters,
             custom_message="Default n_clusters is 10",
         ):
             pass
