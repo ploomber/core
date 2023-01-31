@@ -48,7 +48,7 @@ import posthog
 from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
 
-TELEMETRY_VERSION = "0.4"
+TELEMETRY_VERSION = "0.5"
 DEFAULT_HOME_DIR = "~/.ploomber"
 DEFAULT_USER_CONF = "config.yaml"
 DEFAULT_PLOOMBER_CONF = "uid.yaml"
@@ -663,7 +663,7 @@ class Telemetry:
                     action_ = f"{action_}-{group}"
 
                 name = action or getattr(func, "__name__", "funcion-without-name")
-                action_ = f"{action_}-{name}"
+                action_ = (f"{action_}-{name}").replace("_", "-")
 
                 if log_args:
                     args_parsed = _get_args(func, args, kwargs, ignore_args)

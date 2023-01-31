@@ -50,6 +50,10 @@ def add(x, y):
 add(1, 41)
 ```
 
+```{note}
+Event names are normalized by replacing underscores (`_`) with hyphens (`-`).
+```
+
 For more details, see the [API Reference](api).
 
 ## Configuring telemetry in a package

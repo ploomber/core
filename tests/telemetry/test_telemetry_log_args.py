@@ -522,11 +522,11 @@ def test_method_with_no_arguments(mock_posthog):
 
     expected_first = dict(
         distinct_id="UUID",
-        event="somepackage-SomeObject-do_stuff-started",
+        event="somepackage-SomeObject-do-stuff-started",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-SomeObject-do_stuff-started",
+            "action": "somepackage-SomeObject-do-stuff-started",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
@@ -547,11 +547,11 @@ def test_method_with_no_arguments(mock_posthog):
 
     expected_second = dict(
         distinct_id="UUID",
-        event="somepackage-SomeObject-do_stuff-success",
+        event="somepackage-SomeObject-do-stuff-success",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-SomeObject-do_stuff-success",
+            "action": "somepackage-SomeObject-do-stuff-success",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
@@ -587,11 +587,11 @@ def test_function_with_no_arguments(mock_posthog):
 
     expected_first = dict(
         distinct_id="UUID",
-        event="somepackage-do_stuff-started",
+        event="somepackage-do-stuff-started",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-do_stuff-started",
+            "action": "somepackage-do-stuff-started",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
@@ -612,11 +612,11 @@ def test_function_with_no_arguments(mock_posthog):
 
     expected_second = dict(
         distinct_id="UUID",
-        event="somepackage-do_stuff-success",
+        event="somepackage-do-stuff-success",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-do_stuff-success",
+            "action": "somepackage-do-stuff-success",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
@@ -652,11 +652,11 @@ def test_function_with_args(mock_posthog):
 
     expected_first = dict(
         distinct_id="UUID",
-        event="somepackage-do_stuff-started",
+        event="somepackage-do-stuff-started",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-do_stuff-started",
+            "action": "somepackage-do-stuff-started",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
@@ -677,11 +677,11 @@ def test_function_with_args(mock_posthog):
 
     expected_second = dict(
         distinct_id="UUID",
-        event="somepackage-do_stuff-success",
+        event="somepackage-do-stuff-success",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-do_stuff-success",
+            "action": "somepackage-do-stuff-success",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
@@ -717,11 +717,11 @@ def test_function_with_kwargs(mock_posthog):
 
     expected_first = dict(
         distinct_id="UUID",
-        event="somepackage-do_stuff-started",
+        event="somepackage-do-stuff-started",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-do_stuff-started",
+            "action": "somepackage-do-stuff-started",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
@@ -742,11 +742,11 @@ def test_function_with_kwargs(mock_posthog):
 
     expected_second = dict(
         distinct_id="UUID",
-        event="somepackage-do_stuff-success",
+        event="somepackage-do-stuff-success",
         properties={
             "event_id": ANY,
             "user_id": "UUID",
-            "action": "somepackage-do_stuff-success",
+            "action": "somepackage-do-stuff-success",
             "client_time": ANY,
             "metadata": {
                 "argv": ANY,
