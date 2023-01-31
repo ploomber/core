@@ -663,7 +663,7 @@ class Telemetry:
                     action_ = f"{action_}-{group}"
 
                 name = action or getattr(func, "__name__", "funcion-without-name")
-                action_ = f"{action_}-{name}"
+                action_ = (f"{action_}-{name}").replace("_", "-")
 
                 if log_args:
                     args_parsed = _get_args(func, args, kwargs, ignore_args)
