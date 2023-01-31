@@ -1,6 +1,8 @@
 # CHANGELOG
 
 ## 0.2.1dev
+* [Fix] Telemetry: Sets version to `0.5`
+* [Fix] Telemetry: Normalizing event names (replacing `_` with `-`)
 
 ## 0.2.0 (2023-01-13)
 * [API Change] Refactors some functions in the `deprecated` module.
