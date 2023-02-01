@@ -2,6 +2,9 @@
 
 ## 0.2.3dev
 
+* [Fix] Improving `modify_exceptions` to include TypeError
+* [Fix] Deduplicating community message on nested functions
+
 ## 0.2.2 (2023-01-31)
 
 * [Fix] Telemetry: Sets version to `0.5`
