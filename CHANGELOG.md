@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.2dev
+## 0.2.2 (2023-01-31)
 
 * [Fix] Telemetry: Sets version to `0.5`
 * [Fix] Telemetry: Normalizing event names (replacing `_` with `-`)
