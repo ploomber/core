@@ -62,8 +62,7 @@ def test_modify_exceptions_value_error_method():
 
     assert exceptions.get_community_link() in str(excinfo.value)
 
-
-def test_do_not_catch_other_errors():
+def test_modify_exceptions_type_error():
     @exceptions.modify_exceptions
     def crash():
         raise TypeError("some message")
@@ -72,6 +71,28 @@ def test_do_not_catch_other_errors():
         crash()
 
     assert exceptions.get_community_link() in str(excinfo.value)
+
+
+def test_modify_exceptions_type_error_method():
+    class Something:
+        @exceptions.modify_exceptions
+        def crash(self):
+            raise TypeError("some message")
+
+    with pytest.raises(TypeError) as excinfo:
+        Something().crash()
+
+    assert exceptions.get_community_link() in str(excinfo.value)
+
+def test_do_not_catch_other_errors():
+    @exceptions.modify_exceptions
+    def crash():
+        raise IndexError("some message")
+
+    with pytest.raises(IndexError) as excinfo:
+        crash()
+
+    assert exceptions.get_community_link() not in str(excinfo.value)
 
 def test_modify_exceptions_duplicated_community_messages():
     @exceptions.modify_exceptions
