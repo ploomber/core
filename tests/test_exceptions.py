@@ -62,6 +62,7 @@ def test_modify_exceptions_value_error_method():
 
     assert exceptions.get_community_link() in str(excinfo.value)
 
+
 def test_modify_exceptions_type_error():
     @exceptions.modify_exceptions
     def crash():
@@ -84,6 +85,7 @@ def test_modify_exceptions_type_error_method():
 
     assert exceptions.get_community_link() in str(excinfo.value)
 
+
 def test_do_not_catch_other_errors():
     @exceptions.modify_exceptions
     def crash():
@@ -93,6 +95,7 @@ def test_do_not_catch_other_errors():
         crash()
 
     assert exceptions.get_community_link() not in str(excinfo.value)
+
 
 def test_modify_exceptions_duplicated_community_messages():
     @exceptions.modify_exceptions

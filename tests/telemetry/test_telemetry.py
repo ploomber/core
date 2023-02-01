@@ -184,7 +184,6 @@ def test_env_var_takes_precedence(
     env_value,
     expected_second,
 ):
-
     stats = Path("stats")
     stats.mkdir()
 
