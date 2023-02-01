@@ -48,7 +48,7 @@ def test_modify_exceptions_value_error():
     with pytest.raises(ValueError) as excinfo:
         crash()
 
-    assert "https://ploomber.io/community" in str(excinfo.value)
+    assert exceptions.get_community_link() in str(excinfo.value)
 
 
 def test_modify_exceptions_value_error_method():
@@ -60,7 +60,7 @@ def test_modify_exceptions_value_error_method():
     with pytest.raises(ValueError) as excinfo:
         Something().crash()
 
-    assert "https://ploomber.io/community" in str(excinfo.value)
+    assert exceptions.get_community_link() in str(excinfo.value)
 
 
 def test_do_not_catch_other_errors():
@@ -71,4 +71,22 @@ def test_do_not_catch_other_errors():
     with pytest.raises(TypeError) as excinfo:
         crash()
 
-    assert "https://ploomber.io/community" not in str(excinfo.value)
+    assert exceptions.get_community_link() in str(excinfo.value)
+
+def test_modify_exceptions_duplicated_community_messages():
+    @exceptions.modify_exceptions
+    def parent():
+        child()
+
+    @exceptions.modify_exceptions
+    def child():
+        grand_child()
+
+    @exceptions.modify_exceptions
+    def grand_child():
+        raise ValueError("message from grand_child")
+
+    with pytest.raises(ValueError) as excinfo:
+        parent()
+
+    assert str(excinfo.value).count(exceptions.get_community_link()) == 1
