@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.3dev
+## 0.2.3 (2023-02-01)
 
 * [Fix] Improving `modify_exceptions` to include TypeError
 * [Fix] Deduplicating community message on nested functions
