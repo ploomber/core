@@ -6,6 +6,16 @@ from click.exceptions import ClickException
 from click._compat import get_text_stderr
 from click.utils import echo
 
+COMMUNITY_LINK = "https://ploomber.io/community"
+
+COMMUNITY = (
+    "\nIf you need help solving this " "issue, send us a message: " + COMMUNITY_LINK
+)
+
+
+def get_community_link():
+    return COMMUNITY_LINK
+
 
 def _format_message(exception):
     if hasattr(exception, "format_message"):
@@ -44,12 +54,6 @@ class BaseException(ClickException):
         echo(_(self.get_message()), file=file)
 
 
-COMMUNITY = (
-    "\nIf you need help solving this "
-    "issue, send us a message: https://ploomber.io/community"
-)
-
-
 class PloomberValueError(ValueError):
     """Subclass of ValueError that displays the community link"""
 
@@ -83,9 +87,10 @@ def modify_exceptions(fn):
     def wrapper(*args, **kwargs):
         try:
             return fn(*args, **kwargs)
-        except ValueError as e:
-            message = e.args[0] + COMMUNITY
-            e.args = (message,)
+        except (ValueError, TypeError) as e:
+            if COMMUNITY not in e.args[0]:
+                message = e.args[0] + COMMUNITY
+                e.args = (message,)
             raise
 
     return wrapper

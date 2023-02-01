@@ -686,7 +686,6 @@ class Telemetry:
                     else:
                         result = func(*args, **kwargs)
                 except Exception as e:
-
                     metadata_error = {
                         # can we log None to posthog?
                         "type": getattr(e, "type_", None),
