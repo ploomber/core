@@ -1,9 +1,13 @@
 # CHANGELOG
 
-## 0.2.1 (2023-01-31)
+## 0.2.2dev
 
 * [Fix] Telemetry: Sets version to `0.5`
 * [Fix] Telemetry: Normalizing event names (replacing `_` with `-`)
+
+## 0.2.1
+
+*There was not `0.2.1` due to an error in the deployment script.*
 
 ## 0.2.0 (2023-01-13)
 
