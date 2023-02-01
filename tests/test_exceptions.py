@@ -113,4 +113,5 @@ def test_modify_exceptions_duplicated_community_messages():
     with pytest.raises(ValueError) as excinfo:
         parent()
 
+    # Make sure the community link only appears once
     assert str(excinfo.value).count(exceptions.get_community_link()) == 1
