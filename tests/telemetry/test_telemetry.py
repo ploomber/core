@@ -611,10 +611,14 @@ def test_log_call_add_payload_success(mock_telemetry):
     _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
     @_telemetry.log_call("some-action", payload=True)
-    def my_function(payload):
+    def my_function(payload, x, y):
+        print("parameters in my_function: \n")
+        print("payload: ", payload)
+        print("x: ", x)
+        print("y: ", y)
         payload["dag"] = "value"
 
-    my_function()
+    my_function(1, 2)
 
     mock_telemetry.assert_has_calls(
         [
@@ -639,16 +643,9 @@ def test_log_call_add_payload_in_class_success(mock_telemetry):
     telemetry_my_class = _telemetry.create_group("TestClass")
 
     class TestClass:
-        # Working
-        @telemetry_my_class.log_call("some-action")
-        def my_function(self, x, y):
-            print(x, y)
-
-        # Not Working
-        # @telemetry_my_class.log_call("some-action", payload=True)
-        # def my_function(self, payload, x, y):
-        # print (x, y)
-        # payload["sum"] = x + y
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload, x, y):
+            payload["sum"] = x + y
 
     test_class = TestClass()
     test_class.my_function(1, 2)
@@ -661,9 +658,7 @@ def test_log_call_add_payload_in_class_success(mock_telemetry):
             call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
-                metadata={
-                    "argv": ["bin", "arg"],
-                },
+                metadata={"argv": ["bin", "arg"], "sum": 3},
             ),
         ]
     )

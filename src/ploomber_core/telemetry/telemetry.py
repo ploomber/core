@@ -37,6 +37,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import inspect
 from uuid import uuid4
 from functools import wraps
 import platform
@@ -649,6 +650,7 @@ class Telemetry:
 
 
         """
+
         if ignore_args is None:
             ignore_args = set()
         else:
@@ -682,7 +684,19 @@ class Telemetry:
 
                 try:
                     if payload:
-                        result = func(_payload, *args, **kwargs)
+                        if "self" in inspect.signature(func).parameters:
+                            """
+                            If the method is defined in Class, the original parameter:
+                            def method(self, parameter1, parameter2,...)
+                            We will inject the payload parameter right after the self
+                            To become:
+                            def method(self, payload, parameter1, parameter2,...)
+                            """
+                            injected_args = list(args)
+                            injected_args.insert(1, _payload)
+                            result = func(*injected_args, **kwargs)
+                        else:
+                            result = func(_payload, *args, **kwargs)
                     else:
                         result = func(*args, **kwargs)
                 except Exception as e:
