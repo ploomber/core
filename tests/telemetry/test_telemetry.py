@@ -612,10 +612,6 @@ def test_log_call_add_payload_success(mock_telemetry):
 
     @_telemetry.log_call("some-action", payload=True)
     def my_function(payload, x, y):
-        print("parameters in my_function: \n")
-        print("payload: ", payload)
-        print("x: ", x)
-        print("y: ", y)
         payload["dag"] = "value"
 
     my_function(1, 2)
