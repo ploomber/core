@@ -427,6 +427,11 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     return event_id, uid, action, client_time, elapsed_time
 
 
+def is_first_arg_self(func):
+    params = list(inspect.signature(func).parameters)
+    return len(params) > 0 and "self" in params and params[0] == "self"
+
+
 class TelemetryGroup:
     def __init__(self, telemetry, group) -> None:
         self._telemetry = telemetry
@@ -657,6 +662,8 @@ class Telemetry:
             ignore_args = set(ignore_args)
 
         def _log_call(func):
+            is_method = is_first_arg_self(func)
+
             @wraps(func)
             def wrapper(*args, **kwargs):
                 action_ = self.package_name
@@ -684,7 +691,7 @@ class Telemetry:
 
                 try:
                     if payload:
-                        if "self" in inspect.signature(func).parameters:
+                        if is_method:
                             """
                             If the method is defined in Class, the original parameter:
                             def method(self, parameter1, parameter2,...)
