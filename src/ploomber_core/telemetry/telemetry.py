@@ -669,17 +669,26 @@ class Telemetry:
 
         def _log_call(func):
             is_method = is_first_arg_self(func)
+            # determine action name
+            action_ = self.package_name
+
+            if group:
+                action_ = f"{action_}-{group}"
+
+            name = action or getattr(func, "__name__", "funcion-without-name")
+            action_ = (f"{action_}-{name}").replace("_", "-")
+
+            # store data for unit testing decorated functions
+            func._telemetry = dict(
+                action=action_,
+                payload=payload,
+                log_args=log_args,
+                ignore_args=ignore_args,
+                group=ignore_args,
+            )
 
             @wraps(func)
             def wrapper(*args, **kwargs):
-                action_ = self.package_name
-
-                if group:
-                    action_ = f"{action_}-{group}"
-
-                name = action or getattr(func, "__name__", "funcion-without-name")
-                action_ = (f"{action_}-{name}").replace("_", "-")
-
                 if log_args:
                     args_parsed = _get_args(func, args, kwargs, ignore_args)
                 else:
