@@ -1006,3 +1006,19 @@ def test_log_call_stored_values(monkeypatch):
 def test_get_sanitized_sys_argv(argv, expected, monkeypatch):
     monkeypatch.setattr(telemetry.sys, "argv", argv)
     assert telemetry.get_sanitized_argv() == expected
+
+
+def test_exposes_data_for_testing():
+    my_telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "1.2.2")
+
+    @my_telemetry.log_call()
+    def my_function():
+        pass
+
+    assert my_function._telemetry == {
+        "group": set(),
+        "ignore_args": set(),
+        "log_args": False,
+        "payload": False,
+        "action": "some-package-my-function",
+    }
