@@ -1016,7 +1016,7 @@ def test_exposes_data_for_testing():
         pass
 
     assert my_function._telemetry == {
-        "group": set(),
+        "group": None,
         "ignore_args": set(),
         "log_args": False,
         "payload": False,
