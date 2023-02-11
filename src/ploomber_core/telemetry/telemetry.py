@@ -659,7 +659,22 @@ class Telemetry:
         3
 
 
+        Unit testing (check the ``_telemetry`` attribute):
 
+        >>> from ploomber_core.telemetry import Telemetry
+        >>> telemetry = Telemetry("APIKEY", "packagename", "0.1")
+        >>> @telemetry.log_call()
+        ... def add(x, y):
+        ...     return x + y
+        >>> add._telemetry["action"]
+        'packagename-add'
+        >>> add._telemetry["payload"]
+        False
+        >>> add._telemetry["log_args"]
+        False
+        >>> add._telemetry["ignore_args"]
+        set()
+        >>> add._telemetry["group"]
         """
 
         if ignore_args is None:
@@ -684,7 +699,7 @@ class Telemetry:
                 payload=payload,
                 log_args=log_args,
                 ignore_args=ignore_args,
-                group=ignore_args,
+                group=group,
             )
 
             @wraps(func)
