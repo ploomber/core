@@ -428,6 +428,12 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
 
 
 def is_first_arg_self(func):
+    """
+    Check the func is defined inside a class 
+
+    1. If the self as its first argument, it's a method
+    2. Otherwise, it's a function 
+    """
     params = list(inspect.signature(func).parameters)
     return len(params) > 0 and params[0] == "self"
 
@@ -692,13 +698,6 @@ class Telemetry:
                 try:
                     if payload:
                         if is_method:
-                            """
-                            If the method is defined in Class, the original parameter:
-                            def method(self, parameter1, parameter2,...)
-                            We will inject the payload parameter right after the self
-                            To become:
-                            def method(self, payload, parameter1, parameter2,...)
-                            """
                             injected_args = list(args)
                             injected_args.insert(1, _payload)
                             result = func(*injected_args, **kwargs)
