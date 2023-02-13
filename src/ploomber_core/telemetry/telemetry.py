@@ -429,7 +429,7 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
 
 def is_first_arg_self(func):
     params = list(inspect.signature(func).parameters)
-    return len(params) > 0 and "self" in params and params[0] == "self"
+    return len(params) > 0 and params[0] == "self"
 
 
 class TelemetryGroup:
