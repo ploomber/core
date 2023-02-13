@@ -28,7 +28,7 @@ def get_fruit(fruit):
         return list_of_fruits[list_of_fruits.index(fruit)]
 ```
 
-We can to use it as follows:
+We can use it as follows:
 
 ```{code-cell} ipython3
 get_fruit('apple')
