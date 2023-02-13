@@ -10,6 +10,7 @@ parts:
   - file: dependencies
   - file: exceptions
   - file: telemetry
+  - file: validations
 
 - caption: API Reference
   chapters:

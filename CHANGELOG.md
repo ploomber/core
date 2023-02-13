@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 0.2.4dev
+* [Feature] Adds `ploomber_core.validate` to validate function keys
 
 ## 0.2.3 (2023-02-01)
 
