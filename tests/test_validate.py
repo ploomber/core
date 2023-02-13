@@ -158,7 +158,7 @@ def test_invalid_input_keys_without_suggestions(input, valid_keys, key_name,
 
 @pytest.mark.parametrize(
     "input, valid_keys, key_name, sorted_valid_keys," +
-    "expected_suggestions, expected_invalid_keys_message",
+    "expected_suggestions, expected_message",
     [
         [
             "a_oen", ["a_one", "b_two", "c_three", "d_four"], "input",
@@ -243,9 +243,11 @@ def test_invalid_input_keys_without_suggestions(input, valid_keys, key_name,
         ],
     ],
 )
-def test_invalid_input_keys_with_suggestions_show_matches_false(input, valid_keys, key_name,
-                                                                sorted_valid_keys, expected_suggestions,
-                                                                expected_invalid_keys_message):
+def test_invalid_input_keys_with_suggestions_show_matches_false(input, valid_keys,
+                                                                key_name,
+                                                                sorted_valid_keys,
+                                                                expected_suggestions,
+                                                                expected_message):
 
     with pytest.raises(ValidationError) as err:
         validate.keys(valid=valid_keys,
@@ -254,7 +256,7 @@ def test_invalid_input_keys_with_suggestions_show_matches_false(input, valid_key
                       name=key_name)
 
     assert f"""Error validating '{key_name}',""" in str(err.value)
-    assert expected_invalid_keys_message in str(err.value)
+    assert expected_message in str(err.value)
     assert f"""Valid keys are: {sorted_valid_keys}.""" in str(
         err.value)
     assert f"""Did you mean {expected_suggestions}""" not in str(err.value)
