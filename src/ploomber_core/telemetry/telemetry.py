@@ -429,10 +429,10 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
 
 def is_first_arg_self(func):
     """
-    Check the func is defined inside a class 
+    Check the func is defined inside a class
 
     1. If the self as its first argument, it's a method
-    2. Otherwise, it's a function 
+    2. Otherwise, it's a function
     """
     params = list(inspect.signature(func).parameters)
     return len(params) > 0 and params[0] == "self"
