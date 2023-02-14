@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.5dev
+
 ## 0.2.4 (2023-02-14)
 
 * [Fix] Fixes `@log_call` with `payload=True` when decorating methods
