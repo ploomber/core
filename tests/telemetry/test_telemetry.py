@@ -634,6 +634,221 @@ def test_log_call_add_payload_success(mock_telemetry):
     )
 
 
+def test_log_call_method_with_payload_success(mock_telemetry):
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+    telemetry_my_class = _telemetry.create_group("TestClass")
+
+    class TestClass:
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload, x, y):
+            payload["sum"] = x + y
+
+    test_class = TestClass()
+    test_class.my_function(1, 2)
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-TestClass-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-TestClass-some-action-success",
+                total_runtime="1",
+                metadata={"argv": ["bin", "arg"], "sum": 3},
+            ),
+        ]
+    )
+
+
+def test_log_call_no_args_method_with_payload_success(mock_telemetry):
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+    telemetry_my_class = _telemetry.create_group("TestClass")
+
+    class TestClass:
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload):
+            result = "some result"
+            payload["log"] = result
+            return result
+
+    test_class = TestClass()
+    test_class.my_function()
+
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-TestClass-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-TestClass-some-action-success",
+                total_runtime="1",
+                metadata={"argv": ["bin", "arg"], "log": "some result"},
+            ),
+        ]
+    )
+
+
+def test_log_call_keyword_args_method_with_payload_success(mock_telemetry):
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+    telemetry_my_class = _telemetry.create_group("TestClass")
+
+    class TestClass:
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload, apple=2, banana=4):
+            result = "Give me {} apples and {} bananas please".format(apple, banana)
+            payload["log"] = result
+            return result
+
+    test_class = TestClass()
+    result = test_class.my_function(banana=10, apple=5)
+    assert result == "Give me 5 apples and 10 bananas please"
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-TestClass-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-TestClass-some-action-success",
+                total_runtime="1",
+                metadata={
+                    "argv": ["bin", "arg"],
+                    "log": "Give me 5 apples and 10 bananas please",
+                },
+            ),
+        ]
+    )
+
+
+def test_log_call_keyword_only_args_method_with_payload_success(mock_telemetry):
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+    telemetry_my_class = _telemetry.create_group("TestClass")
+
+    class TestClass:
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload, users, *, separator):
+            users = [user.lower().split() for user in users]
+            username = [separator.join(user) for user in users]
+            payload["log"] = username
+            return username
+
+    test_class = TestClass()
+    result = test_class.my_function(["jhonny", "Mr Smith"], separator="_")
+    assert result == ["jhonny", "mr_smith"]
+
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-TestClass-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-TestClass-some-action-success",
+                total_runtime="1",
+                metadata={"argv": ["bin", "arg"], "log": ["jhonny", "mr_smith"]},
+            ),
+        ]
+    )
+
+
+def test_log_call_keyword_only_positional_args_method_with_payload_success(
+    mock_telemetry,
+):
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+    telemetry_my_class = _telemetry.create_group("TestClass")
+
+    class TestClass:
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload, arg1, *, arg2, arg3):
+            result = arg1 + arg2 + arg3
+            payload["log"] = result
+            return result
+
+    test_class = TestClass()
+    result = test_class.my_function("hello", arg2="world", arg3="!")
+    assert result == "helloworld!"
+
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-TestClass-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-TestClass-some-action-success",
+                total_runtime="1",
+                metadata={"argv": ["bin", "arg"], "log": "helloworld!"},
+            ),
+        ]
+    )
+
+
+def test_log_call_double_asterisk_args_method_with_payload_success(mock_telemetry):
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+    telemetry_my_class = _telemetry.create_group("TestClass")
+
+    class TestClass:
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload, **info):
+            result = ""
+            for key, value in info.items():
+                result = result + "{}: {}\n".format(key, value)
+            payload["log"] = result
+            return result
+
+    test_class = TestClass()
+    result = test_class.my_function(name="Eric", age=19)
+    assert result == "name: Eric\nage: 19\n"
+
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-TestClass-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-TestClass-some-action-success",
+                total_runtime="1",
+                metadata={"argv": ["bin", "arg"], "log": "name: Eric\nage: 19\n"},
+            ),
+        ]
+    )
+
+
+def test_log_call_single_asterisk_args_method_with_payload_success(mock_telemetry):
+    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
+    telemetry_my_class = _telemetry.create_group("TestClass")
+
+    class TestClass:
+        @telemetry_my_class.log_call("some-action", payload=True)
+        def my_function(self, payload, *todo_list):
+            result = "I am going to do: " + ", ".join(todo_list)
+            payload["log"] = result
+            return result
+
+    test_class = TestClass()
+    result = test_class.my_function("studying", "cleaning", "resting")
+    assert result == "I am going to do: studying, cleaning, resting"
+
+    mock_telemetry.assert_has_calls(
+        [
+            call(
+                action="some-package-TestClass-some-action-started",
+                metadata=dict(argv=["bin", "arg"]),
+            ),
+            call(
+                action="some-package-TestClass-some-action-success",
+                total_runtime="1",
+                metadata={
+                    "argv": ["bin", "arg"],
+                    "log": "I am going to do: studying, cleaning, resting",
+                },
+            ),
+        ]
+    )
+
+
 def test_permissions_error(monkeypatch):
     monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
     stats = Path("stats")

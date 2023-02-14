@@ -37,6 +37,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import inspect
 from uuid import uuid4
 from functools import wraps
 import platform
@@ -426,6 +427,17 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     return event_id, uid, action, client_time, elapsed_time
 
 
+def is_first_arg_self(func):
+    """
+    Check the func is defined inside a class
+
+    1. If the self as its first argument, it's a method
+    2. Otherwise, it's a function
+    """
+    params = list(inspect.signature(func).parameters)
+    return len(params) > 0 and params[0] == "self"
+
+
 class TelemetryGroup:
     def __init__(self, telemetry, group) -> None:
         self._telemetry = telemetry
@@ -649,12 +661,15 @@ class Telemetry:
 
 
         """
+
         if ignore_args is None:
             ignore_args = set()
         else:
             ignore_args = set(ignore_args)
 
         def _log_call(func):
+            is_method = is_first_arg_self(func)
+
             @wraps(func)
             def wrapper(*args, **kwargs):
                 action_ = self.package_name
@@ -682,7 +697,12 @@ class Telemetry:
 
                 try:
                     if payload:
-                        result = func(_payload, *args, **kwargs)
+                        if is_method:
+                            injected_args = list(args)
+                            injected_args.insert(1, _payload)
+                            result = func(*injected_args, **kwargs)
+                        else:
+                            result = func(_payload, *args, **kwargs)
                     else:
                         result = func(*args, **kwargs)
                 except Exception as e:
