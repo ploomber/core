@@ -1,10 +1,11 @@
 # CHANGELOG
 
-## 0.2.4dev
+## 0.2.4 (2023-02-14)
+
+* [Fix] Fixes `@log_call` with `payload=True` when decorating methods
 
 ## 0.2.3 (2023-02-01)
 
-* [Fix] Fixes `@log_call` with `payload=True` when decorating methods
 * [Fix] Improving `modify_exceptions` to include TypeError
 * [Fix] Deduplicating community message on nested functions
 
