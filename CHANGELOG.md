@@ -4,7 +4,7 @@
 
 ## 0.2.3 (2023-02-01)
 
-* [Fix] Fixing a bug with payload parameter in telemtry log_call on method
+* [Fix] Fixes `@log_call` with `payload=True` when decorating methods
 * [Fix] Improving `modify_exceptions` to include TypeError
 * [Fix] Deduplicating community message on nested functions
 
