@@ -10,83 +10,83 @@ from ploomber_core.exceptions import MissingKeysValidationError, ValidationError
         [
             "a_oen", ["a_one", "b_two", "c_three", "d_four"], "input",
             "'a_one', 'b_two', 'c_three', and 'd_four'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
         [
             None, ["a_one", "b_two", "c_three", "d_four"], "input",
             "'a_one', 'b_two', 'c_three', and 'd_four'", "'a_one'",
-            "the following key isn't valid: 'None'"
+            "the following value isn't valid: 'None'"
         ],
         [
             ["a_oen"], ["a_one", "b_two", "c_three", "d_four"], "input",
             "'a_one', 'b_two', 'c_three', and 'd_four'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
 
         [
             ["a_oen"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
         [
             ["a_oen", "b_two"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
         [
             ["a_oen", "b_tow"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following keys aren't valid: 'a_oen', and 'b_tow'"
+            "the following values aren't valid: 'a_oen', and 'b_tow'"
         ],
         [
             ["a_oen"], ["a_one"], "input",
-            "'a_one'", "'a_one'", "the following key isn't valid: 'a_oen'"
+            "'a_one'", "'a_one'", "the following value isn't valid: 'a_oen'"
         ],
         [
             [None], ["a_one"], "input",
-            "'a_one'", "'a_one'", "the following key isn't valid: 'None'"
+            "'a_one'", "'a_one'", "the following value isn't valid: 'None'"
         ],
         [
             [None], ["a_one", "b_two"], "input",
-            "'a_one', and 'b_two'", "'a_one'", "the following key isn't valid: 'None'"
+            "'a_one', and 'b_two'", "'a_one'", "the following value isn't valid: 'None'"
         ],
         [
             [None, "b_two"], ["a_one", "b_two"], "input",
-            "'a_one', and 'b_two'", "'a_one'", "the following key isn't valid: 'None'"
+            "'a_one', and 'b_two'", "'a_one'", "the following value isn't valid: 'None'"
         ],
         [
             [None, "b_tow"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following keys aren't valid: 'None', and 'b_tow'"
+            "the following values aren't valid: 'None', and 'b_tow'"
         ],
         [
             ["b_tow"], [None, "b_two"], "input",
-            "'None', and 'b_two'", "'b_two'", "the following key isn't valid: 'b_tow'"
+            "'None', and 'b_two'", "'b_two'", "the following value isn't valid: 'b_tow'"
         ],
         [
             1, [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10'",
-            "the following key isn't valid: '1'"
+            "the following value isn't valid: '1'"
         ],
         [
             [1], [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10'",
-            "the following key isn't valid: '1'"
+            "the following value isn't valid: '1'"
         ],
         [
             [1, 2], [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10', or '20'",
-            "the following keys aren't valid: '1', and '2'"
+            "the following values aren't valid: '1', and '2'"
         ],
         [
             (1, 2), [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10', or '20'",
-            "the following keys aren't valid: '1', and '2'"
+            "the following values aren't valid: '1', and '2'"
         ],
         [
             {1, 2, 3}, [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10', '20', or '30'",
-            "the following keys aren't valid: '1', '2', and '3'"
+            "the following values aren't valid: '1', '2', and '3'"
         ],
     ],
 )
@@ -99,9 +99,9 @@ def test_invalid_input_keys_with_suggestions(input, valid_keys, key_name,
                       passed=input,
                       name=key_name)
 
-    assert f"""Error validating '{key_name}',""" in str(err.value)
+    assert f"""Error validating argument '{key_name}',""" in str(err.value)
     assert expected_invalid_keys_message in str(err.value)
-    assert f"""Valid keys are: {sorted_valid_keys}.""" in str(
+    assert f"""Valid values are: {sorted_valid_keys}.""" in str(
         err.value)
     assert f"""Did you mean {expected_suggestions}""" in str(err.value)
 
@@ -112,32 +112,32 @@ def test_invalid_input_keys_with_suggestions(input, valid_keys, key_name,
         [
             ["qwe"], ["a_one", "b_two", "c_three", "d_four"], "input",
             "'a_one', 'b_two', 'c_three', and 'd_four'",
-            "the following key isn't valid: 'qwe'"
+            "the following value isn't valid: 'qwe'"
         ],
 
         [
             ["qwe"], ["a_one", "b_two"], "input",
-            "'a_one', and 'b_two'", "the following key isn't valid: 'qwe'"
+            "'a_one', and 'b_two'", "the following value isn't valid: 'qwe'"
         ],
         [
             ["qwe"], ["a_one"], "input",
-            "'a_one'", "the following key isn't valid: 'qwe'"
+            "'a_one'", "the following value isn't valid: 'qwe'"
         ],
         [
             [""], ["a_one"], "input",
-            "'a_one'", "the following key isn't valid: ''"
+            "'a_one'", "the following value isn't valid: ''"
         ],
         [
             [None], ["b_two"], "input",
-            "'b_two'", "the following key isn't valid: 'None'"
+            "'b_two'", "the following value isn't valid: 'None'"
         ],
         [
             ["qwe", "abc"], ["a_one"], "input",
-            "'a_one'", "the following keys aren't valid: 'abc', and 'qwe'"
+            "'a_one'", "the following values aren't valid: 'abc', and 'qwe'"
         ],
         [
             "qwe", ["a_one"], "input",
-            "'a_one'", "the following key isn't valid: 'qwe'"
+            "'a_one'", "the following value isn't valid: 'qwe'"
         ],
     ],
 )
@@ -150,9 +150,9 @@ def test_invalid_input_keys_without_suggestions(input, valid_keys, key_name,
                       passed=input,
                       name=key_name)
 
-    assert f"""Error validating '{key_name}',""" in str(err.value)
+    assert f"""Error validating argument '{key_name}',""" in str(err.value)
     assert expected_invalid_keys_message in str(err.value)
-    assert f"""Valid keys are: {sorted_valid_keys}.""" in str(err.value)
+    assert f"""Valid values are: {sorted_valid_keys}.""" in str(err.value)
     assert """Did you mean""" not in str(err.value)
 
 
@@ -163,83 +163,83 @@ def test_invalid_input_keys_without_suggestions(input, valid_keys, key_name,
         [
             "a_oen", ["a_one", "b_two", "c_three", "d_four"], "input",
             "'a_one', 'b_two', 'c_three', and 'd_four'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
         [
             None, ["a_one", "b_two", "c_three", "d_four"], "input",
             "'a_one', 'b_two', 'c_three', and 'd_four'", "'a_one'",
-            "the following key isn't valid: 'None'"
+            "the following value isn't valid: 'None'"
         ],
         [
             ["a_oen"], ["a_one", "b_two", "c_three", "d_four"], "input",
             "'a_one', 'b_two', 'c_three', and 'd_four'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
 
         [
             ["a_oen"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
         [
             ["a_oen", "b_two"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following key isn't valid: 'a_oen'"
+            "the following value isn't valid: 'a_oen'"
         ],
         [
             ["a_oen", "b_tow"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following keys aren't valid: 'a_oen', and 'b_tow'"
+            "the following values aren't valid: 'a_oen', and 'b_tow'"
         ],
         [
             ["a_oen"], ["a_one"], "input",
-            "'a_one'", "'a_one'", "the following key isn't valid: 'a_oen'"
+            "'a_one'", "'a_one'", "the following value isn't valid: 'a_oen'"
         ],
         [
             [None], ["a_one"], "input",
-            "'a_one'", "'a_one'", "the following key isn't valid: 'None'"
+            "'a_one'", "'a_one'", "the following value isn't valid: 'None'"
         ],
         [
             [None], ["a_one", "b_two"], "input",
-            "'a_one', and 'b_two'", "'a_one'", "the following key isn't valid: 'None'"
+            "'a_one', and 'b_two'", "'a_one'", "the following value isn't valid: 'None'"
         ],
         [
             [None, "b_two"], ["a_one", "b_two"], "input",
-            "'a_one', and 'b_two'", "'a_one'", "the following key isn't valid: 'None'"
+            "'a_one', and 'b_two'", "'a_one'", "the following value isn't valid: 'None'"
         ],
         [
             [None, "b_tow"], ["a_one", "b_two"], "input",
             "'a_one', and 'b_two'", "'a_one'",
-            "the following keys aren't valid: 'None', and 'b_tow'"
+            "the following values aren't valid: 'None', and 'b_tow'"
         ],
         [
             ["b_tow"], [None, "b_two"], "input",
-            "'None', and 'b_two'", "'b_two'", "the following key isn't valid: 'b_tow'"
+            "'None', and 'b_two'", "'b_two'", "the following value isn't valid: 'b_tow'"
         ],
         [
             1, [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10'",
-            "the following key isn't valid: '1'"
+            "the following value isn't valid: '1'"
         ],
         [
             [1], [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10'",
-            "the following key isn't valid: '1'"
+            "the following value isn't valid: '1'"
         ],
         [
             [1, 2], [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10', or '20'",
-            "the following keys aren't valid: '1', and '2'"
+            "the following values aren't valid: '1', and '2'"
         ],
         [
             (1, 2), [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10', or '20'",
-            "the following keys aren't valid: '1', and '2'"
+            "the following values aren't valid: '1', and '2'"
         ],
         [
             {1, 2, 3}, [10, 20, 30, 40], "input",
             "'10', '20', '30', and '40'", "'10', '20', or '30'",
-            "the following keys aren't valid: '1', '2', and '3'"
+            "the following values aren't valid: '1', '2', and '3'"
         ],
     ],
 )
@@ -255,9 +255,9 @@ def test_invalid_input_keys_with_suggestions_show_matches_false(input, valid_key
                       show_matches=False,
                       name=key_name)
 
-    assert f"""Error validating '{key_name}',""" in str(err.value)
+    assert f"""Error validating argument '{key_name}',""" in str(err.value)
     assert expected_message in str(err.value)
-    assert f"""Valid keys are: {sorted_valid_keys}.""" in str(
+    assert f"""Valid values are: {sorted_valid_keys}.""" in str(
         err.value)
     assert f"""Did you mean {expected_suggestions}""" not in str(err.value)
 
@@ -288,7 +288,7 @@ def test_missing_input_keys(passed, valid_keys, key_name, required, missing_keys
                       required=required,
                       name=key_name)
 
-    assert f"""Error validating {key_name}.""" in str(err.value)
+    assert f"""Error validating argument {key_name}.""" in str(err.value)
     assert f"""Missing keys: {missing_keys}""" in str(err.value)
 
 

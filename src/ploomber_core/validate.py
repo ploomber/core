@@ -11,10 +11,8 @@ def _is_set_or_sequence(obj) -> bool:
     """
     if isinstance(obj, str):
         return False
-    if isinstance(obj, collections.abc.Sequence):
-        return True
-    if isinstance(obj, set):
-        return True
+
+    return isinstance(obj, (collections.abc.Sequence, set))
 
 
 def keys(valid, passed, required=None, name='spec', show_matches=True):
@@ -56,17 +54,17 @@ def keys(valid, passed, required=None, name='spec', show_matches=True):
 
         if extra:
 
-            err_message = f"Error validating '{name}', "
+            err_message = f"Error validating argument '{name}', "
 
             if len(extra) < 2:
-                err_message += "the following key isn't valid: "
+                err_message += "the following value isn't valid: "
             else:
-                err_message += "the following keys aren't valid: "
+                err_message += "the following values aren't valid: "
 
             err_message += f"{pretty_print.iterable(extra)}. "
 
             if len(valid) > 0:
-                err_message += f"Valid keys are: {pretty_print.iterable(valid)}. "
+                err_message += f"Valid values are: {pretty_print.iterable(valid)}. "
 
             if show_matches:
                 input = str(passed.pop()) if len(passed) == 1 else passed
@@ -81,7 +79,7 @@ def keys(valid, passed, required=None, name='spec', show_matches=True):
 
         if missing:
             raise MissingKeysValidationError(
-                f"Error validating {name}. Missing "
+                f"Error validating argument {name}. Missing "
                 f"keys: { pretty_print.iterable(missing)}",
                 missing_keys=missing)
 
