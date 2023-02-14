@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.6dev
+
 ## 0.2.5 (2023-02-14)
 
 * [Feature] Functions decorated with `@log_call` expose an attribute for unit testing
