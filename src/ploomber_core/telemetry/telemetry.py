@@ -427,14 +427,14 @@ def validate_entries(event_id, uid, action, client_time, total_runtime):
     return event_id, uid, action, client_time, elapsed_time
 
 
-def is_first_arg_self(func):
+def is_first_arg_self(sig):
     """
     Check the func is defined inside a class
 
     1. If the self as its first argument, it's a method
     2. Otherwise, it's a function
     """
-    params = list(inspect.signature(func).parameters)
+    params = list(sig.parameters)
     return len(params) > 0 and params[0] == "self"
 
 
@@ -683,7 +683,10 @@ class Telemetry:
             ignore_args = set(ignore_args)
 
         def _log_call(func):
-            is_method = is_first_arg_self(func)
+            # we'll use this on each call, so compute it once
+            func._signature = signature(func)
+
+            is_method = is_first_arg_self(func._signature)
             # determine action name
             action_ = self.package_name
 
@@ -692,6 +695,10 @@ class Telemetry:
 
             name = action or getattr(func, "__name__", "funcion-without-name")
             action_ = (f"{action_}-{name}").replace("_", "-")
+
+            func._telemetry_started = None
+            func._telemetry_success = None
+            func._telemetry_error = None
 
             # store data for unit testing decorated functions
             func._telemetry = dict(
@@ -704,8 +711,13 @@ class Telemetry:
 
             @wraps(func)
             def wrapper(*args, **kwargs):
+                # reset attributes before calling
+                func._telemetry_started = None
+                func._telemetry_success = None
+                func._telemetry_error = None
+
                 if log_args:
-                    args_parsed = _get_args(func, args, kwargs, ignore_args)
+                    args_parsed = _get_args(func._signature, args, kwargs, ignore_args)
                 else:
                     args_parsed = None
 
@@ -716,7 +728,10 @@ class Telemetry:
                 if log_args:
                     metadata_started["args"] = args_parsed
 
-                self.log_api(action=f"{action_}-started", metadata=metadata_started)
+                started = dict(action=f"{action_}-started", metadata=metadata_started)
+                func._telemetry_started = started
+                self.log_api(**started)
+
                 start = datetime.datetime.now()
 
                 try:
@@ -741,11 +756,13 @@ class Telemetry:
                     if log_args:
                         metadata_error["args"] = args_parsed
 
-                    self.log_api(
+                    error = dict(
                         action=f"{action_}-error",
                         total_runtime=str(datetime.datetime.now() - start),
                         metadata=metadata_error,
                     )
+                    func._telemetry_error = error
+                    self.log_api(**error)
                     raise
                 else:
                     metadata_success = {"argv": get_sanitized_argv(), **_payload}
@@ -753,11 +770,13 @@ class Telemetry:
                     if log_args:
                         metadata_success["args"] = args_parsed
 
-                    self.log_api(
+                    success = dict(
                         action=f"{action_}-success",
                         total_runtime=str(datetime.datetime.now() - start),
                         metadata=metadata_success,
                     )
+                    func._telemetry_success = success
+                    self.log_api(**success)
 
                 return result
 
@@ -769,8 +788,8 @@ class Telemetry:
         return TelemetryGroup(self, group)
 
 
-def _get_args(func, fn_args, fn_kwargs, ignore_args):
-    mapping = _map_parameters_in_fn_call(fn_args, fn_kwargs, func)
+def _get_args(sig, fn_args, fn_kwargs, ignore_args):
+    mapping = _map_parameters_in_fn_call_from_signature(fn_args, fn_kwargs, sig)
 
     values_to_log = {}
 
@@ -811,7 +830,7 @@ def _process_value(value):
 
 
 # taken from sklearn-evaluation/util.py
-def _map_parameters_in_fn_call(args, kwargs, func):
+def _map_parameters_in_fn_call_from_signature(args, kwargs, sig):
     """
     Based on function signature, parse args to to convert them to key-value
     pairs and merge them with kwargs
@@ -819,7 +838,6 @@ def _map_parameters_in_fn_call(args, kwargs, func):
     is still passed.
     Missing parameters are filled with their default values
     """
-    sig = signature(func)
     # Get missing parameters in kwargs to look for them in args
     args_spec = list(sig.parameters)
     params_all = set(args_spec)

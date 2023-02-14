@@ -1008,7 +1008,7 @@ def test_get_sanitized_sys_argv(argv, expected, monkeypatch):
     assert telemetry.get_sanitized_argv() == expected
 
 
-def test_exposes_data_for_testing():
+def test_exposes_telemetry_data_for_testing():
     my_telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "1.2.2")
 
     @my_telemetry.log_call()
@@ -1022,3 +1022,99 @@ def test_exposes_data_for_testing():
         "payload": False,
         "action": "some-package-my-function",
     }
+
+    assert my_function.__wrapped__._telemetry_started is None
+    assert my_function.__wrapped__._telemetry_success is None
+    assert my_function.__wrapped__._telemetry_error is None
+
+    my_function()
+
+    assert my_function.__wrapped__._telemetry_started == {
+        "action": "some-package-my-function-started",
+        "metadata": {"argv": ANY},
+    }
+
+    assert my_function.__wrapped__._telemetry_success == {
+        "action": "some-package-my-function-success",
+        "total_runtime": ANY,
+        "metadata": {"argv": ANY},
+    }
+
+    assert my_function.__wrapped__._telemetry_error is None
+
+
+def test_exposes_telemetry_data_for_testing_error():
+    my_telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "1.2.2")
+
+    @my_telemetry.log_call()
+    def my_function():
+        raise ValueError("some error")
+
+    assert my_function._telemetry == {
+        "group": None,
+        "ignore_args": set(),
+        "log_args": False,
+        "payload": False,
+        "action": "some-package-my-function",
+    }
+
+    assert my_function.__wrapped__._telemetry_started is None
+    assert my_function.__wrapped__._telemetry_success is None
+    assert my_function.__wrapped__._telemetry_error is None
+
+    try:
+        my_function()
+    except ValueError:
+        pass
+
+    assert my_function.__wrapped__._telemetry_started == {
+        "action": "some-package-my-function-started",
+        "metadata": {"argv": ANY},
+    }
+
+    assert my_function.__wrapped__._telemetry_success is None
+
+    assert my_function.__wrapped__._telemetry_error == {
+        "action": "some-package-my-function-error",
+        "total_runtime": ANY,
+        "metadata": {
+            "type": None,
+            "exception": "some error",
+            "argv": ANY,
+        },
+    }
+
+
+def test_exposes_telemetry_data_for_testing_params():
+    my_telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "1.2.2")
+
+    @my_telemetry.log_call(log_args=("x", "y"), ignore_args=("z",))
+    def my_function(x, y, z):
+        return x + y + z
+
+    assert my_function._telemetry == {
+        "action": "some-package-my-function",
+        "payload": False,
+        "log_args": ("x", "y"),
+        "ignore_args": {"z"},
+        "group": None,
+    }
+
+    assert my_function.__wrapped__._telemetry_started is None
+    assert my_function.__wrapped__._telemetry_success is None
+    assert my_function.__wrapped__._telemetry_error is None
+
+    my_function(1, 2, 3)
+
+    assert my_function.__wrapped__._telemetry_started == {
+        "action": "some-package-my-function-started",
+        "metadata": {"argv": ANY, "args": {"x": 1, "y": 2},},
+    }
+
+    assert my_function.__wrapped__._telemetry_success == {
+        "action": "some-package-my-function-success",
+        "total_runtime": ANY,
+        "metadata": {"argv": ANY, "args": {"x": 1, "y": 2},},
+    }
+
+    assert my_function.__wrapped__._telemetry_error is None

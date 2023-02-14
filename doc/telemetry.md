@@ -73,23 +73,31 @@ For more details, see the [API Reference](api/telemetry).
 
 +++
 
-To unit test decorated functions, check the `._telemetry` attribute. If it exists, it means the function has been decorated with `@log_call()`, and it'll contain the arguments passed and the action name:
+To unit test decorated functions, call the function and check `__wrapped__._telemetry_started` attribute. If it exists, it means the function has been decorated with `@log_call()`, you can use it to verify what's logged:
 
 ```{code-cell} ipython3
-assert add._telemetry == {'action': 'ploomber-core-add',
- 'payload': False,
- 'log_args': False,
- 'ignore_args': set(),
- 'group': None}
+@telemetry.log_call(log_args=True, ignore_args=("y",))
+def divide(x, y):
+    return x / y
+
+_ = divide(2, 4)
 ```
 
 ```{code-cell} ipython3
-assert obj.add._telemetry == {'action': 'ploomber-core-add',
- 'payload': False,
- 'log_args': False,
- 'ignore_args': set(),
- 'group': None}
+from unittest.mock import ANY
+
+assert divide.__wrapped__._telemetry_started == {
+    "action": "ploomber-core-divide-started",
+    "metadata": {
+        "argv": ANY,
+        "args": {"x": 2},
+    },
+}
 ```
+
+`__wrapped__._telemetry_started` will keep the latest logged data, so you must call it at least one; otherwise, it'll be `None`.
+
++++
 
 ## Configuring telemetry in a package
 
