@@ -1108,13 +1108,19 @@ def test_exposes_telemetry_data_for_testing_params():
 
     assert my_function.__wrapped__._telemetry_started == {
         "action": "some-package-my-function-started",
-        "metadata": {"argv": ANY, "args": {"x": 1, "y": 2},},
+        "metadata": {
+            "argv": ANY,
+            "args": {"x": 1, "y": 2},
+        },
     }
 
     assert my_function.__wrapped__._telemetry_success == {
         "action": "some-package-my-function-success",
         "total_runtime": ANY,
-        "metadata": {"argv": ANY, "args": {"x": 1, "y": 2},},
+        "metadata": {
+            "argv": ANY,
+            "args": {"x": 1, "y": 2},
+        },
     }
 
     assert my_function.__wrapped__._telemetry_error is None
