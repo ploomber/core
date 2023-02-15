@@ -1,7 +1,15 @@
 # CHANGELOG
 
-## 0.2.4dev
-* [Feature] Adds `ploomber_core.validate` to validate function keys
+## 0.2.6dev
+* [Feature] Adds `ploomber_core.validate` to validate function values
+
+## 0.2.5 (2023-02-14)
+
+* [Feature] Functions decorated with `@log_call` expose an attribute for unit testing
+
+## 0.2.4 (2023-02-14)
+
+* [Fix] Fixes `@log_call` with `payload=True` when decorating methods
 
 ## 0.2.3 (2023-02-01)
 

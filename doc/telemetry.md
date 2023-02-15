@@ -21,7 +21,6 @@ Set the `_PLOOMBER_TELEMETRY_DEBUG` environment variable (any value) to override
 
 `ploomber-core` implements a `Telemetry` class that we use to understand usage and improve our products:
 
-
 ```{code-cell} ipython3
 from ploomber_core.telemetry import Telemetry
 ```
@@ -50,11 +49,55 @@ def add(x, y):
 add(1, 41)
 ```
 
+Log method calls:
+
+```{code-cell} ipython3
+class MyClass:
+    @telemetry.log_call()
+    def add(self, x, y):
+        return x, y
+
+obj = MyClass()
+obj.add(x=1, y=2)
+```
+
 ```{note}
 Event names are normalized by replacing underscores (`_`) with hyphens (`-`).
 ```
 
-For more details, see the [API Reference](api).
+For more details, see the [API Reference](api/telemetry).
+
++++
+
+## Unit testing
+
++++
+
+To unit test decorated functions, call the function and check `__wrapped__._telemetry_started` attribute. If it exists, it means the function has been decorated with `@log_call()`, you can use it to verify what's logged:
+
+```{code-cell} ipython3
+@telemetry.log_call(log_args=True, ignore_args=("y",))
+def divide(x, y):
+    return x / y
+
+_ = divide(2, 4)
+```
+
+```{code-cell} ipython3
+from unittest.mock import ANY
+
+assert divide.__wrapped__._telemetry_started == {
+    "action": "ploomber-core-divide-started",
+    "metadata": {
+        "argv": ANY,
+        "args": {"x": 2},
+    },
+}
+```
+
+`__wrapped__._telemetry_started` will keep the latest logged data, so you must call it at least one; otherwise, it'll be `None`.
+
++++
 
 ## Configuring telemetry in a package
 

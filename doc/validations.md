@@ -14,7 +14,7 @@ kernelspec:
 
 # Validations
 
-```{versionadded} 0.2.4
+```{versionadded} 0.2.6
 ```
 
 The `ploomber_core.validate` module makes it simple to validate user inputs and provide a meaningful message as output.
