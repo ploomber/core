@@ -17,7 +17,8 @@ def _is_set_or_sequence(obj) -> bool:
 
 def keys(valid, passed, name='spec', show_matches=True):
     """
-    Checks if given values are valid. If not, raises an error with suggested valid values.
+    Checks if given values are valid. If not, raises an error with
+    suggested valid values.
 
     Parameters
     ----------
