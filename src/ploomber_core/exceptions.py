@@ -81,15 +81,6 @@ class ValidationError(BaseException):
     pass
 
 
-class MissingKeysValidationError(ValidationError):
-    """Raised when failed to validate input data because keys were missing
-    """
-
-    def __init__(self, message, missing_keys):
-        self.missing_keys = missing_keys
-        super().__init__(message)
-
-
 def modify_exceptions(fn):
     """A decorator that catches ValueError and modifies the original error message
 

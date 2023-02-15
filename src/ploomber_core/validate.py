@@ -1,5 +1,5 @@
 import difflib
-from ploomber_core.exceptions import MissingKeysValidationError, ValidationError
+from ploomber_core.exceptions import ValidationError
 from ploomber_core.io import pretty_print
 import collections.abc
 
@@ -15,9 +15,9 @@ def _is_set_or_sequence(obj) -> bool:
     return isinstance(obj, (collections.abc.Sequence, set))
 
 
-def keys(valid, passed, required=None, name='spec', show_matches=True):
+def keys(valid, passed, name='spec', show_matches=True):
     """
-    Checks if given keys are valid. If not, raises an error with suggested valid keys.
+    Checks if given values are valid. If not, raises an error with suggested valid values.
 
     Parameters
     ----------
@@ -34,13 +34,11 @@ def keys(valid, passed, required=None, name='spec', show_matches=True):
         The name of the parameter
 
     show_matches : bool, default True
-        Show suggested keys in the error message
+        Show suggested values in the error message
 
     Raises
     ------
     ValidationError if passed elements are not in valid
-
-    MissingKeysValidationError if passed elements are not in required
     """
     is_set_or_sequence = _is_set_or_sequence(passed)
 
@@ -73,15 +71,6 @@ def keys(valid, passed, required=None, name='spec', show_matches=True):
                     err_message += f"\nDid you mean {input_matches}?"
 
             raise ValidationError(err_message)
-
-    if required:
-        missing = set(required) - passed
-
-        if missing:
-            raise MissingKeysValidationError(
-                f"Error validating argument {name}. Missing "
-                f"keys: { pretty_print.iterable(missing)}",
-                missing_keys=missing)
 
 
 def get_formatted_close_matches(input, valid) -> str:

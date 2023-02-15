@@ -1,6 +1,6 @@
 import pytest
 from ploomber_core import validate
-from ploomber_core.exceptions import MissingKeysValidationError, ValidationError
+from ploomber_core.exceptions import ValidationError
 
 
 @pytest.mark.parametrize(
@@ -263,36 +263,6 @@ def test_invalid_input_keys_with_suggestions_show_matches_false(input, valid_key
 
 
 @pytest.mark.parametrize(
-    "passed, valid_keys, key_name, required, missing_keys",
-    [
-        [
-            "input_a", [], "input_a", ["input_a", "input_b", "input_c"],
-            "'input_b', and 'input_c'"
-        ],
-
-        [
-            "input_a", ["input_a"], "input_a",
-            ["input_a", "input_b", "input_c"], "'input_b', and 'input_c'"
-        ],
-        [
-            "input_a", ["input_a", "input_b"], "input_a", [
-                "input_a", "input_b"], "'input_b'"
-        ],
-    ],
-)
-def test_missing_input_keys(passed, valid_keys, key_name, required, missing_keys):
-
-    with pytest.raises(MissingKeysValidationError) as err:
-        validate.keys(valid=valid_keys,
-                      passed=[passed],
-                      required=required,
-                      name=key_name)
-
-    assert f"""Error validating argument {key_name}.""" in str(err.value)
-    assert f"""Missing keys: {missing_keys}""" in str(err.value)
-
-
-@pytest.mark.parametrize(
     "passed, valid_keys, key_name",
     [
         [
@@ -330,40 +300,6 @@ def test_missing_input_keys(passed, valid_keys, key_name, required, missing_keys
 def test_valid_input_keys(passed, valid_keys, key_name):
     validate.keys(valid=valid_keys,
                   passed=passed,
-                  name=key_name)
-
-
-@pytest.mark.parametrize(
-    "passed, valid_keys, key_name, required",
-    [
-        [
-            ["a_one"], ["a_one", "b_two", "c_three", "d_four"], "input", ["a_one"]
-        ],
-        [
-            ["a_one"], ["a_one", "b_two"], "input", ["a_one"]
-        ],
-        [
-            "a_one", ["a_one"], "input", ["a_one"]
-        ],
-        [
-            None, ["a_one", None], "input", [None]
-        ],
-        [
-            [None], ["a_one", None], "input", [None]
-        ],
-        [
-            ["a_one", "b_two"], ["a_one", "b_two"], "input", ["a_one", "b_two"]
-        ],
-        [
-            ["a_one", "b_two"], ["a_one", "b_two", "c_three",
-                                 "d_four"], "input", ["a_one", "b_two"]
-        ],
-    ],
-)
-def test_required_valid_input_keys(passed, valid_keys, key_name, required):
-    validate.keys(valid=valid_keys,
-                  passed=passed,
-                  required=required,
                   name=key_name)
 
 
