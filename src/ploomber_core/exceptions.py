@@ -75,6 +75,12 @@ class PloomberKeyError(KeyError):
         super().__init__(f"{message}. {COMMUNITY.strip()}")
 
 
+class ValidationError(BaseException):
+    """Raised when failed to validate input data
+    """
+    pass
+
+
 def modify_exceptions(fn):
     """A decorator that catches ValueError and modifies the original error message
 
