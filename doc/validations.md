@@ -65,8 +65,3 @@ Now, we call the function with `grapes` as an input.
 
 get_fruit('grapes')
 ```
-
-```{code-cell} ipython3
-print(should_fail)
-```
-
