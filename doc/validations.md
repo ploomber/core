@@ -48,7 +48,7 @@ To use `keys` validator we need to pass the valid values, the input value (which
 
 ```{code-cell} ipython3
 def get_fruit(fruit):
-    list_of_fruits = ['apple', 'orange', 'grape']
+    should_fail = ['apple', 'orange', 'grape']
 
     validate.keys(valid=list_of_fruits,
                     passed=fruit,
