@@ -48,7 +48,7 @@ To use `keys` validator we need to pass the valid values, the input value (which
 
 ```{code-cell} ipython3
 def get_fruit(fruit):
-    should_fail = ['apple', 'orange', 'grape']
+    list_of_fruits = ['apple', 'orange', 'grape']
 
     validate.keys(valid=list_of_fruits,
                     passed=fruit,
@@ -64,5 +64,9 @@ Now, we call the function with `grapes` as an input.
 :tags: [raises-exception]
 
 get_fruit('grapes')
+```
+
+```{code-cell} ipython3
+print(should_fail)
 ```
 
