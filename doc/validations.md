@@ -61,6 +61,7 @@ def get_fruit(fruit):
 Now, we call the function with `grapes` as an input.
 
 ```{code-cell} ipython3
+:tags: [raises-exception]
+
 get_fruit('grapes')
 ```
-
