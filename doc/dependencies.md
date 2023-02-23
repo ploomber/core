@@ -43,8 +43,7 @@ some_optional_functionality()
 ```{eval-rst}
 .. note::
 
-   We should use the `@requires` decorator only when certain parts of the project require extra packages. If the extra package is required in a tutorial then we can either
-   mention the installation step in the tutorial itself, or add it to the document specific dependencies if necessary.
+   We should only use the `@requires` decorator when certain parts of the project require extra packages. If the extra package is only required in a tutorial then we should include it in the installation step in the tutorial itself,
 ```
 
 
