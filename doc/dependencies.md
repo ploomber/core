@@ -20,7 +20,7 @@ Often our packages contain features that require extra packages. If a feature is
 
 ## Example
 
-Decorate a function witht `@requires` and pass a list of the packages.
+Decorate a function with `@requires` and pass a list of the packages.
 
 ```{code-cell} ipython3
 from ploomber_core.dependencies import requires
@@ -39,6 +39,13 @@ Since `some_package` is not installed, calling the function raises an error (the
 
 some_optional_functionality()
 ```
+
+```{eval-rst}
+.. note::
+
+   We should only use the `@requires` decorator when certain parts of the project require extra packages. If the extra package is only required in a tutorial then we should include it in the installation step in the tutorial itself,
+```
+
 
 ## Customizing the error message
 
