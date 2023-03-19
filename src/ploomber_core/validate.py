@@ -15,7 +15,7 @@ def _is_set_or_sequence(obj) -> bool:
     return isinstance(obj, (collections.abc.Sequence, set))
 
 
-def keys(valid, passed, name='spec', show_matches=True):
+def keys(valid, passed, name="spec", show_matches=True):
     """
     Checks if given values are valid. If not, raises an error with
     suggested valid values.
@@ -52,7 +52,6 @@ def keys(valid, passed, name='spec', show_matches=True):
         extra = passed - set(valid)
 
         if extra:
-
             err_message = f"Error validating argument '{name}', "
 
             if len(extra) < 2:

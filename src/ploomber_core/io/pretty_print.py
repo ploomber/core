@@ -8,6 +8,6 @@ def iterable(obj, delimiter=",", last_delimiter="and", repr_=False) -> str:
         sorted_ = sorted(f"'{element}'" for element in obj)
 
     if len(sorted_) > 1:
-        sorted_[-1] = f'{last_delimiter} {sorted_[-1]}'
+        sorted_[-1] = f"{last_delimiter} {sorted_[-1]}"
 
     return f"{delimiter} ".join(sorted_)

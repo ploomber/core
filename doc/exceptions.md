@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.4
+    jupytext_version: 1.14.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -28,6 +28,7 @@ A subclass of the built-in `ValueError`, use it when the value is unexpected:
 
 ```{code-cell} ipython3
 from ploomber_core import exceptions
+
 
 def call_person(name="Bob"):
     if name not in {"Bob", "Alice"}:
@@ -59,7 +60,8 @@ Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
 A subclass of the built-in `TypeError`, use it when the type is unexpected:
 
 ```{code-cell} ipython3
-from ploomber_core import exceptions
+from ploomber_core import exceptions # noqa
+
 
 def add_one(a):
     if not isinstance(a, (int, float)):
@@ -91,28 +93,29 @@ Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
 A subclass of the built-in `KeyError`, use it when a key is missing:
 
 ```{code-cell} ipython3
-from ploomber_core import exceptions
+from ploomber_core import exceptions # noqa
+
 
 class MyCollection:
     def __init__(self, data):
         self._data = data
-    
+
     def __getitem__(self, key):
         if key not in self._data:
             raise exceptions.PloomberKeyError(f"Key {key!r} not in collection")
-    
+
         return self._data[key]
 ```
 
 ```{code-cell} ipython3
-collection = MyCollection({"a":1})
-collection['a']
+collection = MyCollection({"a": 1})
+collection["a"]
 ```
 
 ```{code-cell} ipython3
 :tags: [raises-exception]
 
-collection['b']
+collection["b"]
 ```
 
 ## Catching generic exceptions
@@ -129,6 +132,7 @@ from ploomber_core.exceptions import modify_exceptions
 ```{code-cell} ipython3
 def do_stuff():
     raise ValueError("some error")
+
 
 @modify_exceptions
 def some_function():
