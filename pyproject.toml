@@ -3,3 +3,5 @@ addopts = "--pdbcls=IPython.terminal.debugger:Pdb"
 
 [tool.pkgmt]
 github = "ploomber/core"
+package_name = "ploomber_core"
+env_name = "core"
