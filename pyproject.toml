@@ -5,3 +5,10 @@ addopts = "--pdbcls=IPython.terminal.debugger:Pdb"
 github = "ploomber/core"
 package_name = "ploomber_core"
 env_name = "core"
+
+
+[tool.nbqa.addopts]
+flake8 = [
+    # notebooks allow non-top imports
+    "--extend-ignore=E402",
+]

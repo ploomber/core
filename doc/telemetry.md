@@ -6,7 +6,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.4
+    jupytext_version: 1.14.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -46,6 +46,7 @@ To log call functions:
 def add(x, y):
     return x + y
 
+
 add(1, 41)
 ```
 
@@ -56,6 +57,7 @@ class MyClass:
     @telemetry.log_call()
     def add(self, x, y):
         return x, y
+
 
 obj = MyClass()
 obj.add(x=1, y=2)
@@ -79,6 +81,7 @@ To unit test decorated functions, call the function and check `__wrapped__._tele
 @telemetry.log_call(log_args=True, ignore_args=("y",))
 def divide(x, y):
     return x / y
+
 
 _ = divide(2, 4)
 ```

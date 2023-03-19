@@ -76,8 +76,8 @@ class PloomberKeyError(KeyError):
 
 
 class ValidationError(BaseException):
-    """Raised when failed to validate input data
-    """
+    """Raised when failed to validate input data"""
+
     pass
 
 
