@@ -16,9 +16,11 @@ kernelspec:
 
 Often our packages contain features that require extra packages. If a feature is not regarded as core functionality, we'll make it an optional feature. This allows us to keep required dependencies at minimum, since the more dependencies we add, the higher the chance that our users will encounter problems during installation.
 
+If a function has optional dependencies, you can use the `@requires` decorator. Alternatively, you might use the `check_installed` function. Examples below.
+
 +++
 
-## Example
+## `@requires`
 
 Decorate a function with `@requires` and pass a list of the packages.
 
@@ -48,7 +50,7 @@ some_optional_functionality()
 ```
 
 
-## Customizing the error message
+### Customizing the error message
 
 If you need to provide more details in the error message (for example, if the package has particular installation instructions):
 
@@ -66,7 +68,7 @@ def some_optional_functionality(x, y):
 some_optional_functionality()
 ```
 
-## Ensuring accurate `pip` names
+### Ensuring accurate `pip` names
 
 Sometimes the name of the package does not match the name of the module installed. For example, you install scikit-learn with:
 
@@ -96,7 +98,7 @@ def some_optional_functionality(x, y):
 some_optional_functionality()
 ```
 
-## Classes
+### Classes
 
 Classes are supported too, decorate the `__init__` method, and pass the name of the class:
 
@@ -111,4 +113,21 @@ class SomeClass:
 :tags: [raises-exception]
 
 obj = SomeClass()
+```
+
+## `check_installed`
+
+```{versionadded} 0.2.7
+```
+
+In cases where you cannot decorate a function, you can use `check_installed`, which takes the same arguments. The only difference is that name is mandatory.
+
+```{code-cell} ipython3
+from ploomber_core.dependencies import check_installed
+```
+
+```{code-cell} ipython3
+:tags: [raises-exception]
+
+check_installed(["package"], "some feature")
 ```

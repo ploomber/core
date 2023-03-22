@@ -2,6 +2,8 @@
 
 ## 0.2.7dev
 
+* [Feature] Adds `ploomber_core.dependencies.check_installed` to check if packages are installed
+
 ## 0.2.6 (2023-02-16)
 
 * [Feature] Adds `ploomber_core.validate` to validate function values

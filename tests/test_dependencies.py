@@ -1,6 +1,6 @@
 import pytest
 
-from ploomber_core.dependencies import requires
+from ploomber_core.dependencies import requires, check_installed
 
 
 @pytest.mark.parametrize(
@@ -55,7 +55,41 @@ def test_requires(params, expected):
     def fn():
         pass
 
-    with pytest.raises(ImportError) as excinfo:
+    with pytest.raises(ModuleNotFoundError) as excinfo:
         fn()
+
+    assert str(excinfo.value) == expected
+
+
+@pytest.mark.parametrize(
+    "params, expected",
+    [
+        [
+            dict(pkgs=["p1"]),
+            "'p1' is required to use 'fn'. Install with: pip install 'p1'",
+        ],
+        [
+            dict(pkgs=["p1"], extra_msg="Some extra message"),
+            (
+                "'p1' is required to use 'fn'. Install with: "
+                "pip install 'p1'\nSome extra message"
+            ),
+        ],
+        [
+            dict(pkgs=["p1", "p2"]),
+            (
+                "'p1' 'p2' are required to use 'fn'. Install with: "
+                "pip install 'p1' 'p2'"
+            ),
+        ],
+        [
+            dict(pkgs=["p1"], pip_names=["n1"]),
+            "'n1' is required to use 'fn'. Install with: pip install 'n1'",
+        ],
+    ],
+)
+def test_check_installed(params, expected):
+    with pytest.raises(ModuleNotFoundError) as excinfo:
+        check_installed(name="fn", **params)
 
     assert str(excinfo.value) == expected

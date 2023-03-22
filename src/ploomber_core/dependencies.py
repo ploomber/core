@@ -4,8 +4,8 @@ import importlib
 
 def requires(pkgs, name=None, extra_msg=None, pip_names=None):
     """
-    Check if packages were imported, raise ImportError with an appropriate
-    message for missing ones
+    Decorator to check if packages were imported, raise ModuleNotFoundError with an
+    appropriate message for missing ones
 
     Error message:
     a, b are required to use function. Install them by running pip install a b
@@ -32,26 +32,56 @@ def requires(pkgs, name=None, extra_msg=None, pip_names=None):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            is_pkg_missing = [importlib.util.find_spec(pkg) is None for pkg in pkgs]
-
-            if any(is_pkg_missing):
-                missing_pkgs = [
-                    name
-                    for name, is_missing in zip(pip_names or pkgs, is_pkg_missing)
-                    if is_missing
-                ]
-
-                fn_name = name or f.__name__
-
-                raise ImportError(
-                    _make_requires_error_message(missing_pkgs, fn_name, extra_msg)
-                )
-
+            check_installed(
+                pkgs=pkgs,
+                name=name or f.__name__,
+                extra_msg=extra_msg,
+                pip_names=pip_names,
+            )
             return f(*args, **kwargs)
 
         return wrapper
 
     return decorator
+
+
+def check_installed(pkgs, name, extra_msg=None, pip_names=None):
+    """
+    A function to check if packages were imported, raise ModuleNotFoundError with an
+    appropriate message for missing ones
+
+    Error message:
+    a, b are required to use function. Install them by running pip install a b
+
+    Parameters
+    ----------
+    pkgs : list
+        The names of the packages required
+
+    name
+        The name of the module/function/class to show in the error message,
+        if None, the decorated function __name__ attribute is used
+
+    extra_msg
+        Append this extra message to the end
+
+    pip_names : list
+        Pip package names to show in the suggested "pip install {name}"
+        command, use it if different to the package name itself
+
+    """
+    is_pkg_missing = [importlib.util.find_spec(pkg) is None for pkg in pkgs]
+
+    if any(is_pkg_missing):
+        missing_pkgs = [
+            name
+            for name, is_missing in zip(pip_names or pkgs, is_pkg_missing)
+            if is_missing
+        ]
+
+        raise ModuleNotFoundError(
+            _make_requires_error_message(missing_pkgs, name, extra_msg)
+        )
 
 
 def _make_requires_error_message(missing_pkgs, fn_name, extra_msg):
