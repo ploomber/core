@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.7dev
+## 0.2.7 (2023-03-22)
 
 * [Feature] Adds `ploomber_core.dependencies.check_installed` to check if packages are installed
 
