@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.9dev
+
 ## 0.2.8 (2023-03-27)
 
 * [Fix] Adds LICENSE information to `setup.py`
