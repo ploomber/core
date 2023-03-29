@@ -1,7 +1,9 @@
 # CHANGELOG
 
-## 0.2.9dev
-* [Fix] Do not check if there's internet connection when stats are disabled (#55)
+## 0.2.9 (2023-03-29)
+
+* [Fix] Do not check if there's internet connection when stats are disabled ([#55](https://github.com/ploomber/core/issues/55))
+
 ## 0.2.8 (2023-03-27)
 
 * [Fix] Adds LICENSE information to `setup.py`
