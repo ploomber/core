@@ -331,6 +331,9 @@ def test_stats_off(monkeypatch):
     posthog_mock = Mock()
     mock.patch(telemetry, "_get_telemetry_info", (False, "TestUID"))
 
+    # when stats are off, we should not check is_online, as it's inefficient
+    monkeypatch.setattr(telemetry, "is_online", Mock(side_effect=ValueError))
+
     _telemetry = telemetry.Telemetry(MOCK_API_KEY, "ploomber", "0.14.0")
     _telemetry.log_api("test_action")
 

@@ -530,10 +530,9 @@ class Telemetry:
             metadata["dag"] = parse_dag(metadata["dag"])
 
         os = get_os()
-        online = is_online()
         environment = get_env()
 
-        if telemetry_enabled and online:
+        if telemetry_enabled and is_online():
             (event_id, uid, action, client_time, elapsed_time) = validate_entries(
                 event_id, uid, action, client_time, total_runtime
             )
