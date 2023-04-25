@@ -40,6 +40,20 @@ def test_key_error():
         raise exceptions.PloomberKeyError("error")
 
 
+def test_modify_exceptions_with_attribute():
+    class CustomException(Exception):
+        modify_exception = True
+
+    @exceptions.modify_exceptions
+    def crash():
+        raise CustomException("some message")
+
+    with pytest.raises(CustomException) as excinfo:
+        crash()
+
+    assert exceptions.get_community_link() in str(excinfo.value)
+
+
 def test_modify_exceptions_value_error():
     @exceptions.modify_exceptions
     def crash():
