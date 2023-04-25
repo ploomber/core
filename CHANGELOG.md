@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.11dev
+
 ## 0.2.10 (2023-04-24)
 
 * [Feature] `modify_exceptions` decorator modifies exceptions if they have a `modify_exception` attribute equal to `True`
