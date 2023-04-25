@@ -1,7 +1,7 @@
 # CHANGELOG
 
 ## 0.2.10dev
-
+* [Feature] `modify_exceptions` decorator modifies exceptions if they have a `modify_exception` attribute equal to `True`
 ## 0.2.9 (2023-03-29)
 
 * [Fix] Do not check if there's internet connection when stats are disabled ([#55](https://github.com/ploomber/core/issues/55))

@@ -81,12 +81,26 @@ class ValidationError(BaseException):
     pass
 
 
+def _add_community_link(e):
+    if COMMUNITY not in e.args[0]:
+        message = e.args[0] + COMMUNITY
+        e.args = (message,)
+
+    return e
+
+
 def modify_exceptions(fn):
-    """A decorator that catches ValueError and modifies the original error message
+    """
+    A decorator that catches ValueError, TypeError, ModifiableException and modifies
+    the original error message
 
     Notes
     -----
     .. versionadded:: 0.1.1
+
+    .. versionchanged:: 0.2.10
+        Decorator also modifies exceptions with if they have a "modify_exception"
+        attribute and it's set to True
     """
 
     @wraps(fn)
@@ -94,9 +108,12 @@ def modify_exceptions(fn):
         try:
             return fn(*args, **kwargs)
         except (ValueError, TypeError) as e:
-            if COMMUNITY not in e.args[0]:
-                message = e.args[0] + COMMUNITY
-                e.args = (message,)
+            _add_community_link(e)
+            raise
+
+        except Exception as e:
+            if getattr(e, "modify_exception", False):
+                _add_community_link(e)
             raise
 
     return wrapper
