@@ -60,7 +60,7 @@ Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
 A subclass of the built-in `TypeError`, use it when the type is unexpected:
 
 ```{code-cell} ipython3
-from ploomber_core import exceptions # noqa
+from ploomber_core import exceptions  # noqa
 
 
 def add_one(a):
@@ -93,7 +93,7 @@ Ensure you pin this version in the `setup.py` file (`ploomber-core>=0.1.*`)
 A subclass of the built-in `KeyError`, use it when a key is missing:
 
 ```{code-cell} ipython3
-from ploomber_core import exceptions # noqa
+from ploomber_core import exceptions  # noqa
 
 
 class MyCollection:
@@ -153,6 +153,7 @@ come from a third-party package)
 ```{code-cell} ipython3
 class SomeThirdPartyException(Exception):
     pass
+
 
 def some_third_party_call():
     raise SomeThirdPartyException("some error")
