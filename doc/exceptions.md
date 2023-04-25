@@ -144,3 +144,31 @@ def some_function():
 
 some_function()
 ```
+
+Note that `@modify_exceptions` will only capture `ValueError` and `TypError`, if you
+want other exceptions to work, you can either subclass them (preferred method)
+or add the `modify_exception` attribute at runtime (this is applicable when exceptions
+come from a third-party package)
+
+```{code-cell} ipython3
+class SomeThirdPartyException(Exception):
+    pass
+
+def some_third_party_call():
+    raise SomeThirdPartyException("some error")
+
+
+@modify_exceptions
+def some_function():
+    try:
+        some_third_party_call()
+    except Exception as e:
+        e.modify_exception = True
+        raise
+```
+
+```{code-cell} ipython3
+:tags: [raises-exception]
+
+some_function()
+```
