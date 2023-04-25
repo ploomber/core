@@ -1,7 +1,9 @@
 # CHANGELOG
 
-## 0.2.10dev
+## 0.2.10 (2023-04-24)
+
 * [Feature] `modify_exceptions` decorator modifies exceptions if they have a `modify_exception` attribute equal to `True`
+
 ## 0.2.9 (2023-03-29)
 
 * [Fix] Do not check if there's internet connection when stats are disabled ([#55](https://github.com/ploomber/core/issues/55))
@@ -20,11 +22,11 @@
 
 ## 0.2.5 (2023-02-14)
 
-* [Feature] Functions decorated with `@log_call` expose an attribute for unit testing
+* [Feature] Functions decorated with `[@log_call](https://github.com/log_call)` expose an attribute for unit testing
 
 ## 0.2.4 (2023-02-14)
 
-* [Fix] Fixes `@log_call` with `payload=True` when decorating methods
+* [Fix] Fixes `[@log_call](https://github.com/log_call)` with `payload=True` when decorating methods
 
 ## 0.2.3 (2023-02-01)
 
@@ -98,7 +100,7 @@
 
 ## 0.0.5 (2022-08-21)
 
-* Adds `@deprecated.method`
+* Adds `[@deprecated](https://github.com/deprecated).method`
 
 ## 0.0.4 (2022-08-13)
 
