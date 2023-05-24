@@ -27,7 +27,6 @@ def requires(pkgs, name=None, extra_msg=None, pip_names=None):
         command, use it if different to the package name itself
 
     """
-    pkgs = [pkg.replace("-", "_") for pkg in pkgs]
 
     def decorator(f):
         @wraps(f)
@@ -70,6 +69,8 @@ def check_installed(pkgs, name, extra_msg=None, pip_names=None):
         command, use it if different to the package name itself
 
     """
+    pkgs = [pkg.replace("-", "_") for pkg in pkgs]
+
     is_pkg_missing = [importlib.util.find_spec(pkg) is None for pkg in pkgs]
 
     if any(is_pkg_missing):
