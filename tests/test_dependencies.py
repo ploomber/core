@@ -48,6 +48,14 @@ from ploomber_core.dependencies import requires, check_installed
             dict(pkgs=["ploomber-core", "p1"]),
             "'p1' is required to use 'fn'. Install with: pip install 'p1'",
         ],
+        [
+            # test missing packages with - and hyphens
+            dict(pkgs=["pkg-a", "pkg-b"]),
+            (
+                "'pkg_a' 'pkg_b' are required to use 'fn'. "
+                "Install with: pip install 'pkg_a' 'pkg_b'"
+            ),
+        ],
     ],
 )
 def test_requires(params, expected):
@@ -85,6 +93,14 @@ def test_requires(params, expected):
         [
             dict(pkgs=["p1"], pip_names=["n1"]),
             "'n1' is required to use 'fn'. Install with: pip install 'n1'",
+        ],
+        [
+            # test missing packages with - and hyphens
+            dict(pkgs=["pkg-a", "pkg-b"]),
+            (
+                "'pkg_a' 'pkg_b' are required to use 'fn'. "
+                "Install with: pip install 'pkg_a' 'pkg_b'"
+            ),
         ],
     ],
 )
