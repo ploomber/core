@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 0.2.11dev
+* [Fix] Fix `check_installed` so it behaves consistently with `@requires` regarding package names
 
 ## 0.2.10 (2023-04-24)
 
