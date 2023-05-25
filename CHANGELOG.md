@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.12dev
+
 ## 0.2.11 (2023-05-25)
 
 * [Fix] Fix `check_installed` so it behaves consistently with `[@requires](https://github.com/requires)` regarding package names
