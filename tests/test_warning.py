@@ -1,41 +1,25 @@
 # import posthog
 
-from unittest.mock import patch, ANY
+from unittest.mock import Mock
 from ploomber_core.warnings import deprecation_warning
 from ploomber_core.telemetry import telemetry as telemetry_module
 
 import pytest
 
 
-@patch("posthog.capture")
-def test_deprecation_warning_w_posthug(capture):
-    telemetry = telemetry_module.Telemetry(
+def test_deprecation_warning_w_posthug(monkeypatch):
+    # Initiate telemetry instance with mock_log_api
+    somepackage_telemetry = telemetry_module.Telemetry(
         api_key="KEY", package_name="somepackage", version="0.1"
     )
+    mock_log_api = Mock()
+    monkeypatch.setattr(somepackage_telemetry, "log_api", mock_log_api)
 
     # To test if warning is shown
     with pytest.warns(FutureWarning):
-        deprecation_warning("Test", telemetry)
+        deprecation_warning("Test", somepackage_telemetry)
 
-    # # To test if posthug.capture is called
-    capture.assert_called_once_with(
-        distinct_id=ANY,
-        event="deprecation-warning-shown",
-        properties={
-            "event_id": ANY,
-            "user_id": ANY,
-            "action": "deprecation-warning-shown",
-            "client_time": ANY,
-            "metadata": {"message": "Test"},
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
+    # To test if posthug.capture is called
+    mock_log_api.assert_called_once_with(
+        action="deprecation-warning-shown", metadata={"message": "Test"}
     )

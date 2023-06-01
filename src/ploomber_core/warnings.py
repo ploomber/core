@@ -29,7 +29,6 @@ def deprecation_warning(message, module_telemetry=None):
         by default None
     """
     warn(message, FutureWarning)
-
     if module_telemetry and isinstance(module_telemetry, telemetry.Telemetry):
         module_telemetry.log_api(
             action="deprecation-warning-shown", metadata={"message": message}
