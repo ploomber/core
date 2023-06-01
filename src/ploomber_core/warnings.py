@@ -2,6 +2,7 @@ from warnings import warn
 from uuid import uuid4
 import posthog
 
+
 class PloomberDeprecationWarning(FutureWarning):
     """
     Notes
@@ -9,10 +10,12 @@ class PloomberDeprecationWarning(FutureWarning):
     .. versionchanged:: 0.1
         Changed superclass from UserWarning to FutureWarning
     """
+
     # @
     def __init__(self, message):
-        print ("message: ", message)
+        print("message: ", message)
         self.message = message
+
 
 def deprecation_warning(message):
     warn(message, FutureWarning)
