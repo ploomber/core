@@ -18,12 +18,15 @@ def test_deprecation_warning_w_posthug(capture):
         deprecation_warning("Test", telemetry)
 
     # # To test if posthug.capture is called
-    capture.assert_called_once_with(distinct_id=ANY, event='deprecation-warning-shown', properties={
+    capture.assert_called_once_with(
+        distinct_id=ANY,
+        event="deprecation-warning-shown",
+        properties={
             "event_id": ANY,
             "user_id": ANY,
             "action": "deprecation-warning-shown",
             "client_time": ANY,
-            "metadata": {'message': 'Test'},
+            "metadata": {"message": "Test"},
             "total_runtime": None,
             "python_version": ANY,
             "version": "0.1",
@@ -34,4 +37,5 @@ def test_deprecation_warning_w_posthug(capture):
             "os": ANY,
             "environment": ANY,
             "telemetry_version": ANY,
-        })
+        },
+    )

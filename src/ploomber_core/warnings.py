@@ -1,6 +1,6 @@
 from warnings import warn
-from uuid import uuid4
 from ploomber_core.telemetry import telemetry
+
 
 class PloomberDeprecationWarning(FutureWarning):
     """
@@ -16,17 +16,21 @@ class PloomberDeprecationWarning(FutureWarning):
         self.message = message
 
 
-def deprecation_warning(message, module_telemetry = None):
-    """Raise deprecation warning message, also log to posthug if telemetry instance is provided
+def deprecation_warning(message, module_telemetry=None):
+    """Raise deprecation warning message, also log to posthug if telemetry instance
+    is provided
 
     Parameters
     ----------
     message : str
         The warning message displayed to the user
     module_telemetry : Telemetry
-        The telemetry instance defined in ploomber_core.telemetry.Telemetry, by default None
+        The telemetry instance defined in ploomber_core.telemetry.Telemetry,
+        by default None
     """
     warn(message, FutureWarning)
 
     if module_telemetry and isinstance(module_telemetry, telemetry.Telemetry):
-        module_telemetry.log_api(action=f"deprecation-warning-shown", metadata={"message": message})
+        module_telemetry.log_api(
+            action="deprecation-warning-shown", metadata={"message": message}
+        )
