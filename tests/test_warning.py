@@ -19,7 +19,7 @@ def test_deprecation_warning_w_posthug(monkeypatch):
     with pytest.warns(FutureWarning):
         deprecation_warning("Test", somepackage_telemetry)
 
-    # To test if posthug.capture is called
+    # To test if log_api is called
     mock_log_api.assert_called_once_with(
         action="deprecation-warning-shown", metadata={"message": "Test"}
     )
