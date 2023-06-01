@@ -19,6 +19,7 @@ class PloomberDeprecationWarning(FutureWarning):
 
 def deprecation_warning(message):
     warn(message, FutureWarning)
+
     # log the event to posthog
     posthog.project_api_key = "phc_JtG9P0pl0v0XExLqbqKfmXZjUm2wFq9cCxHE4LM74IG"
     event_id = uuid4()
