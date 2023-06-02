@@ -14,7 +14,7 @@ class PloomberDeprecationWarning(FutureWarning):
 
 
 def deprecation_warning(telemetry, message):
-    """Raise deprecation warning message, also log to posthog if telemetry instance
+    """Raise deprecation warning message, also log to posthog with telemetry instance
     is provided
 
     Parameters
