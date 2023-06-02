@@ -7,7 +7,7 @@ from ploomber_core.telemetry import telemetry as telemetry_module
 import pytest
 
 
-def test_deprecation_warning_w_posthug(monkeypatch):
+def test_deprecation_warning_w_posthog(monkeypatch):
     # Initiate telemetry instance with mock_log_api
     somepackage_telemetry = telemetry_module.Telemetry(
         api_key="KEY", package_name="somepackage", version="0.1"
