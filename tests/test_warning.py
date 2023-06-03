@@ -17,7 +17,7 @@ def test_deprecation_warning_w_posthog(monkeypatch):
 
     # To test if warning is shown
     with pytest.warns(FutureWarning):
-        deprecation_warning("Test", somepackage_telemetry)
+        deprecation_warning(somepackage_telemetry, "Test")
 
     # To test if log_api is called
     mock_log_api.assert_called_once_with(
