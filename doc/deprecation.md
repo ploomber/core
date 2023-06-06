@@ -505,7 +505,7 @@ the information about the message, the current package name and version.
 
 We need to provide telemetry instance and the message string:
 
-- telemetry, [Telemetry class](https://ploomber-core--65.org.readthedocs.build/en/65/telemetry.html)
+- telemetry, [Telemetry class](telemetry.html)
 - message, str, the message to display
 
 ### Example
