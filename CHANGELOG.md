@@ -2,9 +2,11 @@
 
 ## 0.2.12dev
 
+* [Feature] Adds `ploomber_core.warnings.deprecation_warning` (#65)
+
 ## 0.2.11 (2023-05-25)
 
-* [Fix] Fix `check_installed` so it behaves consistently with `[@requires](https://github.com/requires)` regarding package names
+* [Fix] Fix `check_installed` so it behaves consistently with `@requires` regarding package names
 
 ## 0.2.10 (2023-04-24)
 
