@@ -1,5 +1,4 @@
 from warnings import warn
-from ploomber_core.telemetry import telemetry as core_telemetry
 
 
 class PloomberDeprecationWarning(FutureWarning):
