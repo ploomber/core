@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.13dev
+
 ## 0.2.12 (2023-06-06)
 
 * [Feature] Adds `ploomber_core.warnings.deprecation_warning` ([#65](https://github.com/ploomber/core/issues/65))
