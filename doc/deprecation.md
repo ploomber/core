@@ -498,6 +498,31 @@ def example_function(n_clusters=10, another=42, k="deprecated"):
 example_function(k=10)
 ```
 
+## Deprecation warning with logger
+
+`deprecation_warning(telemetry, message)` is designed to facilitate the logging of deprecated features in your codebase. It throws warning messages and log
+the information about the message, the current package name and version.
+
+We need to provide telemetry instance and the message string:
+
+- telemetry, [Telemetry class](telemetry.md)
+- message, str, the message to display
+
+### Example
+
+In the [jupysql](https://github.com/ploomber/jupysql) project, we may import the existing telemetry instance and pass to `deprecation_warning`
+
+```
+from sql.telemetry import telemetry
+
+def some_random_func():
+    deprecation_warning(telemetry, "you are using old feature")
+
+some_random_func()
+```
+
+The message `you are using old feature` and jupysql package info will be logged
+
 ## Reference
 
 This is based on [sklearn's guidelines.](https://scikit-learn.org/stable/developers/contributing.html#maintaining-backwards-compatibility)
