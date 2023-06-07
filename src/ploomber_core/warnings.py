@@ -19,14 +19,14 @@ def deprecation_warning(telemetry, message):
 
     Parameters
     ----------
+    module_telemetry : Telemetry
+        The telemetry instance defined in ploomber_core.telemetry.Telemetry
+
+    action : str
+        The action to log to posthog. example: deprecated-feature-warning
+
     message : str
         The warning message displayed to the user
-    module_telemetry : Telemetry
-        The telemetry instance defined in ploomber_core.telemetry.Telemetry,
-        by default None
     """
     warn(message, FutureWarning)
-    if telemetry and isinstance(telemetry, core_telemetry.Telemetry):
-        telemetry.log_api(
-            action="deprecation-warning-shown", metadata={"message": message}
-        )
+    telemetry.log_api(action="deprecation-warning-shown", metadata={"message": message})
