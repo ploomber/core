@@ -489,7 +489,7 @@ def test_python_major_version():
 def test_no_output_dev_version(capsys):
     telemetry.check_version("ploomber-core", "0.14.0.dev")
     captured = capsys.readouterr()
-    assert '' == captured.out
+    assert "" == captured.out
 
 
 @pytest.fixture
