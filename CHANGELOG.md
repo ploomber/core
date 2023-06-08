@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 0.2.13dev
+* [Fix] Better validation when checking version updates ([#66](https://github.com/ploomber/core/issues/66))
 
 ## 0.2.12 (2023-06-06)
 
