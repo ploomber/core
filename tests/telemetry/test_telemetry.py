@@ -486,6 +486,12 @@ def test_python_major_version():
     assert int(major) == 3
 
 
+def test_no_output_dev_version(capsys):
+    telemetry.check_version("ploomber-core", "0.14.0.dev")
+    captured = capsys.readouterr()
+    assert "" == captured.out
+
+
 @pytest.fixture
 def mock_telemetry(monkeypatch):
     mock = Mock()
