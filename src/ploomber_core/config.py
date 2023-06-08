@@ -3,7 +3,8 @@ import abc
 from collections.abc import Mapping
 from pathlib import Path
 import yaml
-
+import random
+import string
 
 class Config(abc.ABC):
     """An abstract class to create configuration files (stored as YAML)
@@ -118,7 +119,7 @@ class Config(abc.ABC):
             super().__setattr__(name, value)
 
             # Check if the filesystem is writable
-            if self.filesystem_writable():
+            if self.filesystem_writable() and name!='writable':
                 self._write()
 
     def load_config(self):
@@ -134,10 +135,24 @@ class Config(abc.ABC):
 
         return config
 
+    def random_string(self, length=10):
+        """Generate a random string
+
+        Parameters
+        ----------
+        length
+            Length of the string
+        """
+        return ''.join(random.choices(
+            string.ascii_uppercase + string.digits, k=length))
+
     def filesystem_writable(self):
+        """Check if the filesystem is writable"""
         try:
-            self.path().touch()
-            self.path().unlink()
+            # random string is used for race conditions when using multiprocessing
+            tmp = self.path().parent / f'tmp_{self.random_string()}.txt'
+            tmp.touch()
+            tmp.unlink()
             return True
         except PermissionError:
             return False
