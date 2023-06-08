@@ -6,6 +6,7 @@ import yaml
 import random
 import string
 
+
 class Config(abc.ABC):
     """An abstract class to create configuration files (stored as YAML)
 
@@ -119,7 +120,7 @@ class Config(abc.ABC):
             super().__setattr__(name, value)
 
             # Check if the filesystem is writable
-            if self.filesystem_writable() and name!='writable':
+            if self.filesystem_writable() and name != "writable":
                 self._write()
 
     def load_config(self):
@@ -143,14 +144,13 @@ class Config(abc.ABC):
         length
             Length of the string
         """
-        return ''.join(random.choices(
-            string.ascii_uppercase + string.digits, k=length))
+        return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
     def filesystem_writable(self):
         """Check if the filesystem is writable"""
         try:
             # random string is used for race conditions when using multiprocessing
-            tmp = self.path().parent / f'tmp_{self.random_string()}.txt'
+            tmp = self.path().parent / f"tmp_{self.random_string()}.txt"
             tmp.touch()
             tmp.unlink()
             return True
