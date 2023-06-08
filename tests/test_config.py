@@ -11,6 +11,7 @@ from ploomber_core.config import Config
 class MyConfig(Config):
     number: int = 42
     string: str = "value"
+    writable: bool = True
 
     def path(self):
         return Path("myconfig.yaml")
@@ -19,6 +20,7 @@ class MyConfig(Config):
 class AnotherConfig(Config):
     uuid: str
     another: str = "default"
+    writable: bool = True
 
     def path(self):
         return Path("another.yaml")
@@ -32,7 +34,7 @@ def test_stores_defaults(tmp_directory):
 
     content = yaml.safe_load(Path("myconfig.yaml").read_text())
 
-    assert content == {"number": 42, "string": "value"}
+    assert content == {"number": 42, "string": "value", "writable": True}
 
 
 def test_reads_existing(tmp_directory):
@@ -43,6 +45,7 @@ def test_reads_existing(tmp_directory):
 
     assert cfg.number == 100
     assert cfg.string == "value"
+    assert cfg.writable is True
 
 
 def test_ignores_extra(tmp_directory):
@@ -70,7 +73,7 @@ def test_stores_on_update(tmp_directory):
 
     content = yaml.safe_load(Path("myconfig.yaml").read_text())
 
-    assert content == {"number": 500, "string": "value"}
+    assert content == {"number": 500, "string": "value", "writable": True}
 
 
 def test_uses_default_if_missing(tmp_directory):
@@ -97,7 +100,7 @@ def test_uses_defaults_if_corrupted(tmp_directory, content):
     assert "Error loading" in records[0].message.args[0]
     assert cfg.number == 42
     assert cfg.string == "value"
-    assert content == {"number": 42, "string": "value"}
+    assert content == {"number": 42, "string": "value", "writable": True}
 
 
 def test_config_with_factory(tmp_directory):
@@ -109,7 +112,7 @@ def test_config_with_factory(tmp_directory):
 
 def test_factory_keeps_existing_values(tmp_directory):
     path = Path("another.yaml")
-    values = {"uuid": "my-uuid", "another": "some-value"}
+    values = {"uuid": "my-uuid", "another": "some-value", "writable": True}
     path.write_text(yaml.dump(values))
 
     cfg = AnotherConfig()
