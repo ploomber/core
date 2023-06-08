@@ -116,7 +116,7 @@ class Config(abc.ABC):
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
-            
+
             # Check if the filesystem is writable
             if self.filesystem_writable():
                 self._write()
@@ -131,9 +131,9 @@ class Config(abc.ABC):
                 text = path.read_text()
                 if text:
                     config = yaml.safe_load(text)
-     
+
         return config
-    
+
     def filesystem_writable(self):
         try:
             self.path().touch()
