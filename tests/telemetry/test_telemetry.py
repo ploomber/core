@@ -87,6 +87,7 @@ def test_user_settings_create_file(tmp_directory, monkeypatch):
         "user_email": None,
         "stats_enabled": True,
         "version_check_enabled": True,
+        "writable": True,
     }
     assert settings.cloud_key is None
     assert settings.stats_enabled
@@ -103,6 +104,7 @@ def test_internal_create_file(tmp_directory, monkeypatch):
         "uid": "some-unique-uuid",
         "last_version_check": None,
         "first_time": True,
+        "writable": True,
     }
     assert internal.uid == "some-unique-uuid"
     assert internal.last_version_check is None
@@ -385,7 +387,7 @@ def test_conf_file_after_version_check(tmp_directory, monkeypatch):
     with version_path.open("r") as file:
         conf = yaml.safe_load(file)
     assert "uid" in conf.keys()
-    assert len(conf.keys()) == 3
+    assert len(conf.keys()) == 4
 
 
 def test_get_version_timeout():
@@ -868,8 +870,7 @@ def test_permissions_error(monkeypatch):
     is_read_only = statinfo.st_mode == 16640
 
     if is_read_only:
-        with pytest.raises(PermissionError):
-            telemetry.Internal()
+        telemetry.Internal()
 
 
 @pytest.mark.allow_posthog
