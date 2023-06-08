@@ -15,12 +15,16 @@ class Config(abc.ABC):
     """
 
     def __init__(self):
+        # Check if the path is writable
+        self.writable = self.filesystem_writable()
+
+        # init values from annotations
         self._init_values()
 
         # resolve home directory
         path = self.path()
 
-        if not path.exists():
+        if self.writable and (not path.exists()):
             defaults = self._get_defaults()
             path.write_text(yaml.dump(defaults))
         else:
@@ -112,18 +116,31 @@ class Config(abc.ABC):
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
-            self._write()
+            
+            # Check if the filesystem is writable
+            if self.filesystem_writable():
+                self._write()
 
     def load_config(self):
         config = None
-        path = self.path()
-        is_config_exist = Path.is_file(path)
-        if is_config_exist:
-            text = path.read_text()
-            if text:
-                config = yaml.safe_load(text)
 
+        if self.writable:
+            path = self.path()
+            is_config_exist = Path.is_file(path)
+            if is_config_exist:
+                text = path.read_text()
+                if text:
+                    config = yaml.safe_load(text)
+     
         return config
+    
+    def filesystem_writable(self):
+        try:
+            self.path().touch()
+            self.path().unlink()
+            return True
+        except PermissionError:
+            return False
 
     @abc.abstractclassmethod
     def path(cls):

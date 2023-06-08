@@ -66,6 +66,7 @@ class UserSettings(Config):
     cloud_key: str = None
     user_email: str = None
     stats_enabled: bool = True
+    writable: bool = True
 
     @classmethod
     def path(cls):
@@ -81,6 +82,7 @@ class Internal(Config):
     last_version_check: datetime.datetime = None
     uid: str
     first_time: bool = True
+    writable: bool = True
 
     @classmethod
     def path(cls):
@@ -278,8 +280,11 @@ def check_dir_exist(input_location=None):
 
     p = p.expanduser()
 
-    if not p.exists():
-        p.mkdir(parents=True)
+    try:
+        if not p.exists():
+            p.mkdir(parents=True)
+    except PermissionError:
+        pass
 
     return p
 
