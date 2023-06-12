@@ -1,6 +1,7 @@
 from multiprocessing import Pool
 import warnings
 from pathlib import Path
+import platform
 
 import pytest
 import yaml
@@ -163,6 +164,9 @@ def test_race_condition(tmp_directory):
         p.map(instantiate_config, range(20))
 
 
+@pytest.mark.xfail(
+    platform.system() == "Windows", reason="Read-only directory not working"
+)
 def test_readonly(tmp_readonly_directory):
     cfg = MyConfig()
 
