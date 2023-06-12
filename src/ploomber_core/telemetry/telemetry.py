@@ -388,6 +388,10 @@ def check_version(package_name, version):
     if version == latest:
         return
 
+    # If in development mode we don't want to display the warning
+    if "dev" in version:
+        return
+
     click.secho(
         f"There's a new {package_name} version available ({latest}), "
         f"you're running {version}. To upgrade: "
