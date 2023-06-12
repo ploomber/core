@@ -17,10 +17,8 @@ class Config(abc.ABC):
     """
 
     def __init__(self):
-        # Check if the path is writable
         self.writable = self.filesystem_writable()
 
-        # init values from annotations
         self._init_values()
 
         # resolve home directory
@@ -144,7 +142,8 @@ class Config(abc.ABC):
         length
             Length of the string
         """
-        return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
+        sequence = f"{string.ascii_uppercase}{string.digits}"
+        return "".join(random.choices(sequence, k=length))
 
     def filesystem_writable(self):
         """Check if the filesystem is writable"""
