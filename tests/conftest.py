@@ -34,13 +34,16 @@ def tmp_readonly_directory():
 
     # Read permissions
     if platform.system() == "Windows":
+        # https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids
+        everyone = win32security.ConvertStringSidToSid("S-1-1-0")
+
         # https://stackoverflow.com/questions/12168110
         sd = win32security.GetFileSecurity(tmp, win32security.DACL_SECURITY_INFORMATION)
         dacl = sd.GetSecurityDescriptorDacl()
         dacl.AddAccessAllowedAce(
             win32security.ACL_REVISION_DS,
             con.FILE_GENERIC_READ,
-            win32security.WorldSid,
+            everyone,
         )
         sd.SetSecurityDescriptorDacl(1, dacl, 0)
         win32security.SetFileSecurity(tmp, win32security.DACL_SECURITY_INFORMATION, sd)
