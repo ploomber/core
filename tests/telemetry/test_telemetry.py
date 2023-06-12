@@ -876,7 +876,10 @@ def test_permissions_error(monkeypatch):
     is_read_only = statinfo.st_mode == 16640
 
     if is_read_only:
-        telemetry.Internal()
+        internal = telemetry.Internal()
+        user = telemetry.UserSettings()
+        assert internal.writable is False
+        assert user.writable is False
 
 
 @pytest.mark.allow_posthog
