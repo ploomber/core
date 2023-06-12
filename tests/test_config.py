@@ -161,3 +161,9 @@ def instantiate_config(n):
 def test_race_condition(tmp_directory):
     with Pool(processes=8) as p:
         p.map(instantiate_config, range(20))
+
+
+def test_readonly(tmp_readonly_directory):
+    cfg = MyConfig()
+
+    assert cfg.writable is False

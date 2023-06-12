@@ -20,6 +20,24 @@ def tmp_directory():
     shutil.rmtree(str(tmp), ignore_errors=True)
 
 
+@pytest.fixture()
+def tmp_readonly_directory():
+    old = os.getcwd()
+    tmp = tempfile.mkdtemp()
+
+    # Read and execute permissions
+    os.chmod(tmp, 0o555)
+
+    os.chdir(str(tmp))
+
+    yield tmp
+
+    os.chdir(old)
+
+    # ignore unexpected permission error during test suite cleanup
+    shutil.rmtree(str(tmp), ignore_errors=True)
+
+
 @pytest.fixture(scope="class")
 def monkeypatch_session():
     from _pytest.monkeypatch import MonkeyPatch
