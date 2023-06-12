@@ -34,6 +34,7 @@ def tmp_readonly_directory():
 
     # Read permissions
     if platform.system() == "Windows":
+        # https://stackoverflow.com/questions/12168110
         sd = win32security.GetFileSecurity(tmp, win32security.DACL_SECURITY_INFORMATION)
         dacl = sd.GetSecurityDescriptorDacl()
         dacl.AddAccessAllowedAce(
