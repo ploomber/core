@@ -4,6 +4,7 @@ import pytest
 import tempfile
 import posthog
 from unittest.mock import MagicMock
+from stat import S_IREAD, S_IRGRP, S_IROTH
 
 
 @pytest.fixture()
@@ -24,11 +25,10 @@ def tmp_directory():
 def tmp_readonly_directory():
     old = os.getcwd()
     tmp = tempfile.mkdtemp()
-
-    # Read and execute permissions
-    os.chmod(tmp, 0o555)
-
     os.chdir(str(tmp))
+
+    # Read permissions
+    os.chmod(tmp, S_IREAD | S_IRGRP | S_IROTH)
 
     yield tmp
 
