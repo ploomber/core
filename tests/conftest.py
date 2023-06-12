@@ -5,6 +5,11 @@ import tempfile
 import posthog
 from unittest.mock import MagicMock
 from stat import S_IREAD, S_IRGRP, S_IROTH
+import platform
+
+if platform.system() == "Windows":
+    import win32security
+    import win32con
 
 
 @pytest.fixture()
@@ -28,7 +33,18 @@ def tmp_readonly_directory():
     os.chdir(str(tmp))
 
     # Read permissions
-    os.chmod(tmp, S_IREAD | S_IRGRP | S_IROTH)
+    if platform.system() == "Windows":
+        sd = win32security.GetFileSecurity(tmp, win32security.DACL_SECURITY_INFORMATION)
+        dacl = sd.GetSecurityDescriptorDacl()
+        dacl.AddAccessAllowedAce(
+            win32security.ACL_REVISION_DS,
+            win32con.FILE_GENERIC_READ,
+            win32security.WorldSid,
+        )
+        sd.SetSecurityDescriptorDacl(1, dacl, 0)
+        win32security.SetFileSecurity(tmp, win32security.DACL_SECURITY_INFORMATION, sd)
+    else:
+        os.chmod(tmp, S_IREAD | S_IRGRP | S_IROTH)
 
     yield tmp
 

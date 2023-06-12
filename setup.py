@@ -19,13 +19,7 @@ REQUIRES = [
     "posthog",
 ]
 
-DEV = [
-    "pytest",
-    "flake8",
-    "twine",
-    "invoke",
-    "pkgmt",
-]
+DEV = ["pytest", "flake8", "twine", "invoke", "pkgmt", "pywin32"]
 
 setup(
     name="ploomber-core",
