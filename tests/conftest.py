@@ -9,7 +9,7 @@ import platform
 
 if platform.system() == "Windows":
     import win32security
-    import win32con
+    import ntsecuritycon as con
 
 
 @pytest.fixture()
@@ -39,7 +39,7 @@ def tmp_readonly_directory():
         dacl = sd.GetSecurityDescriptorDacl()
         dacl.AddAccessAllowedAce(
             win32security.ACL_REVISION_DS,
-            win32con.FILE_GENERIC_READ,
+            con.FILE_GENERIC_READ,
             win32security.WorldSid,
         )
         sd.SetSecurityDescriptorDacl(1, dacl, 0)
