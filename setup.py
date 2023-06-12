@@ -21,7 +21,7 @@ REQUIRES = [
     "posthog",
 ]
 
-DEV = ["pytest", "flake8", "twine", "invoke", "pkgmt", "pywin32"]
+DEV = ["pytest", "flake8", "twine", "invoke", "pkgmt"]
 
 if platform.system() == "Windows":
     DEV.append("pywin32")
