@@ -86,7 +86,7 @@ class Internal(Config):
 
     @classmethod
     def path(cls):
-        return Path(check_dir_exist( CONF_DIR, cls), DEFAULT_PLOOMBER_CONF)
+        return Path(check_dir_exist(CONF_DIR, cls), DEFAULT_PLOOMBER_CONF)
 
     def uid_default(self):
         config = self.load_config()
@@ -280,10 +280,10 @@ def check_dir_exist(input_location=None, cls=None):
 
     p = p.expanduser()
 
-    if not(cls!=None and cls.writable==False):
+    if not (cls is not None and cls.writable is False):
         if not p.exists():
             p.mkdir(parents=True)
-    
+
     return p
 
 
