@@ -86,7 +86,7 @@ class Internal(Config):
 
     @classmethod
     def path(cls):
-        return Path(check_dir_exist(CONF_DIR, cls), DEFAULT_PLOOMBER_CONF)
+        return Path(check_dir_exist(CONF_DIR, cls.writable), DEFAULT_PLOOMBER_CONF)
 
     def uid_default(self):
         config = self.load_config()
@@ -266,7 +266,7 @@ def get_home_dir():
     return PLOOMBER_HOME_DIR if PLOOMBER_HOME_DIR else DEFAULT_HOME_DIR
 
 
-def check_dir_exist(input_location=None, cls=None):
+def check_dir_exist(input_location=None, create=None):
     """
     Checks if a specific directory exists, creates if not.
     In case the user didn't set a custom dir, will turn to the default home
@@ -280,7 +280,7 @@ def check_dir_exist(input_location=None, cls=None):
 
     p = p.expanduser()
 
-    if not (cls is not None and cls.writable is False):
+    if not (create is not None and create is False):
         if not p.exists():
             p.mkdir(parents=True)
 
