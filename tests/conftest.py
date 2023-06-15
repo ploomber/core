@@ -33,6 +33,8 @@ def tmp_readonly_directory():
     os.chdir(str(tmp))
 
     # Read permissions
+
+    # TODO: Fix this for Windows
     if platform.system() == "Windows":
         # https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids
         everyone = win32security.ConvertStringSidToSid("S-1-1-0")
