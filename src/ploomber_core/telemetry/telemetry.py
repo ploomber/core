@@ -281,8 +281,7 @@ def check_dir_exist(input_location=None, create=True):
     p = p.expanduser()
 
     if create:
-        if not p.exists():
-            p.mkdir(parents=True)
+        p.mkdir(parents=True, exist_ok=True)
 
     return p
 

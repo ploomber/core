@@ -17,7 +17,7 @@ class Config(abc.ABC):
     """
 
     def __init__(self):
-        self.writable = self.filesystem_writable()
+        self.writable = self._filesystem_writable()
 
         self._init_values()
 
@@ -118,7 +118,7 @@ class Config(abc.ABC):
             super().__setattr__(name, value)
 
             # Check if the filesystem is writable
-            if self.filesystem_writable() and name != "writable":
+            if self._filesystem_writable() and name != "writable":
                 self._write()
 
     def load_config(self):
@@ -145,16 +145,23 @@ class Config(abc.ABC):
         sequence = f"{string.ascii_uppercase}{string.digits}"
         return "".join(random.choices(sequence, k=length))
 
-    def filesystem_writable(self):
+    def _filesystem_writable(self):
         """Check if the filesystem is writable"""
+
+        seq = f"{string.ascii_uppercase}{string.digits}"
+        # random string is used for race conditions when using multiprocessing
+        random_str = "".join(random.choices(seq, k=10))
+        
+        tmp = self.path().parent / f"tmp_{random_str}.txt"
+        
         try:
-            # random string is used for race conditions when using multiprocessing
-            tmp = self.path().parent / f"tmp_{self.random_string()}.txt"
             tmp.touch()
-            tmp.unlink()
-            return True
         except PermissionError:
             return False
+        else:
+            tmp.unlink()
+        
+        return True
 
     @abc.abstractclassmethod
     def path(cls):
