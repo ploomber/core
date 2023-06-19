@@ -35,6 +35,8 @@ def tmp_readonly_directory():
     # Read permissions
 
     # TODO: Fix this for Windows
+    # Filesystem should not be writable, after running the below code
+    # But it is currently. Fix this
     if platform.system() == "Windows":
         # https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids
         everyone = win32security.ConvertStringSidToSid("S-1-1-0")
@@ -50,6 +52,9 @@ def tmp_readonly_directory():
         sd.SetSecurityDescriptorDacl(1, dacl, 0)
         win32security.SetFileSecurity(tmp, win32security.DACL_SECURITY_INFORMATION, sd)
     else:
+        # Although Windows supports chmod(), you can only set the file’s read-only flag
+        # with it(via the stat.S_IWRITE and stat.S_IREAD constants or
+        # a corresponding integer value). All other bits are ignored.
         os.chmod(tmp, S_IREAD | S_IRGRP | S_IROTH)
 
     yield tmp
