@@ -6,8 +6,6 @@ from os.path import basename, splitext
 from setuptools import find_packages
 from setuptools import setup
 
-import platform
-
 _version_re = re.compile(r"__version__\s+=\s+(.*)")
 
 with open("src/ploomber_core/__init__.py", "rb") as f:
@@ -21,10 +19,14 @@ REQUIRES = [
     "posthog",
 ]
 
-DEV = ["pytest", "flake8", "twine", "invoke", "pkgmt"]
-
-if platform.system() == "Windows":
-    DEV.append("pywin32")
+DEV = [
+    "pytest",
+    "flake8",
+    "twine",
+    "invoke",
+    "pkgmt",
+    'pywin32 ; platform_system=="Windows"',
+]
 
 setup(
     name="ploomber-core",
