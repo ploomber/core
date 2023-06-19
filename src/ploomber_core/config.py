@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 import random
 import string
+import logging
 
 
 class Config(abc.ABC):
@@ -157,6 +158,7 @@ class Config(abc.ABC):
         try:
             tmp.touch()
         except PermissionError:
+            logging.warning("Filesystem is not writable. Telemetry won't be saved")
             return False
         else:
             tmp.unlink()
