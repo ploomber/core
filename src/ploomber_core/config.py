@@ -151,16 +151,16 @@ class Config(abc.ABC):
         seq = f"{string.ascii_uppercase}{string.digits}"
         # random string is used for race conditions when using multiprocessing
         random_str = "".join(random.choices(seq, k=10))
-        
+
         tmp = self.path().parent / f"tmp_{random_str}.txt"
-        
+
         try:
             tmp.touch()
         except PermissionError:
             return False
         else:
             tmp.unlink()
-        
+
         return True
 
     @abc.abstractclassmethod
