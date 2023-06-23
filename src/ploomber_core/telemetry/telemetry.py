@@ -270,6 +270,26 @@ def get_home_dir():
     return PLOOMBER_HOME_DIR if PLOOMBER_HOME_DIR else DEFAULT_HOME_DIR
 
 
+def check_dir_exist(input_location=None):
+    """
+    Checks if a specific directory exists, creates if not.
+    In case the user didn't set a custom dir, will turn to the default home
+    """
+    home_dir = get_home_dir()
+
+    if input_location:
+        p = Path(home_dir, input_location)
+    else:
+        p = Path(home_dir)
+
+    p = p.expanduser()
+
+    if not p.exists():
+        p.mkdir(parents=True)
+
+    return p
+
+
 def check_telemetry_enabled():
     """
     Check if the user allows us to use telemetry. In order of precedence:
