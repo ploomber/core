@@ -110,6 +110,7 @@ class Config(abc.ABC):
     def _write(self):
         """Writes data to the YAML file"""
         data = self._get_defaults()
+        self.path().parent.mkdir(parents=True, exist_ok=True)
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
