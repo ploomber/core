@@ -201,7 +201,7 @@ def test_env_var_takes_precedence(
 
 
 def test_first_usage(monkeypatch, tmp_directory):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     assert telemetry.check_first_time_usage()
     assert not telemetry.check_first_time_usage()
