@@ -113,8 +113,7 @@ class Config(abc.ABC):
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
-
-        if name!='writable' and name not in self.__annotations__:
+        if name != "writable" and name not in self.__annotations__:
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
@@ -151,7 +150,7 @@ class Config(abc.ABC):
         except PermissionError:
             logging.warning("Filesystem is not writable. Telemetry won't be saved")
             return False
-        
+
         # Checking whether we can create a file (most probably redundant)
         try:
             tmp.touch()
