@@ -50,7 +50,7 @@ def ignore_ploomber_stats_enabled_env_var(monkeypatch):
 def test_creates_config_directory(
     monkeypatch, tmp_directory, ignore_ploomber_stats_enabled_env_var
 ):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
@@ -73,11 +73,11 @@ def ignore_env_var_and_set_tmp_default_home_dir(
     ignore_ploomber_stats_enabled_env_var + overrides DEFAULT_HOME_DIR
     to prevent the local configuration to interfere with tests
     """
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
 
 def test_user_settings_create_file(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     settings = telemetry.UserSettings()
     content = yaml.safe_load(Path("stats", "config.yaml").read_text())
@@ -93,7 +93,7 @@ def test_user_settings_create_file(tmp_directory, monkeypatch):
 
 
 def test_internal_create_file(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     monkeypatch.setattr(telemetry, "uuid4", lambda: "some-unique-uuid")
 
     internal = telemetry.Internal()
@@ -109,7 +109,7 @@ def test_internal_create_file(tmp_directory, monkeypatch):
 
 
 def test_does_not_overwrite_existing_uid(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     Path("stats").mkdir()
     Path("stats", "uid.yaml").write_text(yaml.dump({"uid": "existing-uid"}))
@@ -292,7 +292,7 @@ def test_os_type(monkeypatch, os_param):
 
 
 def test_full_telemetry_info(monkeypatch, ignore_env_var_and_set_tmp_default_home_dir):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
 
     (stat_enabled, uid, is_install) = telemetry._get_telemetry_info(
@@ -397,7 +397,7 @@ def write_to_conf_file(tmp_directory, monkeypatch, last_check):
     stats.mkdir()
     conf_path = stats / "config.yaml"
     version_path = stats / "uid.yaml"
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     conf_path.write_text("version_check_enabled: True\n")
     version_path.write_text(f"last_version_check: {last_check}\n")
 
@@ -854,7 +854,7 @@ def test_log_call_single_asterisk_args_method_with_payload_success(mock_telemetr
 
 
 def test_permissions_error(monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     stats = Path("stats")
 
     if os.path.exists(stats):
