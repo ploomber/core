@@ -113,13 +113,14 @@ class Config(abc.ABC):
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
-        if name not in self.__annotations__:
+
+        if name!='writable' and name not in self.__annotations__:
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
 
             # Check if the filesystem is writable
-            if self._filesystem_writable() and name != "writable":
+            if name != "writable" and self.writable:
                 self._write()
 
     def load_config(self):
@@ -135,17 +136,6 @@ class Config(abc.ABC):
 
         return config
 
-    def random_string(self, length=10):
-        """Generate a random string
-
-        Parameters
-        ----------
-        length
-            Length of the string
-        """
-        sequence = f"{string.ascii_uppercase}{string.digits}"
-        return "".join(random.choices(sequence, k=length))
-
     def _filesystem_writable(self):
         """Check if the filesystem is writable"""
 
@@ -155,6 +145,14 @@ class Config(abc.ABC):
 
         tmp = self.path().parent / f"tmp_{random_str}.txt"
 
+        # Checking whether we can create a dir
+        try:
+            tmp.parent.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            logging.warning("Filesystem is not writable. Telemetry won't be saved")
+            return False
+        
+        # Checking whether we can create a file (most probably redundant)
         try:
             tmp.touch()
         except PermissionError:

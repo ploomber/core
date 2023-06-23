@@ -66,11 +66,13 @@ class UserSettings(Config):
     cloud_key: str = None
     user_email: str = None
     stats_enabled: bool = True
-    writable: bool = True
 
     @classmethod
     def path(cls):
-        return Path(check_dir_exist(CONF_DIR, cls.writable), DEFAULT_USER_CONF)
+        location = Path(get_home_dir())
+        if CONF_DIR is not None:
+            location = location / CONF_DIR
+        return location / DEFAULT_USER_CONF
 
 
 class Internal(Config):
@@ -82,11 +84,13 @@ class Internal(Config):
     last_version_check: datetime.datetime = None
     uid: str
     first_time: bool = True
-    writable: bool = True
 
     @classmethod
     def path(cls):
-        return Path(check_dir_exist(CONF_DIR, cls.writable), DEFAULT_PLOOMBER_CONF)
+        location = Path(get_home_dir())
+        if CONF_DIR is not None:
+            location = location / CONF_DIR
+        return location / DEFAULT_PLOOMBER_CONF
 
     def uid_default(self):
         config = self.load_config()
@@ -264,26 +268,6 @@ def get_home_dir():
     returns the actual home_dir path.
     """
     return PLOOMBER_HOME_DIR if PLOOMBER_HOME_DIR else DEFAULT_HOME_DIR
-
-
-def check_dir_exist(input_location=None, create=True):
-    """
-    Checks if a specific directory exists, creates if not.
-    In case the user didn't set a custom dir, will turn to the default home
-    """
-    home_dir = get_home_dir()
-
-    if input_location:
-        p = Path(home_dir, input_location)
-    else:
-        p = Path(home_dir)
-
-    p = p.expanduser()
-
-    if create:
-        p.mkdir(parents=True, exist_ok=True)
-
-    return p
 
 
 def check_telemetry_enabled():
