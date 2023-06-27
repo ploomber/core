@@ -5,7 +5,6 @@ from pathlib import Path
 import yaml
 import random
 import string
-import logging
 
 
 class Config(abc.ABC):
@@ -149,14 +148,12 @@ class Config(abc.ABC):
         try:
             tmp.parent.mkdir(parents=True, exist_ok=True)
         except PermissionError:
-            logging.warning("Filesystem is not writable. Telemetry won't be saved")
             return False
 
         # Checking whether we can create a file (most probably redundant)
         try:
             tmp.touch()
         except PermissionError:
-            logging.warning("Filesystem is not writable. Telemetry won't be saved")
             return False
         else:
             tmp.unlink()
