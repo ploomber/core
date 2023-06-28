@@ -1,9 +1,9 @@
 # CHANGELOG
 
-## 0.2.13dev
-* [Fix] Fixed support for readonly file systems in telemetry (#63)
-* [Fix] Better validation when checking version updates ([#66](https://github.com/ploomber/core/issues/66))
+## 0.2.13 (2023-06-27)
 
+* [Fix] Fixed support for readonly file systems in telemetry ([#63](https://github.com/ploomber/core/issues/63))
+* [Fix] Better validation when checking version updates ([#66](https://github.com/ploomber/core/issues/66))
 
 ## 0.2.12 (2023-06-06)
 
