@@ -3,6 +3,8 @@ import abc
 from collections.abc import Mapping
 from pathlib import Path
 import yaml
+import random
+import string
 
 
 class Config(abc.ABC):
@@ -15,12 +17,14 @@ class Config(abc.ABC):
     """
 
     def __init__(self):
+        self.writable = self._filesystem_writable()
+
         self._init_values()
 
         # resolve home directory
         path = self.path()
 
-        if not path.exists():
+        if self.writable and (not path.exists()):
             defaults = self._get_defaults()
             path.write_text(yaml.dump(defaults))
         else:
@@ -105,25 +109,56 @@ class Config(abc.ABC):
     def _write(self):
         """Writes data to the YAML file"""
         data = self._get_defaults()
+        self.path().parent.mkdir(parents=True, exist_ok=True)
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
-        if name not in self.__annotations__:
+        if name != "writable" and name not in self.__annotations__:
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
-            self._write()
+
+            # Check if the filesystem is writable
+            if name != "writable" and self.writable:
+                self._write()
 
     def load_config(self):
         config = None
-        path = self.path()
-        is_config_exist = Path.is_file(path)
-        if is_config_exist:
-            text = path.read_text()
-            if text:
-                config = yaml.safe_load(text)
+
+        if self.writable:
+            path = self.path()
+            is_config_exist = Path.is_file(path)
+            if is_config_exist:
+                text = path.read_text()
+                if text:
+                    config = yaml.safe_load(text)
 
         return config
+
+    def _filesystem_writable(self):
+        """Check if the filesystem is writable"""
+
+        seq = f"{string.ascii_uppercase}{string.digits}"
+        # random string is used for race conditions when using multiprocessing
+        random_str = "".join(random.choices(seq, k=10))
+
+        tmp = self.path().parent / f"tmp_{random_str}.txt"
+
+        # Checking whether we can create a dir
+        try:
+            tmp.parent.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            return False
+
+        # Checking whether we can create a file (most probably redundant)
+        try:
+            tmp.touch()
+        except PermissionError:
+            return False
+        else:
+            tmp.unlink()
+
+        return True
 
     @abc.abstractclassmethod
     def path(cls):

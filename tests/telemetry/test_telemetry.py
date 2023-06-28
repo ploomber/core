@@ -50,7 +50,7 @@ def ignore_ploomber_stats_enabled_env_var(monkeypatch):
 def test_creates_config_directory(
     monkeypatch, tmp_directory, ignore_ploomber_stats_enabled_env_var
 ):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "0.14.0")
 
@@ -73,11 +73,11 @@ def ignore_env_var_and_set_tmp_default_home_dir(
     ignore_ploomber_stats_enabled_env_var + overrides DEFAULT_HOME_DIR
     to prevent the local configuration to interfere with tests
     """
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
 
 def test_user_settings_create_file(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     settings = telemetry.UserSettings()
     content = yaml.safe_load(Path("stats", "config.yaml").read_text())
@@ -93,7 +93,7 @@ def test_user_settings_create_file(tmp_directory, monkeypatch):
 
 
 def test_internal_create_file(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     monkeypatch.setattr(telemetry, "uuid4", lambda: "some-unique-uuid")
 
     internal = telemetry.Internal()
@@ -109,7 +109,7 @@ def test_internal_create_file(tmp_directory, monkeypatch):
 
 
 def test_does_not_overwrite_existing_uid(tmp_directory, monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     Path("stats").mkdir()
     Path("stats", "uid.yaml").write_text(yaml.dump({"uid": "existing-uid"}))
@@ -201,7 +201,7 @@ def test_env_var_takes_precedence(
 
 
 def test_first_usage(monkeypatch, tmp_directory):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
 
     assert telemetry.check_first_time_usage()
     assert not telemetry.check_first_time_usage()
@@ -292,7 +292,7 @@ def test_os_type(monkeypatch, os_param):
 
 
 def test_full_telemetry_info(monkeypatch, ignore_env_var_and_set_tmp_default_home_dir):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
 
     (stat_enabled, uid, is_install) = telemetry._get_telemetry_info(
@@ -301,11 +301,6 @@ def test_full_telemetry_info(monkeypatch, ignore_env_var_and_set_tmp_default_hom
     assert stat_enabled is True
     assert isinstance(uid, str)
     assert is_install is True
-
-
-def test_basedir_creation():
-    base_dir = telemetry.check_dir_exist()
-    assert base_dir.exists()
 
 
 def test_python_version():
@@ -402,7 +397,7 @@ def write_to_conf_file(tmp_directory, monkeypatch, last_check):
     stats.mkdir()
     conf_path = stats / "config.yaml"
     version_path = stats / "uid.yaml"
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     conf_path.write_text("version_check_enabled: True\n")
     version_path.write_text(f"last_version_check: {last_check}\n")
 
@@ -859,7 +854,7 @@ def test_log_call_single_asterisk_args_method_with_payload_success(mock_telemetr
 
 
 def test_permissions_error(monkeypatch):
-    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", ".")
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     stats = Path("stats")
 
     if os.path.exists(stats):
@@ -874,8 +869,10 @@ def test_permissions_error(monkeypatch):
     is_read_only = statinfo.st_mode == 16640
 
     if is_read_only:
-        with pytest.raises(PermissionError):
-            telemetry.Internal()
+        internal = telemetry.Internal()
+        user = telemetry.UserSettings()
+        assert internal.writable is False
+        assert user.writable is False
 
 
 @pytest.mark.allow_posthog

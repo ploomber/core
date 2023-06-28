@@ -49,7 +49,7 @@ from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
 
 TELEMETRY_VERSION = "0.5"
-DEFAULT_HOME_DIR = "~/.ploomber"
+DEFAULT_HOME_DIR = str(Path.home() / ".ploomber")
 DEFAULT_USER_CONF = "config.yaml"
 DEFAULT_PLOOMBER_CONF = "uid.yaml"
 CONF_DIR = "stats"
@@ -69,7 +69,10 @@ class UserSettings(Config):
 
     @classmethod
     def path(cls):
-        return Path(check_dir_exist(CONF_DIR), DEFAULT_USER_CONF)
+        location = Path(get_home_dir())
+        if CONF_DIR is not None:
+            location = location / CONF_DIR
+        return location / DEFAULT_USER_CONF
 
 
 class Internal(Config):
@@ -84,7 +87,10 @@ class Internal(Config):
 
     @classmethod
     def path(cls):
-        return Path(check_dir_exist(CONF_DIR), DEFAULT_PLOOMBER_CONF)
+        location = Path(get_home_dir())
+        if CONF_DIR is not None:
+            location = location / CONF_DIR
+        return location / DEFAULT_PLOOMBER_CONF
 
     def uid_default(self):
         config = self.load_config()

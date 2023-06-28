@@ -1,6 +1,7 @@
 from multiprocessing import Pool
 import warnings
 from pathlib import Path
+import platform
 
 import pytest
 import yaml
@@ -43,6 +44,7 @@ def test_reads_existing(tmp_directory):
 
     assert cfg.number == 100
     assert cfg.string == "value"
+    assert cfg.writable is True
 
 
 def test_ignores_extra(tmp_directory):
@@ -158,3 +160,12 @@ def instantiate_config(n):
 def test_race_condition(tmp_directory):
     with Pool(processes=8) as p:
         p.map(instantiate_config, range(20))
+
+
+@pytest.mark.xfail(
+    platform.system() == "Windows", reason="Read-only directory not working"
+)
+def test_readonly(tmp_readonly_directory):
+    cfg = MyConfig()
+
+    assert cfg.writable is False

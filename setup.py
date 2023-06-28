@@ -25,6 +25,7 @@ DEV = [
     "twine",
     "invoke",
     "pkgmt",
+    'pywin32 ; platform_system=="Windows"',
 ]
 
 setup(
