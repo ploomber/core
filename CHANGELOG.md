@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 0.2.14dev
+* [Fix] Fix error when using `@modify_exceptions` in an exception initialized without arguments
 
 ## 0.2.13 (2023-06-27)
 

@@ -82,7 +82,9 @@ class ValidationError(BaseException):
 
 
 def _add_community_link(e):
-    if COMMUNITY not in e.args[0]:
+    if not len(e.args):
+        e.args = (COMMUNITY,)
+    elif COMMUNITY not in e.args[0]:
         message = e.args[0] + COMMUNITY
         e.args = (message,)
 

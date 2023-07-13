@@ -65,6 +65,17 @@ def test_modify_exceptions_value_error():
     assert exceptions.get_community_link() in str(excinfo.value)
 
 
+def test_modify_exceptions_no_message():
+    @exceptions.modify_exceptions
+    def crash():
+        raise ValueError
+
+    with pytest.raises(ValueError) as excinfo:
+        crash()
+
+    assert exceptions.get_community_link() in str(excinfo.value)
+
+
 def test_modify_exceptions_value_error_method():
     class Something:
         @exceptions.modify_exceptions
