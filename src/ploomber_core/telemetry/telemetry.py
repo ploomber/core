@@ -114,19 +114,6 @@ def python_version():
     return f"{py_version.major}.{py_version.minor}.{py_version.micro}"
 
 
-def is_online():
-    """Check if host is online"""
-    conn = httplib.HTTPSConnection("www.google.com", timeout=1)
-
-    try:
-        conn.request("HEAD", "/")
-        return True
-    except Exception:
-        return False
-    finally:
-        conn.close()
-
-
 def is_docker():
     """Will output if the code is within a container"""
     try:
@@ -542,7 +529,7 @@ class Telemetry:
         os = get_os()
         environment = get_env()
 
-        if telemetry_enabled and is_online():
+        if telemetry_enabled:
             (event_id, uid, action, client_time, elapsed_time) = validate_entries(
                 event_id, uid, action, client_time, total_runtime
             )

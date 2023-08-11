@@ -308,52 +308,6 @@ def test_python_version():
     assert isinstance(version, str)
 
 
-def test_is_online():
-    assert telemetry.is_online()
-
-
-def test_is_online_timeout():
-    # Check the total run time is less than 1.5 secs
-    start_time = datetime.datetime.now()
-    telemetry.is_online()
-    end_time = datetime.datetime.now()
-    total_runtime = end_time - start_time
-    assert total_runtime < datetime.timedelta(milliseconds=1500)
-
-
-def test_stats_off(monkeypatch):
-    mock = Mock()
-    posthog_mock = Mock()
-    mock.patch(telemetry, "_get_telemetry_info", (False, "TestUID"))
-
-    # when stats are off, we should not check is_online, as it's inefficient
-    monkeypatch.setattr(telemetry, "is_online", Mock(side_effect=ValueError))
-
-    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "ploomber", "0.14.0")
-    _telemetry.log_api("test_action")
-
-    assert posthog_mock.call_count == 0
-
-
-def test_offline_stats(monkeypatch):
-    mock = Mock()
-    posthog_mock = Mock()
-    mock.patch(telemetry, "is_online", False)
-
-    _telemetry = telemetry.Telemetry(MOCK_API_KEY, "ploomber", "0.14.0")
-    _telemetry.log_api("test_action")
-
-    assert posthog_mock.call_count == 0
-
-
-def test_is_not_online(monkeypatch):
-    mock_httplib = Mock()
-    mock_httplib.HTTPSConnection().request.side_effect = Exception
-    monkeypatch.setattr(telemetry, "httplib", mock_httplib)
-
-    assert not telemetry.is_online()
-
-
 def test_validate_entries(monkeypatch):
     event_id = "event_id"
     uid = "uid"
