@@ -191,9 +191,6 @@ def check_telemetry_enabled():
     2. If PLOOMBER_STATS_ENABLED defined, check its value
     3. Otherwise use the value in stats_enabled in the config.yaml file
     """
-    if "_PLOOMBER_TELEMETRY_DEBUG" in os.environ:
-        return True
-
     if "CI" in os.environ or "READTHEDOCS" in os.environ:
         return False
 
