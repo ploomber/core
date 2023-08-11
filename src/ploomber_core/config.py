@@ -17,6 +17,7 @@ class Config(abc.ABC):
     """
 
     def __init__(self):
+        self._write_attr_changes = True
         self.writable = self._filesystem_writable()
 
         self._init_values()
@@ -24,8 +25,8 @@ class Config(abc.ABC):
         # resolve home directory
         path = self.path()
 
-        if self.writable and (not path.exists()):
-            defaults = self._get_defaults()
+        if self.writable and not path.exists():
+            defaults = self._get_annotation_values()
             path.write_text(yaml.dump(defaults))
         else:
             try:
@@ -37,7 +38,7 @@ class Config(abc.ABC):
                     "reverting to default values"
                 )
                 loaded = False
-                content = self._get_defaults()
+                content = self._get_annotation_values()
 
             if loaded and not isinstance(content, Mapping):
                 warnings.warn(
@@ -45,9 +46,11 @@ class Config(abc.ABC):
                     f"but got {type(content).__name__}, "
                     "reverting to default values"
                 )
-                content = self._get_defaults()
+                content = self._get_annotation_values()
 
+            self._write_attr_changes = False
             self._set_data(content)
+            self._write_attr_changes = True
 
     def _load_from_file(self):
         path = self.path()
@@ -61,7 +64,7 @@ class Config(abc.ABC):
             # processes might see an empty file (file has been created but
             # writing hasn't finished). In such case, text will be None. If
             # so, we simply load the default values
-            content = self._get_defaults()
+            content = self._get_annotation_values()
 
         for key, type_ in self.__annotations__.items():
             value = content.get(key, None)
@@ -79,7 +82,7 @@ class Config(abc.ABC):
 
         return content
 
-    def _get_defaults(self):
+    def _get_annotation_values(self):
         """Extract values from the annotations and return a dictionary"""
         return {key: getattr(self, key) for key in self.__annotations__}
 
@@ -108,18 +111,24 @@ class Config(abc.ABC):
 
     def _write(self):
         """Writes data to the YAML file"""
-        data = self._get_defaults()
+        data = self._get_annotation_values()
         self.path().parent.mkdir(parents=True, exist_ok=True)
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
-        if name != "writable" and name not in self.__annotations__:
+        if (
+            name not in {"writable", "_write_attr_changes"}
+            and name not in self.__annotations__
+        ):
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
 
+            if name in {"writable", "_write_attr_changes"}:
+                return
+
             # Check if the filesystem is writable
-            if name != "writable" and self.writable:
+            if self._write_attr_changes and self.writable:
                 self._write()
 
     def load_config(self):
