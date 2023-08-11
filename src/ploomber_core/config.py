@@ -5,6 +5,17 @@ from pathlib import Path
 import yaml
 import random
 import string
+from contextlib import contextmanager
+
+
+@contextmanager
+def set_write_attr_changes(obj, value):
+    """Context manager to ensure that _write_attr_changes is set to True after the
+    operation
+    """
+    obj._write_attr_changes = value
+    yield
+    obj._write_attr_changes = True
 
 
 class Config(abc.ABC):
@@ -18,14 +29,13 @@ class Config(abc.ABC):
 
     def __init__(self):
         self._write_attr_changes = True
-        self.writable = self._filesystem_writable()
-
+        self._writable_filesystem = self._filesystem_writable()
         self._init_values()
 
         # resolve home directory
         path = self.path()
 
-        if self.writable and not path.exists():
+        if self._writable_filesystem and not path.exists():
             defaults = self._get_annotation_values()
             path.write_text(yaml.dump(defaults))
         else:
@@ -50,10 +60,8 @@ class Config(abc.ABC):
 
             # if we loaded from file, we don't need to write the changes, since
             # we'd be overwriting the file with the same content
-            self._write_attr_changes = not loaded_from_file
-            self._set_data(content)
-
-            self._write_attr_changes = True
+            with set_write_attr_changes(self, not loaded_from_file):
+                self._set_data(content)
 
     def _load_from_file(self):
         path = self.path()
@@ -119,25 +127,24 @@ class Config(abc.ABC):
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
-        if (
-            name not in {"writable", "_write_attr_changes"}
-            and name not in self.__annotations__
-        ):
+        is_private_attribute = name.startswith("_")
+
+        if not is_private_attribute and name not in self.__annotations__:
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
 
-            if name in {"writable", "_write_attr_changes"}:
+            if is_private_attribute:
                 return
 
             # Check if the filesystem is writable
-            if self._write_attr_changes and self.writable:
+            if self._write_attr_changes and self._writable_filesystem:
                 self._write()
 
     def load_config(self):
         config = None
 
-        if self.writable:
+        if self._writable_filesystem:
             path = self.path()
             is_config_exist = Path.is_file(path)
             if is_config_exist:

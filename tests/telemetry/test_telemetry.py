@@ -825,8 +825,8 @@ def test_permissions_error(monkeypatch):
     if is_read_only:
         internal = telemetry.Internal()
         user = telemetry.UserSettings()
-        assert internal.writable is False
-        assert user.writable is False
+        assert internal._writable_filesystem is False
+        assert user._writable_filesystem is False
 
 
 @pytest.mark.allow_posthog

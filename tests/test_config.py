@@ -44,7 +44,7 @@ def test_reads_existing(tmp_directory):
 
     assert cfg.number == 100
     assert cfg.string == "value"
-    assert cfg.writable is True
+    assert cfg._writable_filesystem is True
 
 
 def test_ignores_extra(tmp_directory):
@@ -168,4 +168,4 @@ def test_race_condition(tmp_directory):
 def test_readonly(tmp_readonly_directory):
     cfg = MyConfig()
 
-    assert cfg.writable is False
+    assert cfg._writable_filesystem is False
