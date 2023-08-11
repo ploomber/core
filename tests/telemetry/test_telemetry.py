@@ -13,6 +13,7 @@ import yaml
 import posthog
 
 from ploomber_core.telemetry import telemetry
+from ploomber_core.telemetry import system_info
 from ploomber_core.telemetry.validate_inputs import str_param, opt_str_param
 
 from ploomber_core.exceptions import BaseException
@@ -212,9 +213,9 @@ def test_first_usage(monkeypatch, tmp_directory):
 # python-is-running-in-a-conda-environment
 def test_conda_env(monkeypatch, inside_conda_env, tmp_directory):
     # Set a conda parameterized env
-    env = telemetry.is_conda()
+    env = system_info.is_conda()
     assert bool(env) is True
-    env = telemetry.get_env()
+    env = system_info.get_env()
     assert env == "conda"
 
 
@@ -222,9 +223,9 @@ def test_conda_env(monkeypatch, inside_conda_env, tmp_directory):
 # determine-if-python-is-running-inside-virtualenv
 def test_pip_env(monkeypatch, inside_pip_env):
     # Set a pip parameterized env
-    env = telemetry.in_virtualenv()
+    env = system_info.in_virtualenv()
     assert env is True
-    env = telemetry.get_env()
+    env = system_info.get_env()
     assert env == "pip"
 
 
@@ -235,21 +236,21 @@ def test_docker_env(monkeypatch):
         return "dockerenv" in str(input_path)
 
     monkeypatch.setattr(pathlib.Path, "exists", mock)
-    docker = telemetry.is_docker()
+    docker = system_info.is_docker()
     assert docker is True
 
 
 # Ref https://stackoverflow.com/questions/53581278/test-if-
 # notebook-is-running-on-google-colab
 def test_colab_env(monkeypatch):
-    colab = telemetry.is_colab()
+    colab = system_info.is_colab()
     assert colab is False
 
     m = Mock()
 
     monkeypatch.setitem(sys.modules, "google", m)
     monkeypatch.setitem(sys.modules, "google.colab", m)
-    colab = telemetry.is_colab()
+    colab = system_info.is_colab()
     assert colab is True
 
 
@@ -259,7 +260,7 @@ def test_colab_env(monkeypatch):
 )
 def test_paperspace_env(monkeypatch, env_variable):
     monkeypatch.setenv(env_variable, True)
-    pspace = telemetry.is_paperspace()
+    pspace = system_info.is_paperspace()
     assert pspace is True
 
 
@@ -267,7 +268,7 @@ def test_paperspace_env(monkeypatch, env_variable):
 # -runs-inside-a-slurm-environment
 def test_slurm_env(monkeypatch):
     monkeypatch.setenv("SLURM_JOB_ID", True)
-    slurm = telemetry.is_slurm()
+    slurm = system_info.is_slurm()
     assert slurm is True
 
 
@@ -276,7 +277,7 @@ def test_slurm_env(monkeypatch):
 @pytest.mark.parametrize("env_variable", ["AIRFLOW_CONFIG", "AIRFLOW_HOME"])
 def test_airflow_env(monkeypatch, env_variable):
     monkeypatch.setenv(env_variable, True)
-    airflow = telemetry.is_airflow()
+    airflow = system_info.is_airflow()
     assert airflow is True
 
 
@@ -286,8 +287,8 @@ def test_airflow_env(monkeypatch, env_variable):
 def test_os_type(monkeypatch, os_param):
     mock = Mock()
     mock.return_value = os_param
-    monkeypatch.setattr(telemetry.platform, "system", mock)
-    os_type = telemetry.get_os()
+    monkeypatch.setattr(system_info.platform, "system", mock)
+    os_type = system_info.get_os()
     assert os_type == os_param
 
 
@@ -304,7 +305,7 @@ def test_full_telemetry_info(monkeypatch, ignore_env_var_and_set_tmp_default_hom
 
 
 def test_python_version():
-    version = telemetry.python_version()
+    version = system_info.python_version()
     assert isinstance(version, str)
 
 
@@ -430,7 +431,7 @@ def test_output_on_date_diff(tmp_directory, capsys, monkeypatch):
 
 
 def test_python_major_version():
-    version = telemetry.python_version()
+    version = system_info.python_version()
     major = version.split(".")[0]
     assert int(major) == 3
 
