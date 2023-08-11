@@ -31,16 +31,16 @@ class Config(abc.ABC):
         else:
             try:
                 content = self._load_from_file()
-                loaded = True
+                loaded_from_file = True
             except Exception as e:
                 warnings.warn(
                     f"Error loading {str(path)!r}: {e}\n\n"
                     "reverting to default values"
                 )
-                loaded = False
+                loaded_from_file = False
                 content = self._get_annotation_values()
 
-            if loaded and not isinstance(content, Mapping):
+            if loaded_from_file and not isinstance(content, Mapping):
                 warnings.warn(
                     f"Error loading {str(path)!r}. Expected a dictionary "
                     f"but got {type(content).__name__}, "
@@ -48,8 +48,11 @@ class Config(abc.ABC):
                 )
                 content = self._get_annotation_values()
 
-            self._write_attr_changes = False
+            # if we loaded from file, we don't need to write the changes, since
+            # we'd be overwriting the file with the same content
+            self._write_attr_changes = not loaded_from_file
             self._set_data(content)
+
             self._write_attr_changes = True
 
     def _load_from_file(self):
