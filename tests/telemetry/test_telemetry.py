@@ -129,7 +129,7 @@ def test_str_validation():
         str_param(3, "Test_number")
 
     exception_raised = exc_info.value
-    assert type(exception_raised) == TypeError
+    assert isinstance(exception_raised, TypeError)
 
 
 def test_opt_str_validation():
@@ -144,7 +144,7 @@ def test_opt_str_validation():
         opt_str_param("Test", 3)
 
     exception_raised = exc_info.value
-    assert type(exception_raised) == TypeError
+    assert isinstance(exception_raised, TypeError)
 
 
 def test_check_stats_enabled(ignore_env_var_and_set_tmp_default_home_dir):
