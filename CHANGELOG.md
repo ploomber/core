@@ -1,7 +1,11 @@
 # CHANGELOG
 
 ## 0.2.14dev
+
 * [Fix] Fix error when using `@modify_exceptions` in an exception initialized without arguments
+* [Fix] Reduced telemetry latency by removing `is_online` call
+* [Fix] Skip file write operations in config files if not needed
+* [Fix] `_PLOOMBER_TELEMETRY_DEBUG` environment variable is independent of the `PLOOMBER_STATS_ENABLED` environment variable
 
 ## 0.2.13 (2023-06-27)
 
