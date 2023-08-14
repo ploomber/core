@@ -5,6 +5,17 @@ from pathlib import Path
 import yaml
 import random
 import string
+from contextlib import contextmanager
+
+
+@contextmanager
+def set_write_attr_changes(obj, value):
+    """Context manager to ensure that _write_attr_changes is set to True after the
+    operation
+    """
+    obj._write_attr_changes = value
+    yield
+    obj._write_attr_changes = True
 
 
 class Config(abc.ABC):
@@ -17,37 +28,40 @@ class Config(abc.ABC):
     """
 
     def __init__(self):
-        self.writable = self._filesystem_writable()
-
+        self._write_attr_changes = True
+        self._writable_filesystem = self._filesystem_writable()
         self._init_values()
 
         # resolve home directory
         path = self.path()
 
-        if self.writable and (not path.exists()):
-            defaults = self._get_defaults()
+        if self._writable_filesystem and not path.exists():
+            defaults = self._get_annotation_values()
             path.write_text(yaml.dump(defaults))
         else:
             try:
                 content = self._load_from_file()
-                loaded = True
+                loaded_from_file = True
             except Exception as e:
                 warnings.warn(
                     f"Error loading {str(path)!r}: {e}\n\n"
                     "reverting to default values"
                 )
-                loaded = False
-                content = self._get_defaults()
+                loaded_from_file = False
+                content = self._get_annotation_values()
 
-            if loaded and not isinstance(content, Mapping):
+            if loaded_from_file and not isinstance(content, Mapping):
                 warnings.warn(
                     f"Error loading {str(path)!r}. Expected a dictionary "
                     f"but got {type(content).__name__}, "
                     "reverting to default values"
                 )
-                content = self._get_defaults()
+                content = self._get_annotation_values()
 
-            self._set_data(content)
+            # if we loaded from file, we don't need to write the changes, since
+            # we'd be overwriting the file with the same content
+            with set_write_attr_changes(self, not loaded_from_file):
+                self._set_data(content)
 
     def _load_from_file(self):
         path = self.path()
@@ -61,7 +75,7 @@ class Config(abc.ABC):
             # processes might see an empty file (file has been created but
             # writing hasn't finished). In such case, text will be None. If
             # so, we simply load the default values
-            content = self._get_defaults()
+            content = self._get_annotation_values()
 
         for key, type_ in self.__annotations__.items():
             value = content.get(key, None)
@@ -79,7 +93,7 @@ class Config(abc.ABC):
 
         return content
 
-    def _get_defaults(self):
+    def _get_annotation_values(self):
         """Extract values from the annotations and return a dictionary"""
         return {key: getattr(self, key) for key in self.__annotations__}
 
@@ -108,24 +122,29 @@ class Config(abc.ABC):
 
     def _write(self):
         """Writes data to the YAML file"""
-        data = self._get_defaults()
+        data = self._get_annotation_values()
         self.path().parent.mkdir(parents=True, exist_ok=True)
         self.path().write_text(yaml.dump(data))
 
     def __setattr__(self, name, value):
-        if name != "writable" and name not in self.__annotations__:
+        is_private_attribute = name.startswith("_")
+
+        if not is_private_attribute and name not in self.__annotations__:
             raise ValueError(f"{name} not a valid field")
         else:
             super().__setattr__(name, value)
 
+            if is_private_attribute:
+                return
+
             # Check if the filesystem is writable
-            if name != "writable" and self.writable:
+            if self._write_attr_changes and self._writable_filesystem:
                 self._write()
 
     def load_config(self):
         config = None
 
-        if self.writable:
+        if self._writable_filesystem:
             path = self.path()
             is_config_exist = Path.is_file(path)
             if is_config_exist:
