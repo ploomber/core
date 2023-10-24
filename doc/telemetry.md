@@ -90,7 +90,8 @@ _ = divide(2, 4)
 from unittest.mock import ANY
 
 assert divide.__wrapped__._telemetry_success == {
-    "action": "ploomber-core-divide-started",
+    "action": "ploomber-core-divide-success",
+    "total_runtime": ANY,
     "metadata": {
         "argv": ANY,
         "args": {"x": 2},
