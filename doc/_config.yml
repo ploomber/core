@@ -32,3 +32,5 @@ sphinx:
   extra_extensions:
     - 'sphinx.ext.autodoc'
     - 'sphinx.ext.napoleon'
+  config:
+    nb_execution_show_tb: True
