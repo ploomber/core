@@ -594,7 +594,6 @@ class Telemetry:
             name = action or getattr(func, "__name__", "funcion-without-name")
             action_ = (f"{action_}-{name}").replace("_", "-")
 
-            func._telemetry_started = None
             func._telemetry_success = None
             func._telemetry_error = None
 
@@ -610,7 +609,6 @@ class Telemetry:
             @wraps(func)
             def wrapper(*args, **kwargs):
                 # reset attributes before calling
-                func._telemetry_started = None
                 func._telemetry_success = None
                 func._telemetry_error = None
 
@@ -625,10 +623,6 @@ class Telemetry:
 
                 if log_args:
                     metadata_started["args"] = args_parsed
-
-                started = dict(action=f"{action_}-started", metadata=metadata_started)
-                func._telemetry_started = started
-                self.log_api(**started)
 
                 start = datetime.datetime.now()
 

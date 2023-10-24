@@ -38,32 +38,7 @@ def test_logs_args(mock_posthog, y, y_logged):
 
     add(x=1, y=y)
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-add-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-add-started",
-            "client_time": ANY,
-            "metadata": {
-                "args": {"x": 1, "y": y_logged},
-                "argv": ANY,
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-add-success",
         properties={
@@ -88,8 +63,7 @@ def test_logs_args(mock_posthog, y, y_logged):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected
 
 
 @pytest.mark.parametrize(
@@ -117,32 +91,7 @@ def test_logs_args_with_group(mock_posthog, y, y_logged):
     obj = SomeObject()
     obj.add(x=1, y=y)
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-SomeObject-add-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-SomeObject-add-started",
-            "client_time": ANY,
-            "metadata": {
-                "args": {"x": 1, "y": y_logged},
-                "argv": ANY,
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-SomeObject-add-success",
         properties={
@@ -167,8 +116,7 @@ def test_logs_args_with_group(mock_posthog, y, y_logged):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected
 
 
 def test_doesnt_log_args_with_disallowed_types(mock_posthog):
@@ -182,32 +130,7 @@ def test_doesnt_log_args_with_disallowed_types(mock_posthog):
 
     add(x=dict(a=1))
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-add-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-add-started",
-            "client_time": ANY,
-            "metadata": {
-                "args": {"y": 1},
-                "argv": ANY,
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-add-success",
         properties={
@@ -232,8 +155,7 @@ def test_doesnt_log_args_with_disallowed_types(mock_posthog):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected
 
 
 def test_doesnt_log_ignored_args(mock_posthog):
@@ -247,32 +169,7 @@ def test_doesnt_log_ignored_args(mock_posthog):
 
     add(x=1)
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-add-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-add-started",
-            "client_time": ANY,
-            "metadata": {
-                "args": {"x": 1},
-                "argv": ANY,
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-add-success",
         properties={
@@ -297,8 +194,7 @@ def test_doesnt_log_ignored_args(mock_posthog):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected
 
 
 def test_logs_if_error(mock_posthog):
@@ -312,31 +208,6 @@ def test_logs_if_error(mock_posthog):
 
     with pytest.raises(ValueError):
         add(x=1)
-
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-add-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-add-started",
-            "client_time": ANY,
-            "metadata": {
-                "args": {"x": 1, "y": 1},
-                "argv": ANY,
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
 
     expected_second = dict(
         distinct_id="UUID",
@@ -365,8 +236,7 @@ def test_logs_if_error(mock_posthog):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected_second
 
 
 @pytest.mark.parametrize(
@@ -403,31 +273,6 @@ def test_telemetry_group(mock_posthog, y, y_logged):
 
     expected_first = dict(
         distinct_id="UUID",
-        event="somepackage-SomeObject-add-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-SomeObject-add-started",
-            "client_time": ANY,
-            "metadata": {
-                "args": {"x": 1, "y": y_logged},
-                "argv": ANY,
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
-        distinct_id="UUID",
         event="somepackage-SomeObject-add-success",
         properties={
             "event_id": ANY,
@@ -451,32 +296,7 @@ def test_telemetry_group(mock_posthog, y, y_logged):
         },
     )
 
-    expected_third = dict(
-        distinct_id="UUID",
-        event="somepackage-SomeObject-substract-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-SomeObject-substract-started",
-            "client_time": ANY,
-            "metadata": {
-                "args": {"x": 1, "y": y_logged},
-                "argv": ANY,
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_fourth = dict(
+    expected_second = dict(
         distinct_id="UUID",
         event="somepackage-SomeObject-substract-success",
         properties={
@@ -503,8 +323,6 @@ def test_telemetry_group(mock_posthog, y, y_logged):
 
     assert mock_posthog.call_args_list[0][1] == expected_first
     assert mock_posthog.call_args_list[1][1] == expected_second
-    assert mock_posthog.call_args_list[2][1] == expected_third
-    assert mock_posthog.call_args_list[3][1] == expected_fourth
 
 
 def test_method_with_no_arguments(mock_posthog):
@@ -520,32 +338,7 @@ def test_method_with_no_arguments(mock_posthog):
     obj = SomeObject()
     obj.do_stuff()
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-SomeObject-do-stuff-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-SomeObject-do-stuff-started",
-            "client_time": ANY,
-            "metadata": {
-                "argv": ANY,
-                "args": {},
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-SomeObject-do-stuff-success",
         properties={
@@ -570,8 +363,7 @@ def test_method_with_no_arguments(mock_posthog):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected
 
 
 def test_function_with_no_arguments(mock_posthog):
@@ -585,32 +377,7 @@ def test_function_with_no_arguments(mock_posthog):
 
     do_stuff()
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-do-stuff-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-do-stuff-started",
-            "client_time": ANY,
-            "metadata": {
-                "argv": ANY,
-                "args": {},
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-do-stuff-success",
         properties={
@@ -635,8 +402,7 @@ def test_function_with_no_arguments(mock_posthog):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected
 
 
 def test_function_with_args(mock_posthog):
@@ -650,32 +416,7 @@ def test_function_with_args(mock_posthog):
 
     do_stuff(1, 2, 3)
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-do-stuff-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-do-stuff-started",
-            "client_time": ANY,
-            "metadata": {
-                "argv": ANY,
-                "args": {"a": 1, "args": 2},
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-do-stuff-success",
         properties={
@@ -700,8 +441,7 @@ def test_function_with_args(mock_posthog):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected
 
 
 def test_function_with_kwargs(mock_posthog):
@@ -715,32 +455,7 @@ def test_function_with_kwargs(mock_posthog):
 
     do_stuff(1, b=2, c=3)
 
-    expected_first = dict(
-        distinct_id="UUID",
-        event="somepackage-do-stuff-started",
-        properties={
-            "event_id": ANY,
-            "user_id": "UUID",
-            "action": "somepackage-do-stuff-started",
-            "client_time": ANY,
-            "metadata": {
-                "argv": ANY,
-                "args": {"a": 1, "b": 2, "c": 3},
-            },
-            "total_runtime": None,
-            "python_version": ANY,
-            "version": "0.1",
-            "package_name": "somepackage",
-            "docker_container": False,
-            "cloud": None,
-            "email": None,
-            "os": ANY,
-            "environment": ANY,
-            "telemetry_version": ANY,
-        },
-    )
-
-    expected_second = dict(
+    expected = dict(
         distinct_id="UUID",
         event="somepackage-do-stuff-success",
         properties={
@@ -765,5 +480,4 @@ def test_function_with_kwargs(mock_posthog):
         },
     )
 
-    assert mock_posthog.call_args_list[0][1] == expected_first
-    assert mock_posthog.call_args_list[1][1] == expected_second
+    assert mock_posthog.call_args_list[0][1] == expected

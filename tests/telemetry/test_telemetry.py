@@ -465,10 +465,6 @@ def test_log_call_success(mock_telemetry):
     mock_telemetry.assert_has_calls(
         [
             call(
-                action="some-package-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
-            call(
                 action="some-package-some-action-success",
                 total_runtime="1",
                 metadata=dict(argv=["bin", "arg"]),
@@ -489,10 +485,6 @@ def test_log_call_exception(mock_telemetry):
 
     mock_telemetry.assert_has_calls(
         [
-            call(
-                action="some-package-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
             call(
                 action="some-package-some-action-error",
                 total_runtime="1",
@@ -518,10 +510,6 @@ def test_log_call_logs_type(mock_telemetry):
 
     mock_telemetry.assert_has_calls(
         [
-            call(
-                action="some-package-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
             call(
                 action="some-package-some-action-error",
                 total_runtime="1",
@@ -549,10 +537,6 @@ def test_log_call_add_payload_error(mock_telemetry):
     mock_telemetry.assert_has_calls(
         [
             call(
-                action="some-package-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
-            call(
                 action="some-package-some-action-error",
                 total_runtime="1",
                 metadata={
@@ -577,10 +561,6 @@ def test_log_call_add_payload_success(mock_telemetry):
 
     mock_telemetry.assert_has_calls(
         [
-            call(
-                action="some-package-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
             call(
                 action="some-package-some-action-success",
                 total_runtime="1",
@@ -607,10 +587,6 @@ def test_log_call_method_with_payload_success(mock_telemetry):
     mock_telemetry.assert_has_calls(
         [
             call(
-                action="some-package-TestClass-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
-            call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
                 metadata={"argv": ["bin", "arg"], "sum": 3},
@@ -636,10 +612,6 @@ def test_log_call_no_args_method_with_payload_success(mock_telemetry):
     mock_telemetry.assert_has_calls(
         [
             call(
-                action="some-package-TestClass-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
-            call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
                 metadata={"argv": ["bin", "arg"], "log": "some result"},
@@ -664,10 +636,6 @@ def test_log_call_keyword_args_method_with_payload_success(mock_telemetry):
     assert result == "Give me 5 apples and 10 bananas please"
     mock_telemetry.assert_has_calls(
         [
-            call(
-                action="some-package-TestClass-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
             call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
@@ -699,10 +667,6 @@ def test_log_call_keyword_only_args_method_with_payload_success(mock_telemetry):
     mock_telemetry.assert_has_calls(
         [
             call(
-                action="some-package-TestClass-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
-            call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
                 metadata={"argv": ["bin", "arg"], "log": ["jhonny", "mr_smith"]},
@@ -730,10 +694,6 @@ def test_log_call_keyword_only_positional_args_method_with_payload_success(
 
     mock_telemetry.assert_has_calls(
         [
-            call(
-                action="some-package-TestClass-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
             call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
@@ -763,10 +723,6 @@ def test_log_call_double_asterisk_args_method_with_payload_success(mock_telemetr
     mock_telemetry.assert_has_calls(
         [
             call(
-                action="some-package-TestClass-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
-            call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
                 metadata={"argv": ["bin", "arg"], "log": "name: Eric\nage: 19\n"},
@@ -792,10 +748,6 @@ def test_log_call_single_asterisk_args_method_with_payload_success(mock_telemetr
 
     mock_telemetry.assert_has_calls(
         [
-            call(
-                action="some-package-TestClass-some-action-started",
-                metadata=dict(argv=["bin", "arg"]),
-            ),
             call(
                 action="some-package-TestClass-some-action-success",
                 total_runtime="1",
@@ -907,27 +859,6 @@ def test_log_call_stored_values(monkeypatch):
     assert mock.call_args_list == [
         call(
             distinct_id="fake-uuid",
-            event="some-package-some-action-started",
-            properties={
-                "event_id": ANY,
-                "user_id": "fake-uuid",
-                "action": "some-package-some-action-started",
-                "client_time": ANY,
-                "metadata": {"argv": ["bin", "arg2", "arg2"]},
-                "total_runtime": None,
-                "python_version": py_version,
-                "version": "1.2.2",
-                "package_name": "some-package",
-                "docker_container": ANY,
-                "cloud": ANY,
-                "email": None,
-                "os": ANY,
-                "environment": ANY,
-                "telemetry_version": ANY,
-            },
-        ),
-        call(
-            distinct_id="fake-uuid",
             event="some-package-some-action-success",
             properties={
                 "event_id": ANY,
@@ -984,16 +915,10 @@ def test_exposes_telemetry_data_for_testing():
         "action": "some-package-my-function",
     }
 
-    assert my_function.__wrapped__._telemetry_started is None
     assert my_function.__wrapped__._telemetry_success is None
     assert my_function.__wrapped__._telemetry_error is None
 
     my_function()
-
-    assert my_function.__wrapped__._telemetry_started == {
-        "action": "some-package-my-function-started",
-        "metadata": {"argv": ANY},
-    }
 
     assert my_function.__wrapped__._telemetry_success == {
         "action": "some-package-my-function-success",
@@ -1019,7 +944,6 @@ def test_exposes_telemetry_data_for_testing_error():
         "action": "some-package-my-function",
     }
 
-    assert my_function.__wrapped__._telemetry_started is None
     assert my_function.__wrapped__._telemetry_success is None
     assert my_function.__wrapped__._telemetry_error is None
 
@@ -1027,11 +951,6 @@ def test_exposes_telemetry_data_for_testing_error():
         my_function()
     except ValueError:
         pass
-
-    assert my_function.__wrapped__._telemetry_started == {
-        "action": "some-package-my-function-started",
-        "metadata": {"argv": ANY},
-    }
 
     assert my_function.__wrapped__._telemetry_success is None
 
@@ -1061,19 +980,10 @@ def test_exposes_telemetry_data_for_testing_params():
         "group": None,
     }
 
-    assert my_function.__wrapped__._telemetry_started is None
     assert my_function.__wrapped__._telemetry_success is None
     assert my_function.__wrapped__._telemetry_error is None
 
     my_function(1, 2, 3)
-
-    assert my_function.__wrapped__._telemetry_started == {
-        "action": "some-package-my-function-started",
-        "metadata": {
-            "argv": ANY,
-            "args": {"x": 1, "y": 2},
-        },
-    }
 
     assert my_function.__wrapped__._telemetry_success == {
         "action": "some-package-my-function-success",
