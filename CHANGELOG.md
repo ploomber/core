@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.16dev
+
 ## 0.2.15 (2023-10-25)
 
 * [Fix] Removes `started` telemetry event
