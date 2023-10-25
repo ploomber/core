@@ -2,6 +2,8 @@
 
 ## 0.2.15dev
 
+* [Fix] Removes `started` telemetry event
+
 ## 0.2.14 (2023-08-15)
 
 * [Fix] Fix error when using `@modify_exceptions` in an exception initialized without arguments
