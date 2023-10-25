@@ -75,7 +75,7 @@ For more details, see the [API Reference](api/telemetry).
 
 +++
 
-To unit test decorated functions, call the function and check `__wrapped__._telemetry_started` attribute. If it exists, it means the function has been decorated with `@log_call()`, you can use it to verify what's logged:
+To unit test decorated functions, call the function and check `__wrapped__._telemetry_success` attribute. If it exists, it means the function has been decorated with `@log_call()`, you can use it to verify what's logged:
 
 ```{code-cell} ipython3
 @telemetry.log_call(log_args=True, ignore_args=("y",))
@@ -89,8 +89,9 @@ _ = divide(2, 4)
 ```{code-cell} ipython3
 from unittest.mock import ANY
 
-assert divide.__wrapped__._telemetry_started == {
-    "action": "ploomber-core-divide-started",
+assert divide.__wrapped__._telemetry_success == {
+    "action": "ploomber-core-divide-success",
+    "total_runtime": ANY,
     "metadata": {
         "argv": ANY,
         "args": {"x": 2},
@@ -98,7 +99,7 @@ assert divide.__wrapped__._telemetry_started == {
 }
 ```
 
-`__wrapped__._telemetry_started` will keep the latest logged data, so you must call it at least one; otherwise, it'll be `None`.
+`__wrapped__._telemetry_success` will keep the latest logged data, so you must call it at least one; otherwise, it'll be `None`.
 
 +++
 
