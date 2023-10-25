@@ -1,12 +1,12 @@
 # CHANGELOG
 
-## 0.2.15dev
+## 0.2.15 (2023-10-25)
 
 * [Fix] Removes `started` telemetry event
 
 ## 0.2.14 (2023-08-15)
 
-* [Fix] Fix error when using `@modify_exceptions` in an exception initialized without arguments
+* [Fix] Fix error when using `[@modify_exceptions](https://github.com/modify_exceptions)` in an exception initialized without arguments
 * [Fix] Reduced telemetry latency by removing `is_online` call
 * [Fix] Skip file write operations in config files if not needed
 * [Fix] `_PLOOMBER_TELEMETRY_DEBUG` environment variable is independent of the `PLOOMBER_STATS_ENABLED` environment variable
@@ -22,7 +22,7 @@
 
 ## 0.2.11 (2023-05-25)
 
-* [Fix] Fix `check_installed` so it behaves consistently with `@requires` regarding package names
+* [Fix] Fix `check_installed` so it behaves consistently with `[@requires](https://github.com/requires)` regarding package names
 
 ## 0.2.10 (2023-04-24)
 
