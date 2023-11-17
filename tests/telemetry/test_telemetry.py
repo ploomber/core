@@ -93,6 +93,36 @@ def test_user_settings_create_file(tmp_directory, monkeypatch):
     assert settings.stats_enabled
 
 
+def test_user_settings_get_cloud_key_from_file(tmp_directory, monkeypatch):
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
+    parent = Path("stats")
+    parent.mkdir()
+    (parent / "config.yaml").write_text(
+        """
+cloud_key: some-cloud-key
+"""
+    )
+    settings = telemetry.UserSettings()
+
+    assert settings.get_cloud_key() == "some-cloud-key"
+
+
+def test_user_settings_get_cloud_key_from_env_var(tmp_directory, monkeypatch):
+    monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
+    monkeypatch.setenv("PLOOMBER_CLOUD_KEY", "another-cloud-key")
+
+    parent = Path("stats")
+    parent.mkdir()
+    (parent / "config.yaml").write_text(
+        """
+cloud_key: some-cloud-key
+"""
+    )
+    settings = telemetry.UserSettings()
+
+    assert settings.get_cloud_key() == "another-cloud-key"
+
+
 def test_internal_create_file(tmp_directory, monkeypatch):
     monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     monkeypatch.setattr(telemetry, "uuid4", lambda: "some-unique-uuid")

@@ -2,6 +2,8 @@
 
 ## 0.2.16dev
 
+* [Feature] Allow setting API key via the `PLOOMBER_CLOUD_KEY` environment variable
+
 ## 0.2.15 (2023-10-25)
 
 * [Fix] Removes `started` telemetry event
