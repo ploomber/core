@@ -73,6 +73,8 @@ class UserSettings(Config):
     """User-customizable settings"""
 
     version_check_enabled: bool = True
+
+    # important: do not get the key like this! use UserSettings().get_cloud_key()
     cloud_key: str = None
     user_email: str = None
     stats_enabled: bool = True
@@ -83,6 +85,15 @@ class UserSettings(Config):
         if CONF_DIR is not None:
             location = location / CONF_DIR
         return location / DEFAULT_USER_CONF
+
+    def get_cloud_key(self):
+        """Get the cloud key. Returns the value in PLOOMBER_CLOUD_KEY if set,
+        otherwise returns the value in the config file
+        """
+        if "PLOOMBER_CLOUD_KEY" in os.environ:
+            return os.environ["PLOOMBER_CLOUD_KEY"]
+        else:
+            return self.cloud_key
 
 
 class Internal(Config):
