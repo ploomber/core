@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.16dev
+## 0.2.16 (2023-11-17)
 
 * [Feature] Allow setting API key via the `PLOOMBER_CLOUD_KEY` environment variable
 
