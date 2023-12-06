@@ -2,6 +2,8 @@
 
 ## 0.2.17dev
 
+* [Feature] Show link to sign up to Ploomber Cloud when loading telemetry
+
 ## 0.2.16 (2023-11-17)
 
 * [Feature] Allow setting API key via the `PLOOMBER_CLOUD_KEY` environment variable
