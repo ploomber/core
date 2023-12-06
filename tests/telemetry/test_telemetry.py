@@ -133,6 +133,7 @@ def test_internal_create_file(tmp_directory, monkeypatch):
     assert content == {
         "uid": "some-unique-uuid",
         "last_version_check": None,
+        "last_cloud_check": None,
         "first_time": True,
     }
     assert internal.uid == "some-unique-uuid"
@@ -364,8 +365,13 @@ def test_conf_file_after_version_check(tmp_directory, monkeypatch):
     telemetry.check_version("ploomber", "0.14.0")
     with version_path.open("r") as file:
         conf = yaml.safe_load(file)
-    assert "uid" in conf.keys()
-    assert len(conf.keys()) == 3
+
+    assert set(conf.keys()) == {
+        "first_time",
+        "last_cloud_check",
+        "last_version_check",
+        "uid",
+    }
 
 
 def test_get_version_timeout():
