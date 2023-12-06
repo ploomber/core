@@ -1069,7 +1069,7 @@ def test_check_cloud(tmp_directory, monkeypatch, capsys, last_cloud_check):
 
     expected = (
         "Deploy AI and data apps for free on Ploomber Cloud!"
-        " Sign up here: https://www.platform.ploomber.io/register"
+        " Sign up here: https://docs.cloud.ploomber.io/en/latest/quickstart/signup.html"
     )
 
     assert expected in captured.out
