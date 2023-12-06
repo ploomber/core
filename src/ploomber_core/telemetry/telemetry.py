@@ -103,6 +103,7 @@ class Internal(Config):
     """
 
     last_version_check: datetime.datetime = None
+    last_cloud_check: datetime.datetime = None
     uid: str
     first_time: bool = True
 
@@ -307,6 +308,34 @@ def check_version(package_name, version):
     internal.last_version_check = now
 
 
+def check_cloud():
+    """Displays a message to ask the user to sign up for Ploomber Cloud"""
+    settings = UserSettings()
+
+    if not settings.version_check_enabled:
+        return
+
+    # this feature is not documented. we added it to prevent the doctests
+    # from failing
+    if "PLOOMBER_VERSION_CHECK_DISABLED" in os.environ:
+        return
+
+    now = datetime.datetime.now()
+
+    # Check if we already notified in the last 2 days
+    if internal.last_cloud_check and (now - internal.last_cloud_check).days < 2:
+        return
+
+    click.secho(
+        "Deploy AI and data apps for free on Ploomber Cloud! "
+        "Sign up here: https://www.platform.ploomber.io/register",
+        fg="green",
+    )
+
+    # Update latest check date
+    internal.last_cloud_check = now
+
+
 def _get_telemetry_info(package_name, version):
     """
     The function checks for the local config and uid files, returns the right
@@ -318,6 +347,7 @@ def _get_telemetry_info(package_name, version):
 
     # Check latest version
     check_version(package_name, version)
+    check_cloud()
 
     if telemetry_enabled:
         # Check first time install

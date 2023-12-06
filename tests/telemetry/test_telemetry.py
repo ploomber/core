@@ -133,6 +133,7 @@ def test_internal_create_file(tmp_directory, monkeypatch):
     assert content == {
         "uid": "some-unique-uuid",
         "last_version_check": None,
+        "last_cloud_check": None,
         "first_time": True,
     }
     assert internal.uid == "some-unique-uuid"
@@ -364,8 +365,13 @@ def test_conf_file_after_version_check(tmp_directory, monkeypatch):
     telemetry.check_version("ploomber", "0.14.0")
     with version_path.open("r") as file:
         conf = yaml.safe_load(file)
-    assert "uid" in conf.keys()
-    assert len(conf.keys()) == 3
+
+    assert set(conf.keys()) == {
+        "first_time",
+        "last_cloud_check",
+        "last_version_check",
+        "uid",
+    }
 
 
 def test_get_version_timeout():
@@ -377,7 +383,7 @@ def test_get_version_timeout():
     assert total_runtime < datetime.timedelta(milliseconds=1500)
 
 
-def write_to_conf_file(tmp_directory, monkeypatch, last_check):
+def write_to_conf_file(tmp_directory, monkeypatch, last_check, last_cloud_check=None):
     stats = Path("stats")
     stats.mkdir()
     conf_path = stats / "config.yaml"
@@ -385,6 +391,9 @@ def write_to_conf_file(tmp_directory, monkeypatch, last_check):
     monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     conf_path.write_text("version_check_enabled: True\n")
     version_path.write_text(f"last_version_check: {last_check}\n")
+
+    if last_cloud_check:
+        version_path.write_text(f"last_cloud_check: {last_cloud_check}\n")
 
     # force to reset data so we load from the data we just wrote
     monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
@@ -1025,3 +1034,43 @@ def test_exposes_telemetry_data_for_testing_params():
     }
 
     assert my_function.__wrapped__._telemetry_error is None
+
+
+@pytest.mark.parametrize(
+    "last_cloud_check",
+    [
+        None,
+        "2022-01-20 10:51:41.082376",
+    ],
+    ids=[
+        "first-time",
+        "not-first-time",
+    ],
+)
+def test_check_cloud(tmp_directory, monkeypatch, capsys, last_cloud_check):
+    write_to_conf_file(
+        tmp_directory=tmp_directory,
+        monkeypatch=monkeypatch,
+        last_check="2022-01-20 10:51:41.082376",
+        last_cloud_check=last_cloud_check,
+    )
+
+    now = datetime.datetime.now()
+    fake_datetime = Mock()
+    fake_datetime.now.return_value = now
+
+    with monkeypatch.context() as m:
+        m.setattr(telemetry.datetime, "datetime", fake_datetime)
+        telemetry.check_cloud()
+
+    config = yaml.safe_load(Path("stats", "uid.yaml").read_text())
+
+    captured = capsys.readouterr()
+
+    expected = (
+        "Deploy AI and data apps for free on Ploomber Cloud!"
+        " Sign up here: https://www.platform.ploomber.io/register"
+    )
+
+    assert expected in captured.out
+    assert config["last_cloud_check"] == now
