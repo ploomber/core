@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.18dev
+
 ## 0.2.17 (2023-12-05)
 
 * [Feature] Show link to sign up to Ploomber Cloud when loading telemetry
