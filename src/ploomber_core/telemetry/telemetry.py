@@ -328,7 +328,7 @@ def check_cloud():
 
     click.secho(
         "Deploy AI and data apps for free on Ploomber Cloud! "
-        "Sign up here: https://www.platform.ploomber.io/register",
+        "Learn more: https://docs.cloud.ploomber.io/en/latest/quickstart/signup.html",
         fg="green",
     )
 

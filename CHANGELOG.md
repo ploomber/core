@@ -2,6 +2,8 @@
 
 ## 0.2.18dev
 
+* [Fix] Change Ploomber Cloud sign up message
+
 ## 0.2.17 (2023-12-05)
 
 * [Feature] Show link to sign up to Ploomber Cloud when loading telemetry
