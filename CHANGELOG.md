@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.19dev
+
 ## 0.2.18 (2023-12-06)
 
 * [Fix] Change Ploomber Cloud sign up message
