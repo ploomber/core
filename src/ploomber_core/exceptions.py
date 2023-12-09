@@ -87,6 +87,8 @@ def _add_community_link(e):
     elif COMMUNITY not in e.args[0]:
         message = e.args[0] + COMMUNITY
         e.args = (message,)
+        if hasattr(e, "message"):
+            e.message = message
 
     return e
 
