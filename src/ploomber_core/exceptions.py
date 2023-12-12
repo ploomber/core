@@ -87,6 +87,9 @@ def _add_community_link(e):
     elif COMMUNITY not in e.args[0]:
         message = e.args[0] + COMMUNITY
         e.args = (message,)
+        # Certain exceptions like ClickException have message
+        # as their first parameter. In that case args is not
+        # accessed while raising the error
         if hasattr(e, "message"):
             e.message = message
 
