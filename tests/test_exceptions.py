@@ -54,6 +54,23 @@ def test_modify_exceptions_with_attribute():
     assert exceptions.get_community_link() in str(excinfo.value)
 
 
+def test_modify_exceptions_with_message_attribute():
+    class CustomException(Exception):
+        def __init__(self, message: str) -> None:
+            super().__init__(message)
+            self.message = message
+            self.modify_exception = True
+
+    @exceptions.modify_exceptions
+    def crash():
+        raise CustomException("some message")
+
+    with pytest.raises(CustomException) as excinfo:
+        crash()
+
+    assert exceptions.get_community_link() in str(excinfo.value)
+
+
 def test_modify_exceptions_value_error():
     @exceptions.modify_exceptions
     def crash():
