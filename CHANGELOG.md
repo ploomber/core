@@ -2,6 +2,8 @@
 
 ## 0.2.19dev
 
+* [Fix] `@modify_exceptions` decorator now compatible with `ClickException` (#81)
+
 ## 0.2.18 (2023-12-06)
 
 * [Fix] Change Ploomber Cloud sign up message
