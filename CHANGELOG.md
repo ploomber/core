@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## 0.2.19dev
+## 0.2.19 (2023-12-12)
 
-* [Fix] `@modify_exceptions` decorator now compatible with `ClickException` (#81)
+* [Fix] `@modify_exceptions` decorator now compatible with `ClickException` ([#81](https://github.com/ploomber/core/issues/81))
 
 ## 0.2.18 (2023-12-06)
 
