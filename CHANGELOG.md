@@ -2,6 +2,10 @@
 
 ## 0.2.20dev
 
+* [Feature] Obtain system info once for faster initialization
+* [Feature] Add `Telemetry.from_package` for simpler initialization
+
+
 ## 0.2.19 (2023-12-12)
 
 * [Fix] `@modify_exceptions` decorator now compatible with `ClickException` ([#81](https://github.com/ploomber/core/issues/81))

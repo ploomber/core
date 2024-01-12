@@ -16,6 +16,7 @@ from ploomber_core.telemetry import telemetry
 from ploomber_core.telemetry import system_info
 from ploomber_core.telemetry.validate_inputs import str_param, opt_str_param
 
+
 from ploomber_core.exceptions import BaseException
 
 MOCK_API_KEY = "phc_P1dsjk20bijsabdaib2eu"
@@ -1074,3 +1075,11 @@ def test_check_cloud(tmp_directory, monkeypatch, capsys, last_cloud_check):
 
     assert expected in captured.out
     assert config["last_cloud_check"] == now
+
+
+def test_from_package():
+    _telemetry = telemetry.Telemetry.from_package("ploomber-core")
+
+    assert _telemetry.api_key
+    assert _telemetry.version
+    assert _telemetry.package_name == "ploomber-core"

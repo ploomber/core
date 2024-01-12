@@ -46,17 +46,7 @@ import posthog
 
 from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
-from ploomber_core.telemetry.system_info import (
-    get_env,
-    get_os,
-    is_airflow,
-    is_argo,
-    is_colab,
-    is_docker,
-    is_paperspace,
-    is_slurm,
-    python_version,
-)
+from ploomber_core.telemetry.system_info import get_system_info, get_package_version
 
 TELEMETRY_VERSION = "0.5"
 DEFAULT_HOME_DIR = str(Path.home() / ".ploomber")
@@ -67,6 +57,9 @@ PLOOMBER_HOME_DIR = os.getenv("PLOOMBER_HOME_DIR")
 # posthog client logs errors which are confusing for users
 # https://github.com/PostHog/posthog-python/blob/fd92502d990499a61804034e3feb7e17f64a14a1/posthog/consumer.py#L81
 logging.getLogger("posthog").disabled = True
+
+
+SYSTEM_INFO = get_system_info()
 
 
 class UserSettings(Config):
@@ -420,6 +413,16 @@ class Telemetry:
         self.package_name = package_name
         self.version = version
 
+    @classmethod
+    def from_package(cls, package_name):
+        """
+        Initialize a Telemetry client with the default configuration for
+        a package with the given name
+        """
+        default_api_key = "phc_P9SpSeypyPwxrMdFn2edOOEooQioF2axppyEeDwtMSP"
+        version = get_package_version(package_name)
+        return cls(api_key=default_api_key, package_name=package_name, version=version)
+
     def log_api(self, action, client_time=None, total_runtime=None, metadata=None):
         """
         This function logs through an API call, assigns parameters
@@ -443,35 +446,38 @@ class Telemetry:
             metadata["uid_issue"] = uid
             uid = None
 
-        py_version = python_version()
-        docker_container = is_docker()
         cloud = is_cloud_user()
         email = email_registered()
-        colab = is_colab()
+        colab = SYSTEM_INFO["is_colab"]
+
         if colab:
             metadata["colab"] = colab
 
-        paperspace = is_paperspace()
+        paperspace = SYSTEM_INFO["is_paperspace"]
+
         if paperspace:
             metadata["paperspace"] = paperspace
 
-        slurm = is_slurm()
+        slurm = SYSTEM_INFO["is_slurm"]
+
         if slurm:
             metadata["slurm"] = slurm
 
-        airflow = is_airflow()
+        airflow = SYSTEM_INFO["is_airflow"]
+
         if airflow:
             metadata["airflow"] = airflow
 
-        argo = is_argo()
+        argo = SYSTEM_INFO["is_argo"]
+
         if argo:
             metadata["argo"] = argo
 
         if "dag" in metadata:
             metadata["dag"] = parse_dag(metadata["dag"])
 
-        os = get_os()
-        environment = get_env()
+        os = SYSTEM_INFO["os"]
+        environment = SYSTEM_INFO["env"]
 
         if telemetry_enabled:
             (event_id, uid, action, client_time, elapsed_time) = validate_entries(
@@ -483,10 +489,10 @@ class Telemetry:
                 "action": action,
                 "client_time": str(client_time),
                 "total_runtime": total_runtime,
-                "python_version": py_version,
+                "python_version": SYSTEM_INFO["python_version"],
                 "version": self.version,
                 "package_name": self.package_name,
-                "docker_container": docker_container,
+                "docker_container": SYSTEM_INFO["is_docker"],
                 "cloud": cloud,
                 "email": email,
                 "os": os,
