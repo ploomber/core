@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.21dev
+
 ## 0.2.20 (2024-01-12)
 
 * [Feature] Obtain system info once for faster initialization
