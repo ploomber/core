@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.22dev
+## 0.2.22 (2024-01-12)
 
 * [Fix] `click` is no longer a dependency
 
