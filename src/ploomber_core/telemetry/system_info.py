@@ -106,3 +106,24 @@ def is_airflow():
 def is_argo():
     """Returns: True for Argo env"""
     return "ARGO_AGENT_TASK_WORKERS" in os.environ or "ARGO_KUBELET_PORT" in os.environ
+
+
+def safe_call(function):
+    try:
+        return function()
+    except Exception:
+        return None
+
+
+def get_system_info():
+    return {
+        "os": safe_call(get_os),
+        "python_version": safe_call(python_version),
+        "env": safe_call(get_env),
+        "is_docker": safe_call(is_docker),
+        "is_colab": safe_call(is_colab),
+        "is_paperspace": safe_call(is_paperspace),
+        "is_slurm": safe_call(is_slurm),
+        "is_airflow": safe_call(is_airflow),
+        "is_argo": safe_call(is_argo),
+    }
