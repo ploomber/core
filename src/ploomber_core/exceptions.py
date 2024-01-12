@@ -2,9 +2,18 @@ import typing as t
 from functools import wraps
 from gettext import gettext as _
 
-from click.exceptions import ClickException
-from click._compat import get_text_stderr
-from click.utils import echo
+# click is an optional dependency. only available in packages that expose a CLI
+try:
+    from click.exceptions import ClickException
+    from click._compat import get_text_stderr
+    from click.utils import echo
+except ModuleNotFoundError:
+    ClickException = Exception
+    get_text_stderr = None
+    echo = None
+    CLICK_AVAILABLE = False
+else:
+    CLICK_AVAILABLE = True
 
 COMMUNITY_LINK = "https://ploomber.io/community"
 
@@ -48,10 +57,13 @@ class BaseException(ClickException):
         return f"Error: {_build_message(self)}"
 
     def show(self, file: t.Optional[t.IO] = None) -> None:
-        if file is None:
-            file = get_text_stderr()
+        if CLICK_AVAILABLE:
+            if file is None:
+                file = get_text_stderr()
 
-        echo(_(self.get_message()), file=file)
+            echo(_(self.get_message()), file=file)
+        else:
+            print(_(self.get_message()))
 
 
 class PloomberValueError(ValueError):
