@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.21dev
+## 0.2.21 (2024-01-12)
 
 * [Fix] Fix error when determining if telemetry call was from a cloud user
 
