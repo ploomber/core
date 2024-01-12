@@ -15,7 +15,7 @@ import posthog
 from ploomber_core.telemetry import telemetry
 from ploomber_core.telemetry import system_info
 from ploomber_core.telemetry.validate_inputs import str_param, opt_str_param
-from ploomber_core import __version__
+
 
 from ploomber_core.exceptions import BaseException
 
