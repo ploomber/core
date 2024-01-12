@@ -14,7 +14,6 @@ with open("src/ploomber_core/__init__.py", "rb") as f:
     )
 
 REQUIRES = [
-    "click",
     "pyyaml",
     "posthog",
     'importlib-metadata;python_version<"3.8"',
