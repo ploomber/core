@@ -27,6 +27,10 @@ from ploomber_core.telemetry import Telemetry
 
 Initialize it with the API key, name of the package, and version. Here's an example:
 
+```{versionadded} 0.2.20
+`Telemetry.from_package`
+```
+
 ```{code-cell} ipython3
 telemetry = Telemetry.from_package(package_name="ploomber-core")
 ```
