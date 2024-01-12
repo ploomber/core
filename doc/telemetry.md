@@ -28,15 +28,12 @@ from ploomber_core.telemetry import Telemetry
 Initialize it with the API key, name of the package, and version. Here's an example:
 
 ```{code-cell} ipython3
-from ploomber_core import __version__
+telemetry = Telemetry.from_package(package_name="ploomber-core")
+```
 
-telemetry = Telemetry(
-    api_key="SOMEKEY",
-    # change for the actual name
-    package_name="ploomber-core",
-    # change for the actual version
-    version=__version__,
-)
+```{note}
+`Telemetry.from_package` is the simplest way to initialize the telemetry object, you might use the constructor directly if you want to customize
+the configuration.
 ```
 
 To log call functions:
