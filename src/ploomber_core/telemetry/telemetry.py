@@ -46,7 +46,7 @@ import posthog
 
 from ploomber_core.telemetry import validate_inputs
 from ploomber_core.config import Config
-from ploomber_core.telemetry.system_info import get_system_info
+from ploomber_core.telemetry.system_info import get_system_info, get_package_version
 
 TELEMETRY_VERSION = "0.5"
 DEFAULT_HOME_DIR = str(Path.home() / ".ploomber")
@@ -412,6 +412,16 @@ class Telemetry:
         self.api_key = api_key
         self.package_name = package_name
         self.version = version
+
+    @classmethod
+    def from_package(cls, package_name):
+        """
+        Initialize a Telemetry client with the default configuration for
+        a package with the given name
+        """
+        default_api_key = "phc_P9SpSeypyPwxrMdFn2edOOEooQioF2axppyEeDwtMSP"
+        version = get_package_version(package_name)
+        return cls(api_key=default_api_key, package_name=package_name, version=version)
 
     def log_api(self, action, client_time=None, total_runtime=None, metadata=None):
         """

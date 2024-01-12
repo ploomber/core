@@ -4,6 +4,12 @@ import platform
 import sys
 
 
+try:
+    import importlib.metadata as importlib_metadata
+except ModuleNotFoundError:
+    import importlib_metadata
+
+
 def python_version():
     py_version = sys.version_info
     return f"{py_version.major}.{py_version.minor}.{py_version.micro}"
@@ -112,6 +118,13 @@ def safe_call(function):
     try:
         return function()
     except Exception:
+        return None
+
+
+def get_package_version(package_name):
+    try:
+        return importlib_metadata.version(package_name)
+    except importlib_metadata.PackageNotFoundError:
         return None
 
 
