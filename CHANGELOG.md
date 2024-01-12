@@ -2,6 +2,8 @@
 
 ## 0.2.21dev
 
+* [Fix] Fix error when determining if telemetry call was from a cloud user
+
 ## 0.2.20 (2024-01-12)
 
 * [Feature] Obtain system info once for faster initialization

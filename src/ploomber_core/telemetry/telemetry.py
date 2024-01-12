@@ -242,7 +242,7 @@ def is_cloud_user():
     returns True/False accordingly.
     """
     settings = UserSettings()
-    return settings.cloud_key
+    return settings.cloud_key is not None
 
 
 def email_registered():
