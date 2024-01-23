@@ -41,7 +41,6 @@ from uuid import uuid4
 from functools import wraps
 import warnings
 
-import click
 import posthog
 
 from ploomber_core.telemetry import validate_inputs
@@ -290,11 +289,10 @@ def check_version(package_name, version):
     if "dev" in version:
         return
 
-    click.secho(
+    print(
         f"There's a new {package_name} version available ({latest}), "
         f"you're running {version}. To upgrade: "
-        f"pip install {package_name} --upgrade",
-        fg="yellow",
+        f"pip install {package_name} --upgrade"
     )
 
     # Update latest check date
@@ -319,10 +317,9 @@ def check_cloud():
     if internal.last_cloud_check and (now - internal.last_cloud_check).days < 2:
         return
 
-    click.secho(
+    print(
         "Deploy AI and data apps for free on Ploomber Cloud! "
-        "Learn more: https://docs.cloud.ploomber.io/en/latest/quickstart/signup.html",
-        fg="green",
+        "Learn more: https://docs.cloud.ploomber.io/en/latest/quickstart/signup.html"
     )
 
     # Update latest check date

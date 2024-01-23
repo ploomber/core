@@ -2,6 +2,8 @@
 
 ## 0.2.23dev
 
+* [Fix] Fully removes dependency on `click`
+
 ## 0.2.22 (2024-01-12)
 
 * [Fix] `click` is no longer a dependency
