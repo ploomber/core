@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.24dev
+
 ## 0.2.23 (2024-01-23)
 
 * [Fix] Fully removes dependency on `click`
