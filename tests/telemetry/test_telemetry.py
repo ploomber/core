@@ -1083,3 +1083,35 @@ def test_from_package():
     assert _telemetry.api_key
     assert _telemetry.version
     assert _telemetry.package_name == "ploomber-core"
+
+
+def test_runs_check_cloud(monkeypatch):
+    mock = Mock()
+    monkeypatch.setattr(telemetry, "check_cloud", mock)
+
+    my_telemetry = telemetry.Telemetry(
+        MOCK_API_KEY,
+        "some-package",
+        "1.2.2",
+        print_cloud_message=True,
+    )
+
+    my_telemetry.log_api("some-action")
+
+    mock.assert_called_once()
+
+
+def test_disable_check_cloud(monkeypatch):
+    mock = Mock()
+    monkeypatch.setattr(telemetry, "check_cloud", mock)
+
+    my_telemetry = telemetry.Telemetry(
+        MOCK_API_KEY,
+        "some-package",
+        "1.2.2",
+        print_cloud_message=False,
+    )
+
+    my_telemetry.log_api("some-action")
+
+    mock.assert_not_called()
