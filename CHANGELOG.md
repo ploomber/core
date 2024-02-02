@@ -2,7 +2,7 @@
 
 ## 0.2.25dev
 
-* [Feataure] Updates cloud message
+* [Feature] Updates cloud message
 
 ## 0.2.24 (2024-02-01)
 
