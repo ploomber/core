@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.24dev
+## 0.2.24 (2024-02-01)
 
 * [Feature] Allows disabling the message that promotes Ploomber Cloud when initializing `Telemetry`
 
