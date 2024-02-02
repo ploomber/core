@@ -1047,6 +1047,8 @@ def test_exposes_telemetry_data_for_testing_params():
     ],
 )
 def test_check_cloud(tmp_directory, monkeypatch, capsys, last_cloud_check):
+    monkeypatch.setattr(telemetry.random, "choice", lambda _: "NAME")
+
     write_to_conf_file(
         tmp_directory=tmp_directory,
         monkeypatch=monkeypatch,
@@ -1067,8 +1069,8 @@ def test_check_cloud(tmp_directory, monkeypatch, capsys, last_cloud_check):
     captured = capsys.readouterr()
 
     expected = (
-        "Deploy AI and data apps for free on Ploomber Cloud!"
-        " Learn more: https://docs.cloud.ploomber.io/en/latest/quickstart/signup.html"
+        "Deploy NAME apps for free on Ploomber Cloud!"
+        " Learn more: https://ploomber.io/s/signup"
     )
 
     assert expected in captured.out
