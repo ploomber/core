@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.26dev
+
 ## 0.2.25 (2024-02-01)
 
 * [Feature] Updates cloud message
