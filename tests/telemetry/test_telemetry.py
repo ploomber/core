@@ -328,9 +328,7 @@ def test_full_telemetry_info(monkeypatch, ignore_env_var_and_set_tmp_default_hom
     monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
 
-    (stat_enabled, uid, is_install) = telemetry._get_telemetry_info(
-        "ploomber", "0.14.0"
-    )
+    (stat_enabled, uid, is_install) = telemetry._get_telemetry_info()
     assert stat_enabled is True
     assert isinstance(uid, str)
     assert is_install is True
