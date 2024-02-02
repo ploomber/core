@@ -28,6 +28,7 @@ The data we collect is limited to:
     telemetry_version - Telemetry version
 
 """
+
 from copy import copy
 from inspect import signature, _empty
 import logging
@@ -326,7 +327,7 @@ def check_cloud():
     internal.last_cloud_check = now
 
 
-def _get_telemetry_info(package_name, version):
+def _get_telemetry_info():
     """
     The function checks for the local config and uid files, returns the right
     values according to the config file (True/False). In addition it checks
@@ -334,10 +335,6 @@ def _get_telemetry_info(package_name, version):
     """
     # Check if telemetry is enabled, if not skip, else check for uid
     telemetry_enabled = check_telemetry_enabled()
-
-    # Check latest version
-    check_version(package_name, version)
-    check_cloud()
 
     if telemetry_enabled:
         # Check first time install
@@ -384,7 +381,7 @@ class TelemetryGroup:
 
 
 class Telemetry:
-    def __init__(self, api_key, package_name, version):
+    def __init__(self, api_key, package_name, version, *, print_cloud_message=True):
         """
 
         Parameters
@@ -398,6 +395,9 @@ class Telemetry:
         version : str
             Version of the package calling the function
 
+        print_cloud_message : bool, default=True
+            If True, it'll print a message to ask the user to sign up for
+            Ploomber Cloud
         """
         if "_PLOOMBER_TELEMETRY_DEBUG" in os.environ:
             warnings.warn(
@@ -409,16 +409,22 @@ class Telemetry:
         self.api_key = api_key
         self.package_name = package_name
         self.version = version
+        self.print_cloud_message = print_cloud_message
 
     @classmethod
-    def from_package(cls, package_name):
+    def from_package(cls, package_name, *, print_cloud_message=True):
         """
         Initialize a Telemetry client with the default configuration for
         a package with the given name
         """
         default_api_key = "phc_P9SpSeypyPwxrMdFn2edOOEooQioF2axppyEeDwtMSP"
         version = get_package_version(package_name)
-        return cls(api_key=default_api_key, package_name=package_name, version=version)
+        return cls(
+            api_key=default_api_key,
+            package_name=package_name,
+            version=version,
+            print_cloud_message=print_cloud_message,
+        )
 
     def log_api(self, action, client_time=None, total_runtime=None, metadata=None):
         """
@@ -434,9 +440,13 @@ class Telemetry:
         if client_time is None:
             client_time = datetime.datetime.now()
 
-        (telemetry_enabled, uid, is_install) = _get_telemetry_info(
-            self.package_name, self.version
-        )
+        (telemetry_enabled, uid, is_install) = _get_telemetry_info()
+
+        # Check latest version
+        check_version(self.package_name, self.version)
+
+        if self.print_cloud_message:
+            check_cloud()
 
         # NOTE: this should not happen anymore
         if "NO_UID" in uid:

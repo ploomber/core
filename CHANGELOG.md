@@ -2,6 +2,8 @@
 
 ## 0.2.24dev
 
+* [Feature] Allows disabling the message that promotes Ploomber Cloud when initializing `Telemetry`
+
 ## 0.2.23 (2024-01-23)
 
 * [Fix] Fully removes dependency on `click`

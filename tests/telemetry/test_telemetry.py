@@ -328,9 +328,7 @@ def test_full_telemetry_info(monkeypatch, ignore_env_var_and_set_tmp_default_hom
     monkeypatch.setattr(telemetry, "DEFAULT_HOME_DIR", str(Path().absolute()))
     monkeypatch.setattr(telemetry, "internal", telemetry.Internal())
 
-    (stat_enabled, uid, is_install) = telemetry._get_telemetry_info(
-        "ploomber", "0.14.0"
-    )
+    (stat_enabled, uid, is_install) = telemetry._get_telemetry_info()
     assert stat_enabled is True
     assert isinstance(uid, str)
     assert is_install is True
@@ -1083,3 +1081,35 @@ def test_from_package():
     assert _telemetry.api_key
     assert _telemetry.version
     assert _telemetry.package_name == "ploomber-core"
+
+
+def test_runs_check_cloud(monkeypatch):
+    mock = Mock()
+    monkeypatch.setattr(telemetry, "check_cloud", mock)
+
+    my_telemetry = telemetry.Telemetry(
+        MOCK_API_KEY,
+        "some-package",
+        "1.2.2",
+        print_cloud_message=True,
+    )
+
+    my_telemetry.log_api("some-action")
+
+    mock.assert_called_once()
+
+
+def test_disable_check_cloud(monkeypatch):
+    mock = Mock()
+    monkeypatch.setattr(telemetry, "check_cloud", mock)
+
+    my_telemetry = telemetry.Telemetry(
+        MOCK_API_KEY,
+        "some-package",
+        "1.2.2",
+        print_cloud_message=False,
+    )
+
+    my_telemetry.log_api("some-action")
+
+    mock.assert_not_called()
