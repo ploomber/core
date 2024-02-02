@@ -41,6 +41,7 @@ import sys
 from uuid import uuid4
 from functools import wraps
 import warnings
+import random
 
 import posthog
 
@@ -315,16 +316,23 @@ def check_cloud():
     now = datetime.datetime.now()
 
     # Check if we already notified in the last 2 days
-    if internal.last_cloud_check and (now - internal.last_cloud_check).days < 2:
+    if internal.last_cloud_check and (now - internal.last_cloud_check).days < 1:
         return
 
-    print(
-        "Deploy AI and data apps for free on Ploomber Cloud! "
-        "Learn more: https://docs.cloud.ploomber.io/en/latest/quickstart/signup.html"
-    )
+    print_cloud_message()
 
     # Update latest check date
     internal.last_cloud_check = now
+
+
+def print_cloud_message():
+    choices = ["Streamlit", "Panel", "Dash", "Flask", "FastAPI", "Shiny"]
+    selected = random.choice(choices)
+
+    print(
+        f"Deploy {selected} apps for free on Ploomber Cloud! "
+        "Learn more: https://ploomber.io/s/signup"
+    )
 
 
 def _get_telemetry_info():

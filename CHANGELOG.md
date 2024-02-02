@@ -2,6 +2,8 @@
 
 ## 0.2.25dev
 
+* [Feataure] Updates cloud message
+
 ## 0.2.24 (2024-02-01)
 
 * [Feature] Allows disabling the message that promotes Ploomber Cloud when initializing `Telemetry`
