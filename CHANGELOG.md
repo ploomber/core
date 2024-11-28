@@ -2,6 +2,8 @@
 
 ## 0.2.26dev
 
+* [Feature] New optional custom telemetry `api_key`
+
 ## 0.2.25 (2024-02-01)
 
 * [Feature] Updates cloud message

@@ -1080,9 +1080,15 @@ def test_check_cloud(tmp_directory, monkeypatch, capsys, last_cloud_check):
 def test_from_package():
     _telemetry = telemetry.Telemetry.from_package("ploomber-core")
 
-    assert _telemetry.api_key
+    assert _telemetry.api_key == "phc_P9SpSeypyPwxrMdFn2edOOEooQioF2axppyEeDwtMSP"
     assert _telemetry.version
     assert _telemetry.package_name == "ploomber-core"
+
+
+def test_from_package_custom_api_key():
+    _telemetry = telemetry.Telemetry.from_package("ploomber-core", api_key="test_custom_key")
+
+    assert _telemetry.api_key == "test_custom_key"
 
 
 def test_runs_check_cloud(monkeypatch):
