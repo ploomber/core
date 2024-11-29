@@ -1086,7 +1086,9 @@ def test_from_package():
 
 
 def test_from_package_custom_api_key():
-    _telemetry = telemetry.Telemetry.from_package("ploomber-core", api_key="test_custom_key")
+    _telemetry = telemetry.Telemetry.from_package(
+        "ploomber-core", api_key="test_custom_key"
+    )
 
     assert _telemetry.api_key == "test_custom_key"
 
