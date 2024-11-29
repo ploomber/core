@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.26dev
+## 0.2.26 (2024-11-29)
 
 * [Feature] New optional custom telemetry `api_key`
 
