@@ -420,12 +420,12 @@ class Telemetry:
         self.print_cloud_message = print_cloud_message
 
     @classmethod
-    def from_package(cls, package_name, *, print_cloud_message=True):
+    def from_package(cls, package_name, *, print_cloud_message=True, api_key=None):
         """
         Initialize a Telemetry client with the default configuration for
         a package with the given name
         """
-        default_api_key = "phc_P9SpSeypyPwxrMdFn2edOOEooQioF2axppyEeDwtMSP"
+        default_api_key = api_key or "phc_P9SpSeypyPwxrMdFn2edOOEooQioF2axppyEeDwtMSP"
         version = get_package_version(package_name)
         return cls(
             api_key=default_api_key,
