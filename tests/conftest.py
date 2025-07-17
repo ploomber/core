@@ -83,5 +83,10 @@ def external_access(request, monkeypatch_session):
         # https://github.com/pytest-dev/pytest/issues/7061#issuecomment-611892868
         external_access = MagicMock()
         external_access.get_something = MagicMock(return_value="Mock was used.")
-        monkeypatch_session.setattr(posthog, "capture", external_access.get_something)
+
+        mock_posthog_instance = MagicMock()
+        mock_posthog_instance.capture = external_access.get_something
+        mock_posthog_class = MagicMock(return_value=mock_posthog_instance)
+
+        monkeypatch_session.setattr(posthog, "Posthog", mock_posthog_class)
         yield
