@@ -418,10 +418,12 @@ class Telemetry:
         self.package_name = package_name
         self.version = version
         self.print_cloud_message = print_cloud_message
-        
-        # Initialize PostHog client properly
+
+        # Initialize Posthog client
         try:
-            self._posthog_client = posthog.Posthog(api_key, host='https://us.i.posthog.com')
+            self._posthog_client = posthog.Posthog(
+                api_key, host="https://us.i.posthog.com"
+            )
         except Exception as e:
             # If PostHog initialization fails, create a dummy client
             warnings.warn(f"Failed to initialize PostHog client: {e}")
@@ -526,10 +528,14 @@ class Telemetry:
             if self._posthog_client is not None:
                 if is_install:
                     self._posthog_client.capture(
-                        distinct_id=uid, event="install_success_indirect", properties=props
+                        distinct_id=uid,
+                        event="install_success_indirect",
+                        properties=props,
                     )
 
-                self._posthog_client.capture(distinct_id=uid, event=action, properties=props)
+                self._posthog_client.capture(
+                    distinct_id=uid, event=action, properties=props
+                )
             else:
                 raise RuntimeError("Log call failed: PostHog client not initialized.")
 
