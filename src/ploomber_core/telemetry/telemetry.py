@@ -419,6 +419,14 @@ class Telemetry:
         self.version = version
         self.print_cloud_message = print_cloud_message
 
+        # Initialize PostHog client
+        try:
+            self._posthog_client = posthog.Posthog(api_key, host='https://us.i.posthog.com')
+        except Exception as e:
+            # If PostHog initialization fails, create a dummy client
+            warnings.warn(f"Failed to initialize PostHog client: {e}")
+            self._posthog_client = None
+
     @classmethod
     def from_package(cls, package_name, *, print_cloud_message=True, api_key=None):
         """
@@ -440,9 +448,6 @@ class Telemetry:
         if missing like timestamp, event id and stats information.
         """
 
-        # This method of setting the API Key is deprecated in PostHog 3.x
-        # PostHog has been pinned to 2.x to avoid breaking changes
-        posthog.project_api_key = self.api_key
         metadata = metadata or {}
 
         event_id = uuid4()
@@ -518,12 +523,15 @@ class Telemetry:
                 "metadata": metadata,
             }
 
-            if is_install:
-                posthog.capture(
-                    distinct_id=uid, event="install_success_indirect", properties=props
-                )
+            if self._posthog_client is not None:
+                if is_install:
+                    self._posthog_client.capture(
+                        distinct_id=uid, event="install_success_indirect", properties=props
+                    )
 
-            posthog.capture(distinct_id=uid, event=action, properties=props)
+                self._posthog_client.capture(distinct_id=uid, event=action, properties=props)
+            else:
+                raise RuntimeError("Log call failed: PostHog client not initialized")
 
     # NOTE: should we log differently depending on the error type?
     # NOTE: how should we handle chained exceptions?
