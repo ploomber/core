@@ -425,9 +425,11 @@ class Telemetry:
                 api_key, host="https://us.i.posthog.com"
             )
         except Exception as e:
-            # If PostHog initialization fails, create a dummy client
-            warnings.warn(f"Failed to initialize PostHog client: {e}")
-            self._posthog_client = None
+            raise ImportError(
+                "Failed to initialize posthog client. This likely means your posthog "
+                "version is incompatible. To fix this, either upgrade to posthog>=3.0 "
+                "or downgrade to ploomber-core<=0.2.26"
+            ) from e
 
     @classmethod
     def from_package(cls, package_name, *, print_cloud_message=True, api_key=None):
