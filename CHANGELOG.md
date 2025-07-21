@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## 0.2.28dev
+
 ## 0.2.27 (2025-07-21)
 
 * [Fix] Fixes compatibility with `posthog>=3.0.0`
