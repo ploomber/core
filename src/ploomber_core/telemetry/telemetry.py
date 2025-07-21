@@ -419,6 +419,18 @@ class Telemetry:
         self.version = version
         self.print_cloud_message = print_cloud_message
 
+        # Initialize PostHog client
+        try:
+            self._posthog_client = posthog.Posthog(
+                api_key, host="https://us.i.posthog.com"
+            )
+        except Exception as e:
+            raise ImportError(
+                "Failed to initialize posthog client. This likely means your posthog "
+                "version is incompatible. To fix this, either upgrade to posthog>=3.0 "
+                "or downgrade to ploomber-core<=0.2.26"
+            ) from e
+
     @classmethod
     def from_package(cls, package_name, *, print_cloud_message=True, api_key=None):
         """
@@ -440,7 +452,6 @@ class Telemetry:
         if missing like timestamp, event id and stats information.
         """
 
-        posthog.project_api_key = self.api_key
         metadata = metadata or {}
 
         event_id = uuid4()
@@ -516,12 +527,19 @@ class Telemetry:
                 "metadata": metadata,
             }
 
-            if is_install:
-                posthog.capture(
-                    distinct_id=uid, event="install_success_indirect", properties=props
-                )
+            if self._posthog_client is not None:
+                if is_install:
+                    self._posthog_client.capture(
+                        distinct_id=uid,
+                        event="install_success_indirect",
+                        properties=props,
+                    )
 
-            posthog.capture(distinct_id=uid, event=action, properties=props)
+                self._posthog_client.capture(
+                    distinct_id=uid, event=action, properties=props
+                )
+            else:
+                raise RuntimeError("Log call failed: PostHog client not initialized")
 
     # NOTE: should we log differently depending on the error type?
     # NOTE: how should we handle chained exceptions?

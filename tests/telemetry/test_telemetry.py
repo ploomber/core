@@ -826,7 +826,11 @@ def test_hides_posthog_log(caplog, monkeypatch):
         log = logging.getLogger("posthog")
         log.error("some error happened")
 
-    monkeypatch.setattr(posthog, "capture", fake_capture)
+    mock_posthog_instance = Mock()
+    mock_posthog_instance.capture = fake_capture
+    mock_posthog_class = Mock(return_value=mock_posthog_instance)
+
+    monkeypatch.setattr(posthog, "Posthog", mock_posthog_class)
     _telemetry = telemetry.Telemetry(MOCK_API_KEY, "ploomber", "0.14.0")
 
     with caplog.at_level(logging.ERROR, logger="posthog"):
@@ -838,8 +842,12 @@ def test_hides_posthog_log(caplog, monkeypatch):
 # TODO: test more of the values (I'm adding ANY to many of them)
 def test_log_api_stored_values(monkeypatch):
     mock_info = Mock(return_value=(True, "fake-uuid", False))
-    mock = Mock()
-    monkeypatch.setattr(telemetry.posthog, "capture", mock)
+    mock_capture = Mock()
+    mock_posthog_instance = Mock()
+    mock_posthog_instance.capture = mock_capture
+    mock_posthog_class = Mock(return_value=mock_posthog_instance)
+
+    monkeypatch.setattr(telemetry.posthog, "Posthog", mock_posthog_class)
     monkeypatch.setattr(telemetry, "_get_telemetry_info", mock_info)
 
     _telemetry = telemetry.Telemetry(MOCK_API_KEY, "some-package", "1.2.2")
@@ -851,7 +859,7 @@ def test_log_api_stored_values(monkeypatch):
         f"{sys.version_info.micro}"
     )
 
-    mock.assert_called_once_with(
+    mock_capture.assert_called_once_with(
         distinct_id="fake-uuid",
         event="some-action",
         properties={
@@ -876,8 +884,12 @@ def test_log_api_stored_values(monkeypatch):
 
 def test_log_call_stored_values(monkeypatch):
     mock_info = Mock(return_value=(True, "fake-uuid", False))
-    mock = Mock()
-    monkeypatch.setattr(telemetry.posthog, "capture", mock)
+    mock_capture = Mock()
+    mock_posthog_instance = Mock()
+    mock_posthog_instance.capture = mock_capture
+    mock_posthog_class = Mock(return_value=mock_posthog_instance)
+
+    monkeypatch.setattr(telemetry.posthog, "Posthog", mock_posthog_class)
     monkeypatch.setattr(telemetry, "_get_telemetry_info", mock_info)
     monkeypatch.setattr(telemetry.sys, "argv", ["/path/to/bin", "arg2", "arg2"])
 
@@ -894,7 +906,7 @@ def test_log_call_stored_values(monkeypatch):
         f"{sys.version_info.micro}"
     )
 
-    assert mock.call_args_list == [
+    assert mock_capture.call_args_list == [
         call(
             distinct_id="fake-uuid",
             event="some-package-some-action-success",

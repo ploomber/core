@@ -7,10 +7,14 @@ from ploomber_core.telemetry import telemetry as telemetry_module
 @pytest.fixture
 def mock_posthog(monkeypatch):
     mock_info = Mock(return_value=(True, "UUID", False))
-    mock = Mock()
-    monkeypatch.setattr(telemetry_module.posthog, "capture", mock)
+    mock_capture = Mock()
+    mock_posthog_instance = Mock()
+    mock_posthog_instance.capture = mock_capture
+    mock_posthog_class = Mock(return_value=mock_posthog_instance)
+
+    monkeypatch.setattr(telemetry_module.posthog, "Posthog", mock_posthog_class)
     monkeypatch.setattr(telemetry_module, "_get_telemetry_info", mock_info)
-    yield mock
+    yield mock_capture
 
 
 @pytest.mark.parametrize(
